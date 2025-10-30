@@ -1,7 +1,7 @@
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { Button } from "../components";
+import { Button, Input } from "../components";
 import { RootStackNavigation } from "../navigations/params";
 
 export default function RegisterScreen() {
@@ -12,9 +12,41 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View>
-      <Text>register</Text>
-      <Button title="Registrar" onPress={() => handleMainAppOnPress()} />
+    <View style={styles.container}>
+      <View style={styles.container_content}>
+        <Text style={styles.title}>Register</Text>
+        {/* TODO: place appropriate content, such as text or images */}
+      </View>
+
+      <View>
+        <Input label="Nombre" placeholder="user example" />
+        <Input label="Correo" placeholder="example.user@gmail.com" />
+        <Input label="Contrasenia" placeholder="********" />
+      </View>
+
+      <View style={{ marginTop: 10 }}>
+        <Button title="Registrarse" onPress={() => handleMainAppOnPress()} />
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    padding: 16,
+  },
+  container_inputs: {
+    gap: 8,
+  },
+  container_content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 30,
+  },
+});
