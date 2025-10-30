@@ -1,4 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Home, User } from "lucide-react-native";
 
 import { TabStackParamList } from "./params";
 
@@ -15,6 +16,7 @@ export function TabStackNavigation() {
         component={HomeScreen}
         options={{
           title: "Home",
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tab.Screen
@@ -22,6 +24,7 @@ export function TabStackNavigation() {
         component={ProfileScreen}
         options={{
           title: "Profile",
+          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
     </Tab.Navigator>
