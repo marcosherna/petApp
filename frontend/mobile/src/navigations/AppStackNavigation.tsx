@@ -1,5 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
 import WellcomeScreen from "../screens/WellcomeScreen";
+
 import { RootStackParamList } from "./params";
 import { AuthStackNavigation } from "./AuthStackNavigation";
 import { TabStackNavigation } from "./TabStackNavigation";
