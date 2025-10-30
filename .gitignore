@@ -32,3 +32,45 @@ backend/.env.test.local
 frontend/.env.test.local
 backend/.env.production.local
 frontend/.env.production.local
+
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+frontend/mobile/node_modules/
+
+# Expo
+.expo/
+frontend/mobile/dist/
+frontend/mobile/web-build/
+frontend/mobile/expo-env.d.ts
+
+# Native
+frontend/mobile/.kotlin/
+frontend/mobile/*.orig.*
+frontend/mobile/*.jks
+frontend/mobile/*.p8
+frontend/mobile/*.p12
+frontend/mobile/*.key
+frontend/mobile/*.mobileprovision
+
+# Metro
+frontend/mobile/.metro-health-check*
+
+# debug
+frontend/mobile/npm-debug.*
+frontend/mobile/yarn-debug.*
+frontend/mobile/yarn-error.*
+
+# macOS
+frontend/mobile/.DS_Store
+frontend/mobile/*.pem   
+
+# local env files
+frontend/mobile/.env*.local
+
+# typescript
+frontend/mobile/*.tsbuildinfo
+
+# generated native folders
+frontend/mobile/ios
+frontend/mobile/android
