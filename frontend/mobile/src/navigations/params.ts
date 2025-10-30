@@ -1,5 +1,8 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
-import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
+import type {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from "@react-navigation/native-stack";
 
 export type AuthStackParamList = {
   register: undefined;
@@ -8,18 +11,14 @@ export type AuthStackParamList = {
 
 export type RootStackParamList = {
   wellcome: undefined;
-  auth: NavigatorScreenParams<AuthStackParamList>;
+  auth: NavigatorScreenParams<AuthStackParamList>; 
+  mainApp: undefined;
+};
+
+export type TabStackParamList = {
   home: undefined;
+  profile: undefined;
 };
-
-export type TabParamList = {
-  Home: undefined;
-  Tournaments: undefined;
-  teams: undefined;
-  Community: undefined;
-  Profile: undefined;
-};
-
 
 export type RootStackNavigation = NativeStackNavigationProp<RootStackParamList>;
 

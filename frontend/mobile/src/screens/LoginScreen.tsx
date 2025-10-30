@@ -8,7 +8,7 @@ export default function LoginScreen() {
   const navigation = useNavigation<RootStackNavigation>();
 
   const handleMainAppOnPress = () => {
-    navigation.navigate("home");
+    navigation.navigate("mainApp");
   };
 
   return (

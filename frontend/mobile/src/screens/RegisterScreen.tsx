@@ -8,12 +8,12 @@ export default function RegisterScreen() {
   const navigation = useNavigation<RootStackNavigation>();
 
   const handleMainAppOnPress = () => {
-    navigation.navigate("home");
+    navigation.navigate("mainApp");
   };
 
   return (
     <View>
-      <Text>Login</Text>
+      <Text>register</Text>
       <Button title="Registrar" onPress={() => handleMainAppOnPress()} />
     </View>
   );

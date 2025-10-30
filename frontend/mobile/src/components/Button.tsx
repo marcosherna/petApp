@@ -34,8 +34,6 @@ interface ButtonProps {
   textStyle?: StyleProp<TextStyle>;
 }
 
-
-
 export function Button({
   title = "Button",
   onPress,

@@ -4,7 +4,7 @@ import { RootStackParamList } from "./params";
 
 import WellcomeScreen from "../screens/WellcomeScreen";
 import { AuthStackNavigation } from "./AuthStackNavigation";
-import HomeScreen from "../screens/tabs/HomeScreen";
+import { TabStackNavigation } from "./TabStackNavigation";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -13,7 +13,7 @@ export function MainStackNavigation() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="wellcome" component={WellcomeScreen} />
       <Stack.Screen name="auth" component={AuthStackNavigation} />
-      <Stack.Screen name="home" component={HomeScreen} />
+      <Stack.Screen name="mainApp" component={TabStackNavigation} />
     </Stack.Navigator>
   );
 }
