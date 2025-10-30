@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import { Button } from "../components";
-import { RootStackNavigation } from "../navigations";
+import { RootStackNavigation } from "../navigations/params";
 
 export default function LoginScreen() {
   const navigation = useNavigation<RootStackNavigation>();

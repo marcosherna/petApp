@@ -1,7 +1,7 @@
 import { View, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { wellcomeScreenProps } from "../navigations";
+import { wellcomeScreenProps } from "../navigations/params";
 
 import { Button } from "../components";
 
