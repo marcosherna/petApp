@@ -1,23 +1,24 @@
+// default colors
 export const lightColors = {
-  primary: "#FF6B35",
+  primary: "#3B82F6",
   onPrimary: "#FFFFFF",
-  background: "#F2F2F2",
+  background: "#F9FAFB",
   surface: "#FFFFFF",
-  text: "#1C1B1F",
-  secondaryText: "#5C5C5C",
-  outline: "#E0E0E0",
-  accent: "#00B4D8",
+  text: "#111827",
+  secondaryText: "#6B7280",
+  outline: "#E5E7EB",
+  accent: "#10B981",
 };
 
 export type ThemeColor = typeof lightColors;
 
 export const darkColors: ThemeColor = {
-  primary: "#FF6B35",
-  onPrimary: "#FFFFFF",
-  background: "#121212",
-  surface: "#1E1E1E",
-  text: "#FFFFFF",
-  secondaryText: "#B0B0B0",
-  outline: "#333333",
-  accent: "#00B4D8",
+  primary: "#60A5FA",
+  onPrimary: "#1E293B",
+  background: "#0F172A",
+  surface: "#1E293B",
+  text: "#F9FAFB",
+  secondaryText: "#CBD5E1",
+  outline: "#334155",
+  accent: "#34D399",
 };
