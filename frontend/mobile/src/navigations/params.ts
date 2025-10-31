@@ -11,7 +11,7 @@ export type AuthStackParamList = {
 
 export type RootStackParamList = {
   wellcome: undefined;
-  auth: NavigatorScreenParams<AuthStackParamList>; 
+  auth: NavigatorScreenParams<AuthStackParamList>;
   mainApp: undefined;
 };
 
@@ -36,3 +36,6 @@ export type RegisterScreenProps = NativeStackScreenProps<
   AuthStackParamList,
   "register"
 >;
+
+export type AuthStackScreenProps =
+  NativeStackNavigationProp<AuthStackParamList>;
