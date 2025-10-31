@@ -6,6 +6,7 @@ import {
   StyleProp,
 } from "react-native";
 import * as Lucide from "lucide-react-native";
+import { useTheme } from "../hooks/useTheme"; // 👈 Importamos el tema
 
 type LucideIconName = keyof typeof Lucide;
 type Variant = "default" | "outline" | "contained" | "ghost";
@@ -26,7 +27,7 @@ interface IconButtonProps {
 export function IconButton({
   icon = "Plus",
   size = 24,
-  color = "#10B981",
+  color,
   colorShape,
   onPress,
   disabled = false,
@@ -35,42 +36,36 @@ export function IconButton({
   style,
   ...props
 }: IconButtonProps) {
+  const { theme } = useTheme(); 
+
   const IconComponent = Lucide[icon] as React.ComponentType<{
     size?: number;
     color?: string;
   }>;
 
-  if (!IconComponent) {
-    return null;
-  }
-
-  // Determine background/border color based on variant
-  const getShapeColor = (): string => {
-    if (colorShape) return colorShape;
-    if (variant === "ghost") {
-      // Add transparency for ghost variant
-      return `${color}33`; // 20% opacity (33 in hex)
-    }
-    return color; // Default to icon color
+  if (!IconComponent) return null;
+ 
+  const colors = {
+    icon: color || (variant === "contained" ? theme.onPrimary : theme.primary),
+    shape: colorShape || theme.primary,
+    disabled: theme.outline,
   };
 
   const getButtonStyles = (): StyleProp<ViewStyle> => {
-    const shapeColor = getShapeColor();
-
     switch (variant) {
       case "outline":
         return {
           borderWidth: 1,
-          borderColor: shapeColor,
+          borderColor: colors.shape,
           backgroundColor: "transparent",
         };
       case "contained":
         return {
-          backgroundColor: shapeColor,
+          backgroundColor: colors.shape,
         };
       case "ghost":
         return {
-          backgroundColor: shapeColor, // Transparent version of color
+          backgroundColor: `${colors.shape}33`, 
         };
       case "default":
       default:
@@ -83,12 +78,12 @@ export function IconButton({
   const getShapeStyles = (): StyleProp<ViewStyle> => {
     return shape === "circle"
       ? {
-          borderRadius: size * 1.5, // Ensures circular shape
+          borderRadius: size * 1.5,
           width: size * 2,
           height: size * 2,
         }
       : {
-          borderRadius: 8, // Default rounded square
+          borderRadius: 8,
           padding: 8,
         };
   };
@@ -107,7 +102,10 @@ export function IconButton({
       activeOpacity={0.7}
       {...props}
     >
-      <IconComponent size={size} color={disabled ? "#D1D5DB" : color} />
+      <IconComponent
+        size={size}
+        color={disabled ? colors.disabled : colors.icon}
+      />
     </TouchableOpacity>
   );
 }
@@ -118,6 +116,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.6,
   },
 });
