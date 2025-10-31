@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Button, Input } from "../components";
+import { Button, Input, Label } from "../components";
 import { RootStackNavigation } from "../navigations/params";
 
 export default function LoginScreen() {
@@ -16,7 +16,7 @@ export default function LoginScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <View style={styles.container_content}>
-          <Text style={styles.title}>Login</Text>
+          <Label size="5xl" weight="extrabold">Login</Label>
           {/* TODO: place appropriate content, such as text or images */}
         </View>
 
