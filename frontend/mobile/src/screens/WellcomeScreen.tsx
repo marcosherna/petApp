@@ -21,9 +21,8 @@ export default function WellcomeScreen({ navigation }: wellcomeScreenProps) {
           Pet App
         </Label>
 
-        <Label size="sm" color="gray" align="center" paragraph>
-          Este es un párrafo largo que se ajusta al ancho del dispositivo y
-          mantiene buena legibilidad en móviles.
+        <Label size="sm" color="gray" align="center" paragraph numberOfLines={2}>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate quas ipsa optio explicabo ut? Temporibus rem, corrupti illum tempora delectus soluta magni deserunt dicta illo ullam placeat ab quidem harum?
         </Label>
       </View>
 
