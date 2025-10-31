@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { getTextStyle } from "../helpers/TextStyles";
 import { FontSizeKey, FontWeightKey } from "../resourses/typography";
+import { useTheme } from "../hooks/useTheme";
 
 interface InputProps extends Omit<TextInputProps, "style"> {
   label?: string;
@@ -51,32 +52,51 @@ export function Input({
 
   ...props
 }: InputProps) {
+  const { theme } = useTheme();
+
+  const colors = {
+    label: theme.text,
+    inputBorder: theme.outline,
+    inputBackground: theme.surface,
+    inputText: theme.text,
+    placeholder: theme.secondaryText,
+    error: "#EF4444",
+  };
+
   const labelTextStyle = getTextStyle(
     labelSize,
     labelWeight,
-    "#1F2937",
+    colors.label,
     "left"
   );
   const inputTextStyle = getTextStyle(
     inputSize,
     inputWeight,
-    "#1F2937",
+    colors.inputText,
     "left"
   );
   const errorTextStyle = getTextStyle(
     errorSize,
     errorWeight,
-    "#EF4444",
+    colors.error,
     "left"
   );
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label ? <Text style={[labelTextStyle, labelStyle]}>{label}</Text> : null}
+      {label ? (
+        <Text style={[{ marginBottom: 8 }, labelTextStyle, labelStyle]}>
+          {label}
+        </Text>
+      ) : null}
 
       <TextInput
         style={[
           styles.input,
+          {
+            borderColor: error ? colors.error : colors.inputBorder,
+            backgroundColor: colors.inputBackground,
+          },
           multiline && styles.multilineInput,
           inputTextStyle,
           inputStyle,
@@ -87,7 +107,7 @@ export function Input({
         secureTextEntry={secureTextEntry}
         multiline={multiline}
         keyboardType={keyboardType}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor={colors.placeholder}
         {...props}
       />
 
@@ -103,11 +123,9 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#D1D5DB",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
     minHeight: 48,
   },
   multilineInput: {
