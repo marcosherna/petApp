@@ -10,14 +10,16 @@ import {
 } from "react-native";
 import { FontSizeKey, FontWeightKey } from "../resourses/typography";
 import { getTextStyle } from "../helpers/TextStyles";
+import { useTheme } from "../hooks/useTheme";
 
-type variantTypes = "primary" | "secondary" | "outline";
+type VariantType = "primary" | "secondary" | "outline";
+
 interface ButtonProps {
   title: string;
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: variantTypes;
+  variant?: VariantType;
   textSize?: FontSizeKey;
   textWeight?: FontWeightKey;
   style?: StyleProp<ViewStyle>;
@@ -36,40 +38,50 @@ export function Button({
   textStyle = {},
   ...props
 }: ButtonProps) {
+  const { theme } = useTheme();
+
   const getButtonStyles = (): ViewStyle => {
+    if (disabled) {
+      return {
+        backgroundColor: theme.outline,
+        borderColor: theme.outline,
+      };
+    }
+
     switch (variant) {
       case "secondary":
         return {
-          backgroundColor: "#F9FAFB",
-          borderColor: "#10B981",
+          backgroundColor: theme.surface,
+          borderColor: theme.primary,
           borderWidth: 1,
         };
       case "outline":
         return {
           backgroundColor: "transparent",
-          borderColor: "#10B981",
+          borderColor: theme.primary,
           borderWidth: 1,
         };
       case "primary":
       default:
         return {
-          backgroundColor: "#10B981",
+          backgroundColor: theme.primary,
         };
     }
   };
 
   const getTextColor = (): string => {
-    if (disabled) return "#9CA3AF";
+    if (disabled) return theme.secondaryText;
+
     switch (variant) {
       case "secondary":
       case "outline":
-        return "#10B981";
+        return theme.primary;
       case "primary":
       default:
-        return "#FFFFFF";
+        return theme.onPrimary;
     }
   };
- 
+
   const baseTextStyle = getTextStyle(
     textSize,
     textWeight,
@@ -83,7 +95,6 @@ export function Button({
         styles.button,
         getButtonStyles(),
         disabled && styles.disabled,
-        loading && styles.loading,
         style,
       ]}
       onPress={onPress}
@@ -94,7 +105,7 @@ export function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === "primary" ? "#FFFFFF" : "#10B981"}
+          color={variant === "primary" ? theme.onPrimary : theme.primary}
         />
       ) : (
         <Text style={[baseTextStyle, textStyle]}>{title}</Text>
@@ -111,13 +122,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     minWidth: 100,
-    borderWidth: 0,
   },
   disabled: {
-    backgroundColor: "#D1D5DB",
-    borderColor: "#D1D5DB",
-  },
-  loading: {
     opacity: 0.7,
   },
 });
