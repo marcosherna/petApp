@@ -1,3 +1,4 @@
+import { StatusBar } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import {
@@ -32,12 +33,20 @@ export function AppStackNavigation() {
   };
 
   return (
-    <NavigationContainer theme={navTheme}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="wellcome" component={WellcomeScreen} />
-        <Stack.Screen name="auth" component={AuthStackNavigation} />
-        <Stack.Screen name="mainApp" component={TabStackNavigation} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+      <StatusBar
+        animated
+        barStyle={isDark ? "light-content" : "dark-content"}
+        backgroundColor={theme.surface}
+      />
+
+      <NavigationContainer theme={navTheme}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="wellcome" component={WellcomeScreen} />
+          <Stack.Screen name="auth" component={AuthStackNavigation} />
+          <Stack.Screen name="mainApp" component={TabStackNavigation} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
