@@ -7,10 +7,12 @@ export interface ThemeContextType {
   theme: ThemeColor;
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
+  isDark: boolean;
 }
 
 export const ThemeContext = React.createContext<ThemeContextType>({
   theme: lightColors,
   mode: "system",
   setMode: () => {},
+  isDark: false,
 });
