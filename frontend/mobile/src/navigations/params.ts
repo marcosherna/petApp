@@ -11,8 +11,10 @@ export type AuthStackParamList = {
 
 export type RootStackParamList = {
   wellcome: undefined;
-  auth: NavigatorScreenParams<AuthStackParamList>;
+  // auth: NavigatorScreenParams<AuthStackParamList>;
   mainApp: undefined;
+  authLogin: undefined;
+  authRegister: undefined;
 };
 
 export type TabStackParamList = {

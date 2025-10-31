@@ -7,22 +7,31 @@ import { Button, Label } from "../components";
 
 export default function WellcomeScreen({ navigation }: wellcomeScreenProps) {
   const handleLoginOnPress = () => {
-    navigation.navigate("auth", { screen: "login" });
+    navigation.navigate("authLogin");
   };
 
   const handleRegisterOnPress = () => {
-    navigation.navigate("auth", { screen: "register" });
+    navigation.navigate("authRegister");
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container_content}>
-        <Label size="2xl" weight="bold" align="center">
+        <Label size="6xl" weight="bold" align="center">
           Pet App
         </Label>
 
-        <Label size="sm" color="gray" align="center" paragraph numberOfLines={2}>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate quas ipsa optio explicabo ut? Temporibus rem, corrupti illum tempora delectus soluta magni deserunt dicta illo ullam placeat ab quidem harum?
+        <Label
+          size="sm"
+          color="gray"
+          align="center"
+          paragraph
+          numberOfLines={2}
+        >
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate
+          quas ipsa optio explicabo ut? Temporibus rem, corrupti illum tempora
+          delectus soluta magni deserunt dicta illo ullam placeat ab quidem
+          harum?
         </Label>
       </View>
 
