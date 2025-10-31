@@ -3,20 +3,29 @@ import {
   TextInput,
   View,
   StyleSheet,
-  Text,
   TextInputProps,
   StyleProp,
   TextStyle,
   ViewStyle,
+  Text,
 } from "react-native";
+import { getTextStyle } from "../helpers/TextStyles";
+import { FontSizeKey, FontWeightKey } from "../resourses/typography";
 
-interface InputProps extends TextInputProps {
+interface InputProps extends Omit<TextInputProps, "style"> {
   label?: string;
   error?: string;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
   labelStyle?: StyleProp<TextStyle>;
   errorStyle?: StyleProp<TextStyle>;
+
+  labelSize?: FontSizeKey;
+  labelWeight?: FontWeightKey;
+  inputSize?: FontSizeKey;
+  inputWeight?: FontWeightKey;
+  errorSize?: FontSizeKey;
+  errorWeight?: FontWeightKey;
 }
 
 export function Input({
@@ -28,23 +37,49 @@ export function Input({
   secureTextEntry = false,
   multiline = false,
   keyboardType = "default",
-  style,
   containerStyle,
   inputStyle,
   labelStyle,
   errorStyle,
+
+  labelSize = "md",
+  labelWeight = "semibold",
+  inputSize = "md",
+  inputWeight = "normal",
+  errorSize = "sm",
+  errorWeight = "medium",
+
   ...props
 }: InputProps) {
+  const labelTextStyle = getTextStyle(
+    labelSize,
+    labelWeight,
+    "#1F2937",
+    "left"
+  );
+  const inputTextStyle = getTextStyle(
+    inputSize,
+    inputWeight,
+    "#1F2937",
+    "left"
+  );
+  const errorTextStyle = getTextStyle(
+    errorSize,
+    errorWeight,
+    "#EF4444",
+    "left"
+  );
+
   return (
     <View style={[styles.container, containerStyle]}>
-      {label ? <Text style={[styles.label, labelStyle]}>{label}</Text> : null}
+      {label ? <Text style={[labelTextStyle, labelStyle]}>{label}</Text> : null}
 
       <TextInput
         style={[
           styles.input,
           multiline && styles.multilineInput,
+          inputTextStyle,
           inputStyle,
-          style,
         ]}
         placeholder={placeholder}
         value={value}
@@ -56,7 +91,7 @@ export function Input({
         {...props}
       />
 
-      {error ? <Text style={[styles.error, errorStyle]}>{error}</Text> : null}
+      {error ? <Text style={[errorTextStyle, errorStyle]}>{error}</Text> : null}
     </View>
   );
 }
@@ -66,32 +101,18 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     width: "100%",
   },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: 4,
-  },
   input: {
     borderWidth: 1,
     borderColor: "#D1D5DB",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    fontSize: 16,
     backgroundColor: "#FFFFFF",
-    color: "#1F2937",
     minHeight: 48,
   },
   multilineInput: {
     minHeight: 100,
     paddingTop: 12,
     textAlignVertical: "top",
-  },
-  error: {
-    fontSize: 14,
-    color: "#EF4444",
-    marginTop: 4,
-    fontWeight: "500",
   },
 });

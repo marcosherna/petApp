@@ -8,28 +8,18 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
+import { FontSizeKey, FontWeightKey } from "../resourses/typography";
+import { getTextStyle } from "../helpers/TextStyles";
 
 type variantTypes = "primary" | "secondary" | "outline";
-const variants = {
-  primary: {
-    backgroundColor: "#10B981",
-  },
-  secondary: {
-    backgroundColor: "#F9FAFB",
-  },
-  outline: {
-    backgroundColor: "transparent",
-    borderColor: "#10B981",
-    borderWidth: 1,
-  },
-};
-
 interface ButtonProps {
   title: string;
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
   variant?: variantTypes;
+  textSize?: FontSizeKey;
+  textWeight?: FontWeightKey;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
@@ -39,12 +29,14 @@ export function Button({
   onPress,
   disabled = false,
   loading = false,
-  variant = "primary", // 'primary', 'secondary', or 'outline'
+  variant = "primary",
+  textSize = "md",
+  textWeight = "semibold",
   style = {},
   textStyle = {},
   ...props
 }: ButtonProps) {
-  const getButtonStyles = () => {
+  const getButtonStyles = (): ViewStyle => {
     switch (variant) {
       case "secondary":
         return {
@@ -66,17 +58,24 @@ export function Button({
     }
   };
 
-  const getTextStyles = () => {
+  const getTextColor = (): string => {
+    if (disabled) return "#9CA3AF";
     switch (variant) {
       case "secondary":
-        return { color: "#10B981" };
       case "outline":
-        return { color: "#10B981" };
+        return "#10B981";
       case "primary":
       default:
-        return { color: "#FFFFFF" };
+        return "#FFFFFF";
     }
   };
+ 
+  const baseTextStyle = getTextStyle(
+    textSize,
+    textWeight,
+    getTextColor(),
+    "center"
+  );
 
   return (
     <TouchableOpacity
@@ -93,9 +92,12 @@ export function Button({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator size="small" color="#FFFFFF" />
+        <ActivityIndicator
+          size="small"
+          color={variant === "primary" ? "#FFFFFF" : "#10B981"}
+        />
       ) : (
-        <Text style={[styles.text, getTextStyles(), textStyle]}>{title}</Text>
+        <Text style={[baseTextStyle, textStyle]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
@@ -111,15 +113,9 @@ const styles = StyleSheet.create({
     minWidth: 100,
     borderWidth: 0,
   },
-  text: {
-    fontSize: 16,
-    fontWeight: "600",
-    textAlign: "center",
-  },
   disabled: {
     backgroundColor: "#D1D5DB",
     borderColor: "#D1D5DB",
-    opacity: 0.6,
   },
   loading: {
     opacity: 0.7,
