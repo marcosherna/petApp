@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button, Input } from "../components";
 import { RootStackNavigation } from "../navigations/params";
@@ -12,21 +13,26 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.container_content}>
-        <Text style={styles.title}>Login</Text>
-        {/* TODO: place appropriate content, such as text or images */}
-      </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <View style={styles.container_content}>
+          <Text style={styles.title}>Login</Text>
+          {/* TODO: place appropriate content, such as text or images */}
+        </View>
 
-      <View>
-        <Input label="Correo" placeholder="example.user@gmail.com" />
-        <Input label="Contrasenia" placeholder="********" />
-      </View>
+        <View>
+          <Input label="Correo" placeholder="example.user@gmail.com" />
+          <Input label="Contrasenia" placeholder="********" />
+        </View>
 
-      <View style={{ marginTop: 10 }}>
-        <Button title="Iniciar sesion" onPress={() => handleMainAppOnPress()} />
+        <View style={{ marginTop: 10 }}>
+          <Button
+            title="Iniciar sesion"
+            onPress={() => handleMainAppOnPress()}
+          />
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
