@@ -1,11 +1,10 @@
 import React from "react";
-import { Text, TextProps, TextStyle, PixelRatio } from "react-native";
-import {
-  FontSizeKey,
-  FontWeightKey
-} from "../resourses/typography";
-import { getTextStyle } from "../helpers/TextStyles";
+import { Text, TextProps, TextStyle } from "react-native";
 
+import { getTextStyle } from "../helpers/TextStyles";
+import { FontSizeKey, FontWeightKey } from "../resourses/typography";
+
+import { useTheme } from "../hooks/useTheme";  
 interface LabelProps extends Omit<TextProps, "style"> {
   children: React.ReactNode;
   size?: FontSizeKey;
@@ -21,14 +20,18 @@ export function Label({
   children,
   size = "md",
   weight = "normal",
-  color = "#000000",
+  color,
   align = "left",
   paragraph = false,
   numberOfLines,
   style,
   ...rest
-}: LabelProps) {
-  const textStyle = getTextStyle(size, weight, color, align, paragraph);
+}: LabelProps) { 
+  const { theme } = useTheme();
+ 
+  const resolvedColor = color ?? theme.text;
+
+  const textStyle = getTextStyle(size, weight, resolvedColor, align, paragraph);
 
   return (
     <Text style={[textStyle, style]} numberOfLines={numberOfLines} {...rest}>
