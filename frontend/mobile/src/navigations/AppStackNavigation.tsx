@@ -54,11 +54,11 @@ export function AppStackNavigation() {
             },
           })}
         >
-          <Stack.Screen
+          {/* <Stack.Screen
             name="wellcome"
             component={WellcomeScreen}
             options={{ headerShown: false }}
-          />
+          /> */}
           {/* <Stack.Screen name="auth" component={AuthStackNavigation} /> */}
           <Stack.Screen
             name="mainApp"
