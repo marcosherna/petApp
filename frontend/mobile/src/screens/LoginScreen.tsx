@@ -1,16 +1,19 @@
+import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
-import { Button, Input, Label } from "../components";
+import { Button, Input, Label, Loading } from "../components";
 import { RootStackNavigation } from "../navigations/params";
 
 import { spacing } from "../resourses/spacing";
 
 import { useForm } from "../hooks/useForm";
+import { loginUser } from "../network/services/authService";
 
 export default function LoginScreen() {
+  const [loading, setLoading] = React.useState(false);
   const navigation = useNavigation<RootStackNavigation>();
 
   const { values, errors, handleChange, validateForm, isFormValid } = useForm({
@@ -26,12 +29,23 @@ export default function LoginScreen() {
     },
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const valid = validateForm();
     if (!valid) return;
-    console.log("Formulario válido:", values);
+    try {
+      setLoading(true);
+      const { email, password } = values;
 
-    if (navigation.canGoBack()) navigation.pop();
+      const usersession = await loginUser(email, password);
+      console.log(usersession);
+
+      if (navigation.canGoBack()) navigation.pop();
+    } catch (error) {
+      // TOOD: implement toast
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,6 +89,8 @@ export default function LoginScreen() {
           />
         </View>
       </KeyboardAwareScrollView>
+
+      <Loading visible={loading} />
     </SafeAreaView>
   );
 }
