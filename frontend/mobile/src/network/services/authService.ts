@@ -3,10 +3,7 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile,
   User,
-} from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-
-import { database } from "../firebase";
+} from "firebase/auth"; 
 import { app } from "../../../firebaseConfig";
 
 const auth = getAuth(app);
@@ -23,13 +20,7 @@ export const registerUser = async (
   );
 
   const user = userCredential.user;
-  await updateProfile(user, { displayName: name });
-  await setDoc(doc(database, "users", user.uid), {
-    name,
-    email,
-    createdAt: serverTimestamp(),
-  });
-
+  await updateProfile(user, { displayName: name }); 
   return user;
 };
 
