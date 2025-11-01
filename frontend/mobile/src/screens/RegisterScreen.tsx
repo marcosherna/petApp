@@ -1,21 +1,17 @@
-import { View, Text, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { Button, Input, Label } from "../components";
-import { RootStackNavigation } from "../navigations/params";
+import { spacing } from "../resourses/spacing";
 
 export default function RegisterScreen() {
-  const navigation = useNavigation<RootStackNavigation>();
-
-  const handleMainAppOnPress = () => {
-    navigation.navigate("mainApp");
-  };
+  const handleMainAppOnPress = () => {};
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <View style={styles.container_content}> 
+      <KeyboardAwareScrollView contentContainerStyle={styles.container}>
+        <View style={styles.container_content}>
           <Label size="6xl" weight="extrabold">
             Register
           </Label>
@@ -31,7 +27,7 @@ export default function RegisterScreen() {
         <View style={{ marginTop: 10 }}>
           <Button title="Registrarse" onPress={() => handleMainAppOnPress()} />
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -41,17 +37,14 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     justifyContent: "flex-end",
-    padding: 16,
+    padding: spacing.md,
   },
   container_inputs: {
-    gap: 8,
+    gap: spacing.md,
   },
   container_content: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  title: {
-    fontSize: 30,
   },
 });
