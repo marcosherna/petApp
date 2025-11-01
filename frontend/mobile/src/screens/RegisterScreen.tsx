@@ -1,16 +1,21 @@
-import { View, StyleSheet, TextInput } from "react-native";
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useNavigation } from "@react-navigation/native";
 
-import { Button, Input, Label } from "../components";
+import { Button, Input, Label, Loading } from "../components";
 import { spacing } from "../resourses/spacing";
 import { useForm } from "../hooks/useForm";
 
 import { RootStackNavigation } from "../navigations/params";
 
+import { registerUser } from "../network/services/authService";
+
 export default function RegisterScreen() {
   const navigation = useNavigation<RootStackNavigation>();
+  const [loading, setLoading] = React.useState(false);
+
   const { values, errors, handleChange, validateForm, isFormValid } = useForm({
     initialValues: {
       name: "",
@@ -26,12 +31,23 @@ export default function RegisterScreen() {
     },
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const valid = validateForm();
     if (!valid) return;
     console.log("Formulario válido:", values);
 
-    if (navigation.canGoBack()) navigation.pop();
+    try {
+      setLoading(true);
+      const { name, email, password } = values;
+
+      await registerUser(name, email, password);
+      if (navigation.canGoBack()) navigation.pop();
+    } catch (error) {
+      // TODO: implements toast
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -82,11 +98,13 @@ export default function RegisterScreen() {
         <View style={{ marginTop: 10 }}>
           <Button
             title="Registrarse"
-            onPress={() => handleSubmit()}
+            onPress={async () => await handleSubmit()}
             disabled={!isFormValid()}
           />
         </View>
       </KeyboardAwareScrollView>
+
+      <Loading visible={loading} />
     </SafeAreaView>
   );
 }
