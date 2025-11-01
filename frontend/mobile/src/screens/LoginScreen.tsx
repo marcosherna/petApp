@@ -1,57 +1,97 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import { Button, Input, Label } from "../components";
 import { RootStackNavigation } from "../navigations/params";
 
+import { spacing } from "../resourses/spacing";
+
+import { useForm } from "../hooks/useForm";
+
 export default function LoginScreen() {
   const navigation = useNavigation<RootStackNavigation>();
 
-  const handleMainAppOnPress = () => {
-    navigation.navigate("mainApp");
+  const { values, errors, handleChange, validateForm, isFormValid } = useForm({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validations: {
+      email: (value) =>
+        !/\S+@\S+\.\S+/.test(value) ? "Correo no válido" : null,
+      password: (value) =>
+        value.length < 8 ? "Debe tener al menos 8 caracteres" : null,
+    },
+  });
+
+  const handleSubmit = () => {
+    const valid = validateForm();
+    if (!valid) return;
+    console.log("Formulario válido:", values);
+
+    if (navigation.canGoBack()) navigation.pop();
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.container_content}>
-          <Label size="5xl" weight="extrabold">Login</Label>
+          <Label size="5xl" weight="extrabold">
+            Login
+          </Label>
           {/* TODO: place appropriate content, such as text or images */}
         </View>
 
         <View>
-          <Input label="Correo" placeholder="example.user@gmail.com" />
-          <Input label="Contrasenia" placeholder="********" />
+          <Input
+            label="Correo"
+            placeholder="example.user@gmail.com"
+            value={values.email}
+            keyboardType="email-address"
+            onChangeText={(text) => handleChange("email", text)}
+            error={errors.email}
+          />
+
+          <Input
+            label="Contraseña"
+            placeholder="admin-1234"
+            // secureTextEntry={true} TODO: hace ruido visual
+            value={values.password}
+            onChangeText={(text) => handleChange("password", text)}
+            error={errors.password}
+          />
         </View>
 
         <View style={{ marginTop: 10 }}>
           <Button
             title="Iniciar sesion"
-            onPress={() => handleMainAppOnPress()}
+            onPress={() => handleSubmit()}
+            disabled={!isFormValid()}
           />
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     flexDirection: "column",
     justifyContent: "flex-end",
-    padding: 16,
+    padding: spacing.md,
   },
   container_inputs: {
-    gap: 8,
+    gap: spacing.md,
   },
   container_content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  title: {
-    fontSize: 30,
   },
 });
