@@ -24,7 +24,7 @@ export type TabStackParamList = {
 
 export type RootStackNavigation = NativeStackNavigationProp<RootStackParamList>;
 
-export type wellcomeScreenProps = NativeStackScreenProps<
+export type RootScreenProps = NativeStackScreenProps<
   RootStackParamList,
   "wellcome"
 >;
