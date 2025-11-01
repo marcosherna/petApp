@@ -1,12 +1,14 @@
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AppStackNavigation } from "./src/navigations/AppStackNavigation";
 import { ThemeProvider } from "./src/providers/themeProvider";
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AppStackNavigation />
-    </ThemeProvider>
+    <GestureHandlerRootView>
+      <ThemeProvider>
+        <AppStackNavigation />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
