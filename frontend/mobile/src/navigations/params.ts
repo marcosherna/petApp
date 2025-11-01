@@ -35,8 +35,8 @@ export type LoginScreenProps = NativeStackScreenProps<
 >;
 
 export type RegisterScreenProps = NativeStackScreenProps<
-  AuthStackParamList,
-  "register"
+  RootStackParamList,
+  "authRegister"
 >;
 
 export type AuthStackScreenProps =
