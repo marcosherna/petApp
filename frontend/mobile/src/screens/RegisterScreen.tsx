@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useNavigation } from "@react-navigation/native";
@@ -36,7 +36,10 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAwareScrollView contentContainerStyle={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.container_content}>
           <Label size="6xl" weight="extrabold">
             Register
@@ -45,6 +48,10 @@ export default function RegisterScreen() {
         </View>
 
         <View>
+          {/* <TextInput placeholder="asdsdad"></TextInput>
+          <TextInput placeholder="asdsdad"></TextInput>
+          <TextInput placeholder="asdsdad"></TextInput>
+          <TextInput placeholder="asdsdad"></TextInput> */}
           <Input
             label="Nombre"
             placeholder="user example"
@@ -57,14 +64,15 @@ export default function RegisterScreen() {
             label="Correo"
             placeholder="example.user@gmail.com"
             value={values.email}
+            keyboardType="email-address"
             onChangeText={(text) => handleChange("email", text)}
             error={errors.email}
           />
 
           <Input
             label="Contraseña"
-            placeholder="********"
-            secureTextEntry
+            placeholder="admin-1234"
+            // secureTextEntry={true} TODO: hace ruido visual
             value={values.password}
             onChangeText={(text) => handleChange("password", text)}
             error={errors.password}
@@ -85,7 +93,7 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     flexDirection: "column",
     justifyContent: "flex-end",
     padding: spacing.md,
@@ -94,7 +102,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   container_content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
   },
