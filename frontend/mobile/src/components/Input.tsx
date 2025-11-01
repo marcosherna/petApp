@@ -34,8 +34,7 @@ export function Input({
   error = "",
   placeholder = "",
   value,
-  onChangeText,
-  secureTextEntry = false,
+  onChangeText, 
   multiline = false,
   keyboardType = "default",
   containerStyle,
@@ -103,15 +102,14 @@ export function Input({
         ]}
         placeholder={placeholder}
         value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
+        onChangeText={onChangeText} 
         multiline={multiline}
         keyboardType={keyboardType}
         placeholderTextColor={colors.placeholder}
         {...props}
       />
 
-      {error ? <Text style={[errorTextStyle, errorStyle]}>{error}</Text> : null}
+      {/* {error ? <Text style={[errorTextStyle, errorStyle]}>{error}</Text> : null} */}
     </View>
   );
 }
