@@ -134,7 +134,7 @@ export function BottomSheet({
             styles.sheetContainer,
             {
               backgroundColor: theme.surface,
-              shadowColor: theme.text,
+              shadowColor: "black",
             },
             sheetStyle,
           ]}
