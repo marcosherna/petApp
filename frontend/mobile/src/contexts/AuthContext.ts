@@ -7,6 +7,12 @@ type AuthContextType = {
   signOut: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   sigIn: (email: string, password: string) => Promise<void>;
+
+  // modal
+  modalWarningOrInfo: boolean;
+  toggleModalVisibility: () => void;
+  onCloseModal: () => void;
+  onOpenModal: () => void
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -15,4 +21,8 @@ export const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   register: async (name: string, email: string, password: string) => {},
   sigIn: async (email: string, password: string) => {},
+  modalWarningOrInfo: false,
+  toggleModalVisibility: () => {},
+  onCloseModal: () => {},
+  onOpenModal: () => {},
 });

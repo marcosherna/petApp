@@ -5,6 +5,8 @@ import { TabStackParamList } from "./params";
 
 import HomeScreen from "../screens/tabs/HomeScreen";
 import ProfileScreen from "../screens/tabs/ProfileScreen";
+import { IconButton } from "../components";
+import { SettingsButton } from "../components/partials";
 
 const Tab = createBottomTabNavigator<TabStackParamList>();
 
@@ -17,6 +19,8 @@ export function TabStackNavigation() {
         options={{
           title: "Home",
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+
+          headerRight: () => <SettingsButton />,
         }}
       />
       <Tab.Screen

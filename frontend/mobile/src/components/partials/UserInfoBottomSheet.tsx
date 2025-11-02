@@ -13,6 +13,7 @@ import { Avatar } from "../Avatar";
 
 import { useTheme } from "../../hooks/useTheme";
 import { RootStackNavigation } from "../../navigations/params";
+import { useAuth } from "../../hooks/useAuth";
 
 const UserNotLogin = ({ onClose }: { onClose?: () => void }) => {
   const { theme } = useTheme();
@@ -76,21 +77,41 @@ const UserNotLogin = ({ onClose }: { onClose?: () => void }) => {
   );
 };
 
-const UserLogin = () => {
+const UserLogin = ({ onClose }: { onClose?: () => void }) => {
+  const { user, signOut } = useAuth();
+
+  const handleOnSignIn = async () => {
+    try {
+      await signOut();
+      onClose?.();
+    } catch (error) {
+      // TODO: implement toast
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <View style={[style.container, style.container_user]}>
-        <Avatar name="Maros Enrique." size="small" online={false} />
+        <Avatar
+          name={user?.displayName ?? "D. E"}
+          size="small"
+          online={false}
+        />
         <View>
-          <Label size="xl">Marcos Enrique Ramos</Label>
-          <Label color="gray">user.example@gmail.com</Label>
+          <Label size="xl">{user?.displayName ?? " "}</Label>
+          <Label color="gray">{user?.email ?? " "}</Label>
         </View>
       </View>
 
       <Label color="gray">Acciones</Label>
       <View style={style.container_buttons}>
         <View style={style.container_buttons_actions}>
-          <IconButton icon="LogOut" variant="ghost" onPress={() => {}} />
+          <IconButton
+            icon="LogOut"
+            variant="ghost"
+            onPress={() => handleOnSignIn()}
+          />
           <IconButton icon="Settings" variant="ghost" onPress={() => {}} />
           <IconButton icon="MessageSquare" variant="ghost" onPress={() => {}} />
         </View>
@@ -101,18 +122,24 @@ const UserLogin = () => {
   );
 };
 
-interface UserInfoButtomSheetProps {
+interface UserInfoBottomSheetProps {
   show?: boolean;
   onClose?: () => void;
 }
 
-export function UserInfoButtomSheet({
+export function UserInfoBottomSheet({
   show = false,
   onClose,
-}: UserInfoButtomSheetProps) {
+}: UserInfoBottomSheetProps) {
+  const { user } = useAuth();
+
   return (
     <BottomSheet visible={show} onClose={onClose}>
-      {false ? <UserLogin /> : <UserNotLogin onClose={onClose} />}
+      {user ? (
+        <UserLogin onClose={onClose} />
+      ) : (
+        <UserNotLogin onClose={onClose} />
+      )}
     </BottomSheet>
   );
 }

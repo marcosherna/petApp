@@ -7,19 +7,21 @@ import {
   Theme as NavigationTheme,
 } from "@react-navigation/native";
 
-import WellcomeScreen from "../screens/WellcomeScreen";
-
 import { RootStackParamList } from "./params";
-import { AuthStackNavigation } from "./AuthStackNavigation";
+
 import { TabStackNavigation } from "./TabStackNavigation";
-import { useTheme } from "../hooks/useTheme";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
+
+import { useTheme } from "../hooks/useTheme";
+import { UserInfoBottomSheet } from "../components/partials";
+import { useAuth } from "../hooks/useAuth";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppStackNavigation() {
   const { theme, isDark } = useTheme();
+  const { modalWarningOrInfo, onCloseModal } = useAuth();
 
   const navTheme: NavigationTheme = {
     dark: isDark,
@@ -68,6 +70,8 @@ export function AppStackNavigation() {
           <Stack.Screen name="authLogin" component={LoginScreen} />
           <Stack.Screen name="authRegister" component={RegisterScreen} />
         </Stack.Navigator>
+
+        <UserInfoBottomSheet show={modalWarningOrInfo} onClose={onCloseModal} />
       </NavigationContainer>
     </>
   );

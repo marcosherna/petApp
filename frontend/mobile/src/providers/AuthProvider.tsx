@@ -15,6 +15,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [modalVisibility, setModalVisibility] = useState(false);
 
   useEffect(() => {
     const unsubscribe = unsubscribeSession((userSession) => {
@@ -33,8 +34,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     await signInUser(email, password);
   };
 
+  const toggleModal = () => setModalVisibility((prev) => !prev);
+  const onClose = () => setModalVisibility(false);
+  const onOpen = () => setModalVisibility(true);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, register, sigIn }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signOut,
+        register,
+        sigIn,
+        modalWarningOrInfo: modalVisibility,
+        toggleModalVisibility: toggleModal,
+        onCloseModal: onClose,
+        onOpenModal: onOpen
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
