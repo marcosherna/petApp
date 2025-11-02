@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 
-export default function HomeScreen() { 
+export default function HomeScreen() {
   return (
     <View
       style={{
@@ -10,8 +10,6 @@ export default function HomeScreen() {
         alignItems: "center",
         gap: 8,
       }}
-    > 
- 
-    </View>
+    ></View>
   );
 }
