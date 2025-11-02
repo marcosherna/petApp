@@ -9,10 +9,11 @@ import { RootStackNavigation } from "../navigations/params";
 
 import { spacing } from "../resourses/spacing";
 
-import { useForm } from "../hooks/useForm";
-import { loginUser } from "../network/services/authService";
+import { useForm } from "../hooks/useForm"; 
+import { useAuth } from "../hooks/useAuth";
 
 export default function LoginScreen() {
+  const { sigIn } = useAuth()
   const [loading, setLoading] = React.useState(false);
   const navigation = useNavigation<RootStackNavigation>();
 
@@ -36,8 +37,7 @@ export default function LoginScreen() {
       setLoading(true);
       const { email, password } = values;
 
-      const usersession = await loginUser(email, password);
-      console.log(usersession);
+      await sigIn(email, password); 
 
       if (navigation.canGoBack()) navigation.pop();
     } catch (error) {

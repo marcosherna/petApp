@@ -9,10 +9,11 @@ import { spacing } from "../resourses/spacing";
 import { useForm } from "../hooks/useForm";
 
 import { RootStackNavigation } from "../navigations/params";
-
-import { registerUser } from "../network/services/authService";
+ 
+import { useAuth } from "../hooks/useAuth";
 
 export default function RegisterScreen() {
+  const { register } = useAuth();
   const navigation = useNavigation<RootStackNavigation>();
   const [loading, setLoading] = React.useState(false);
 
@@ -40,7 +41,7 @@ export default function RegisterScreen() {
       setLoading(true);
       const { name, email, password } = values;
 
-      await registerUser(name, email, password);
+      await register(name, email, password);
       if (navigation.canGoBack()) navigation.pop();
     } catch (error) {
       // TODO: implements toast

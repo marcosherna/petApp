@@ -1,33 +1,41 @@
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   updateProfile,
-  User,
   signInWithEmailAndPassword,
-} from "firebase/auth"; 
-import { app } from "../../../firebaseConfig";
+  onAuthStateChanged,
+  User,
+} from "firebase/auth";
 
-const auth = getAuth(app);
+import { auth as authenticate } from "../firebase";
 
-export const registerUser = async (
+// const auth = getAuth(app);
+
+export const unsubscribeSession = (callback: (user: User | null) => void) =>
+  onAuthStateChanged(authenticate, (currentUser) => {
+    callback(currentUser);
+  });
+
+ 
+
+export const register = async (
   name: string,
   email: string,
   password: string
 ) => {
   const userCredential = await createUserWithEmailAndPassword(
-    auth,
+    authenticate,
     email,
     password
   );
 
   const user = userCredential.user;
-  await updateProfile(user, { displayName: name }); 
+  await updateProfile(user, { displayName: name });
   return user;
 };
 
-export const loginUser = async (email: string, password: string) => {
+export const sigIn  = async (email: string, password: string) => {
   const userCredential = await signInWithEmailAndPassword(
-    auth,
+    authenticate,
     email,
     password
   );
@@ -36,6 +44,6 @@ export const loginUser = async (email: string, password: string) => {
   return user;
 };
 
-export const logoutUser = async () => {
-  await auth.signOut();
+export const signOut = async () => {
+  await authenticate.signOut();
 };
