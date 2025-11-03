@@ -20,6 +20,7 @@ export type RootStackParamList = {
 export type TabStackParamList = {
   home: undefined;
   profile: undefined;
+  addProducto: undefined;
 };
 
 export type RootStackNavigation = NativeStackNavigationProp<RootStackParamList>;
