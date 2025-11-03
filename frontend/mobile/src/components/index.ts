@@ -8,3 +8,7 @@ export * from "./ToggleThemeButton";
 export * from "./Avatar";
 export * from "./Loading";
 export * from "./headerLogo";
+export * from "./SearchBar";
+export * from "./Card";
+export * from "./ProductCard";
+
