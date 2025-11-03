@@ -1,6 +1,8 @@
 import React from "react";
 import { View, StyleSheet, FlatList } from "react-native";
-import { IconButton, Label, SearchBar, ProductCard } from "../../components";
+
+import { SearchBar } from "../../components/ui" 
+import { IconButton, Label, ProductCard } from "../../components";
 
 import { EmptyTemplate } from "../../components/ui";
 

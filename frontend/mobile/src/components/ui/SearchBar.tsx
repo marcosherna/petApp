@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { Search } from "lucide-react-native";
 
-import { FontSizeKey, FontWeightKey } from "../resourses/typography";
-import { useTheme } from "../hooks/useTheme";
-import { getTextStyle } from "../helpers/TextStyles";
-import { iconography } from "../resourses/iconography";
+import { FontSizeKey, FontWeightKey } from "../../resourses/typography";
+import { useTheme } from "../../hooks/useTheme";
+import { getTextStyle } from "../../helpers/TextStyles";
+import { iconography } from "../../resourses/iconography";
 
 interface SearchBarProps
   extends Omit<TextInputProps, "style" | "keyboardType" | "multiline"> {
