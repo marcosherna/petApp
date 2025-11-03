@@ -18,10 +18,10 @@ import { iconography } from "../resourses/iconography";
 import Score from "./Score";
 
 interface ProductCardProps {
-  id: number;
+  id: number | string;
   name: string;
   price: number | string;
-  img: string;
+  img?: string;
   score: number;
   style?: StyleProp<ViewStyle>;
   onSelected?: () => void;
@@ -31,7 +31,7 @@ export function ProductCard({
   id,
   name,
   price,
-  img,
+  img = "https://b2bmart.vn/images/placeholder.jpg",
   score,
   style,
   onSelected,

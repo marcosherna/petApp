@@ -7,50 +7,33 @@ import {
   ProductCard,
   EmptyTemplate,
 } from "../../components";
+
 import { spacing } from "../../resourses/spacing";
 
-const categories = [
-  {
-    id: 1,
-    name: "Comida",
-    icon: "Salad",
-    color: "#4CAF50",
-  },
-  {
-    id: 2,
-    name: "Juguetes",
-    icon: "Shapes",
-    color: "#FFB300",
-  },
-  {
-    id: 3,
-    name: "Higiene",
-    icon: "Bubbles",
-    color: "#03A9F4",
-  },
-  {
-    id: 4,
-    name: "Salud",
-    icon: "HeartPulse",
-    color: "#E91E63",
-  },
-];
-
-const products = Array.from({ length: 20 }, (_, index) => ({
-  id: index,
-  name: `Nombre del producto - ${index + 1}`,
-  img: "https://tse3.mm.bing.net/th/id/OIP.3pOeyUigURQY4TJm7tAFIwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
-  score: 2,
-  price: 10 * index,
-}));
-
+import { subscribeToProducts, categoriesOptions } from "../../network/services";
+import { Product, CategoryOptions } from "../../network/models";
+ 
 export default function HomeScreen() {
-  const handleSelectCategory = (category: { id: number; name: string }) => {
+  const [loading, setLoading] = React.useState(true);
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [error, setError] = React.useState(null);
+
+  React.useEffect(() => {
+    const unsubscribe = subscribeToProducts(
+      (products) => { 
+        setProducts(products);
+      },
+      (err) => setError(err)
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSelectCategory = (category: CategoryOptions) => {
     // TODO: aplicar filtros
   };
 
-  const handleSelectedProduct = (product: any) => {
-    // TODO: navegacion hacia el detalle
+  const handleSelectedProduct = (product: Product) => {
     console.log(product);
   };
 
@@ -59,7 +42,7 @@ export default function HomeScreen() {
       <SearchBar placeholder="Buscar comida, juguetes y más..." />
       <Label weight="bold">Explora por Categoría</Label>
       <View style={styles.categories_container}>
-        {categories.map((category, index) => (
+        {categoriesOptions.map((category, index) => (
           <View key={index} style={styles.category}>
             <IconButton
               icon={category.icon as any}
@@ -92,7 +75,7 @@ export default function HomeScreen() {
         <ProductCard
           id={item.id}
           name={item.name}
-          img={item.img}
+          img={item.imgCover}
           price={item.price}
           score={item.score}
           style={{ flex: 1, marginBottom: spacing.md }}
