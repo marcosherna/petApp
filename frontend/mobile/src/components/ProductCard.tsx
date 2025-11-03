@@ -1,21 +1,12 @@
 import React from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
-import { Star } from "lucide-react-native";
+import { View, Image, StyleSheet, StyleProp, ViewStyle } from "react-native";
 
 import { IconButton } from "./IconButton";
-
 import { Card } from "./Card";
 import { Label } from "./Label";
-import { iconography } from "../resourses/iconography";
 import Score from "./Score";
+
+import { iconography } from "../resourses/iconography";
 
 interface ProductCardProps {
   id: number | string;
@@ -37,43 +28,50 @@ export function ProductCard({
   onSelected,
 }: ProductCardProps) {
   return (
-    <Card style={style} pressable onPress={onSelected}>
-      <View style={styles.imageContainer}>
-        <Image
-          source={{
-            uri: img,
-          }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-
-        <View style={styles.heartButton}>
-          <IconButton
-            icon="Heart"
-            variant="ghost"
-            color="#E4080A"
-            colorShape="#E4080A"
-            shape="circle"
+    <Card style={[styles.card, style]} pressable onPress={onSelected}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "space-between",
+        }}
+      >
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: img }}
+            style={styles.image}
+            resizeMode="cover"
           />
+
+          <View style={styles.heartButton}>
+            <IconButton
+              icon="Heart"
+              variant="ghost"
+              color="#E4080A"
+              colorShape="#E4080A"
+              shape="circle"
+            />
+          </View>
         </View>
-      </View>
 
-      <View style={styles.content}>
-        <Label align="center" weight="bold" numberOfLines={2}>
-          {name}
-        </Label>
-        <Score score={score} />
-
-        <View style={styles.footer}>
-          <Label weight="bold" size="lg">
-            ${price}
+        <View style={styles.content}>
+          <Label align="center" weight="bold" numberOfLines={2}>
+            {name}
           </Label>
-          <IconButton
-            icon="ShoppingCart"
-            size={iconography.sm}
-            variant="ghost"
-            shape="circle"
-          />
+
+          <Score score={score} />
+
+          <View style={styles.footer}>
+            <Label weight="bold" size="lg">
+              ${price}
+            </Label>
+
+            <IconButton
+              icon="ShoppingCart"
+              size={iconography.sm}
+              variant="ghost"
+              shape="circle"
+            />
+          </View>
         </View>
       </View>
     </Card>
@@ -82,38 +80,36 @@ export function ProductCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "white",
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-    alignSelf: "center",
+    backgroundColor: "#fff",
+    elevation: 4,
   },
   imageContainer: {
     position: "relative",
+    width: "100%",
+    height: 160,
+    backgroundColor: "#f5f5f5",
   },
   image: {
-    height: 200,
+    width: "100%",
+    height: "100%",
   },
   heartButton: {
     position: "absolute",
     top: 8,
     right: 8,
+    zIndex: 2,
   },
   content: {
-    padding: 16,
+    padding: 12,
     gap: 8,
-  },
-  rating: {
-    flexDirection: "row",
-    marginVertical: 12,
+    minHeight: 100,
   },
   footer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 8,
   },
 });
