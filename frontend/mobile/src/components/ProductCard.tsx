@@ -1,12 +1,14 @@
 import React from "react";
 import { View, Image, StyleSheet, StyleProp, ViewStyle } from "react-native";
 
-import { IconButton } from "./IconButton";
+import { Shape } from "./ui";
+ 
 import { Card } from "./Card";
 import { Label } from "./Label";
 import Score from "./Score";
 
 import { iconography } from "../resourses/iconography";
+import { Heart, ShoppingCart } from "lucide-react-native";
 
 interface ProductCardProps {
   id: number | string;
@@ -43,13 +45,15 @@ export function ProductCard({
           />
 
           <View style={styles.heartButton}>
-            <IconButton
-              icon="Heart"
+            <Shape
               variant="ghost"
-              color="#E4080A"
               colorShape="#E4080A"
+              color="#E4080A"
               shape="circle"
-            />
+              size={iconography.sm}
+            >
+              <Heart color="#E4080A" size={iconography.sm} />
+            </Shape>
           </View>
         </View>
 
@@ -65,12 +69,9 @@ export function ProductCard({
               ${price}
             </Label>
 
-            <IconButton
-              icon="ShoppingCart"
-              size={iconography.sm}
-              variant="ghost"
-              shape="circle"
-            />
+            <Shape variant="ghost" shape="circle" size={iconography.sm}>
+              <ShoppingCart color="#6f6fe0ff" size={iconography.sm} />
+            </Shape>
           </View>
         </View>
       </View>
@@ -82,7 +83,6 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#fff",
     elevation: 4,
   },
   imageContainer: {
