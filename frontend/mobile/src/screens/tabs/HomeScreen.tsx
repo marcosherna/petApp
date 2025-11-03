@@ -1,18 +1,14 @@
 import React from "react";
 import { View, StyleSheet, FlatList } from "react-native";
-import {
-  IconButton,
-  Label,
-  SearchBar,
-  ProductCard,
-  EmptyTemplate,
-} from "../../components";
+import { IconButton, Label, SearchBar, ProductCard } from "../../components";
+
+import { EmptyTemplate } from "../../components/ui";
 
 import { spacing } from "../../resourses/spacing";
 
 import { subscribeToProducts, categoriesOptions } from "../../network/services";
 import { Product, CategoryOptions } from "../../network/models";
- 
+
 export default function HomeScreen() {
   const [loading, setLoading] = React.useState(true);
   const [products, setProducts] = React.useState<Product[]>([]);
@@ -20,7 +16,7 @@ export default function HomeScreen() {
 
   React.useEffect(() => {
     const unsubscribe = subscribeToProducts(
-      (products) => { 
+      (products) => {
         setProducts(products);
       },
       (err) => setError(err)

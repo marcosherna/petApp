@@ -3,8 +3,8 @@ import { View, Text, StyleSheet } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { Package, Search, AlertCircle } from "lucide-react-native";
 
-import { useTheme } from "../hooks/useTheme";
-import { fontSizes, fontWeights } from "../resourses/typography";
+import { useTheme } from "../../hooks/useTheme";
+import { fontSizes, fontWeights } from "../../resourses/typography";
 
 interface EmptyTemplateProps {
   message?: string;

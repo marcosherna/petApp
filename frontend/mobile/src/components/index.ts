@@ -1,4 +1,3 @@
-import EmptyTemplate from "./EmptyTemplate";
 import SearchBar from "./SearchBar"
 
 export * from "./Button";
@@ -14,4 +13,4 @@ export * from "./headerLogo";
 export * from "./SearchBar"; 
 export * from "./ProductCard";
 
-export { EmptyTemplate, SearchBar };
+export { SearchBar };

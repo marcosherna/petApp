@@ -1,10 +1,9 @@
 import React from "react";
 import { View, Image, StyleSheet, StyleProp, ViewStyle } from "react-native";
 
-import { Shape, Card } from "./ui";
+import { Shape, Card, Score } from "./ui";
 
 import { Label } from "./Label";
-import Score from "./Score";
 
 import { iconography } from "../resourses/iconography";
 import { Heart, ShoppingCart } from "lucide-react-native";
