@@ -1,9 +1,8 @@
 import React from "react";
 import { View, Image, StyleSheet, StyleProp, ViewStyle } from "react-native";
 
-import { Shape } from "./ui";
- 
-import { Card } from "./Card";
+import { Shape, Card } from "./ui";
+
 import { Label } from "./Label";
 import Score from "./Score";
 
