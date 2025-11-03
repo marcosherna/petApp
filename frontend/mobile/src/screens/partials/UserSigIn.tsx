@@ -1,7 +1,8 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 
-import { Avatar, IconButton, Label, ToggleThemeButton } from "../../components";
+import { Avatar } from "../../components/ui";
+import { IconButton, Label, ToggleThemeButton } from "../../components";
 
 import { spacing } from "../../resourses/spacing";
 import { iconography } from "../../resourses/iconography";

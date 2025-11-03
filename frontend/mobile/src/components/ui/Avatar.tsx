@@ -1,8 +1,10 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, ViewStyle } from "react-native";
-import { useTheme } from "../hooks/useTheme";
-import { spacing } from "../resourses/spacing";
-import { fontWeights } from "../resourses/typography";
+
+import { fontWeights } from "../../resourses/typography";
+import { spacing } from "../../resourses/spacing";
+
+import { useTheme } from "../../hooks/useTheme";
 
 type AvatarSize = "small" | "medium" | "large" | number;
 
@@ -17,7 +19,7 @@ interface AvatarProps {
   style?: ViewStyle;
   textStyle?: object;
 }
- 
+
 const getSize = (size: AvatarSize): number => {
   if (typeof size === "number") return size;
   switch (size) {
@@ -31,7 +33,7 @@ const getSize = (size: AvatarSize): number => {
       return 60;
   }
 };
- 
+
 const stringToColor = (str: string): string => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -40,7 +42,7 @@ const stringToColor = (str: string): string => {
   const color = (hash & 0x00ffffff).toString(16).toUpperCase();
   return "#" + "000000".substring(0, 6 - color.length) + color;
 };
- 
+
 const getInitials = (name: string): string => {
   return name
     .trim()
