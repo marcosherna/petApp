@@ -1,26 +1,25 @@
+import React, { memo } from "react";
 import {
   StyleProp,
   TextInputProps,
   TextStyle,
   View,
-  ViewStyle, 
+  ViewStyle,
   TextInput,
   StyleSheet,
 } from "react-native";
+import { Search } from "lucide-react-native";
+
 import { FontSizeKey, FontWeightKey } from "../resourses/typography";
 import { useTheme } from "../hooks/useTheme";
 import { getTextStyle } from "../helpers/TextStyles";
-import { Search } from "lucide-react-native";
-
-
 import { iconography } from "../resourses/iconography";
 
 interface SearchBarProps
   extends Omit<TextInputProps, "style" | "keyboardType" | "multiline"> {
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
-  labelStyle?: StyleProp<TextStyle>;
-  errorStyle?: StyleProp<TextStyle>;
+  inputContainerStyle?: StyleProp<ViewStyle>;
 
   labelSize?: FontSizeKey;
   labelWeight?: FontWeightKey;
@@ -28,14 +27,13 @@ interface SearchBarProps
   inputWeight?: FontWeightKey;
 }
 
-export function SearchBar({
-  placeholder = "",
+const SearchBar: React.FC<SearchBarProps> = ({
+  placeholder = "Buscar...",
   value,
   onChangeText,
   containerStyle,
   inputStyle,
-  labelStyle,
-  errorStyle,
+  inputContainerStyle,
 
   labelSize = "md",
   labelWeight = "semibold",
@@ -43,61 +41,82 @@ export function SearchBar({
   inputWeight = "normal",
 
   ...props
-}: SearchBarProps) {
+}) => {
   const { theme } = useTheme();
 
   const colors = {
-    label: theme.text,
-    inputBorder: theme.outline,
-    inputBackground: theme.surface,
-    inputText: theme.text,
+    border: theme.outline,
+    background: theme.surface,
+    text: theme.text,
     placeholder: theme.secondaryText,
+    icon: theme.secondaryText,
   };
 
   const inputTextStyle = getTextStyle(
     inputSize,
     inputWeight,
-    colors.inputText,
+    colors.text,
     "left"
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        styles.input,
-        {
-          borderColor: colors.inputBorder,
-          backgroundColor: colors.inputBackground,
-        },
-      ]}
-    >
-      <Search color={theme.secondaryText} size={iconography.md}></Search>
+    <View style={[styles.container, containerStyle]}>
+      <View
+        style={[
+          styles.inputContainer,
+          {
+            backgroundColor: colors.background,
+            borderColor: colors.border,
+          },
+          inputContainerStyle,
+        ]}
+      >
+        <Search
+          color={colors.icon}
+          size={iconography.md}
+          strokeWidth={2}
+          style={styles.icon}
+        />
 
-      <TextInput
-        style={[inputTextStyle, inputStyle]}
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
-        placeholderTextColor={colors.placeholder}
-        {...props}
-      />
+        <TextInput
+          style={[styles.input, inputTextStyle, inputStyle]}
+          placeholder={placeholder}
+          placeholderTextColor={colors.placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          autoCorrect={false}
+          autoCapitalize="none"
+          returnKeyType="search"
+          accessible
+          accessibilityLabel="Buscar"
+          accessibilityHint="Campo de búsqueda"
+          {...props}
+        />
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    marginVertical: 8,
     width: "100%",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 48,
     gap: 8,
   },
+  icon: {
+    opacity: 0.8,
+  },
   input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    minHeight: 48,
+    flex: 1,
+    paddingVertical: 0,
   },
 });
+
+export default memo(SearchBar);

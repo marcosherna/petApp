@@ -1,4 +1,5 @@
 import EmptyTemplate from "./EmptyTemplate";
+import SearchBar from "./SearchBar"
 
 export * from "./Button";
 export * from "./Input";
@@ -14,4 +15,4 @@ export * from "./SearchBar";
 export * from "./Card";
 export * from "./ProductCard";
 
-export { EmptyTemplate };
+export { EmptyTemplate, SearchBar };
