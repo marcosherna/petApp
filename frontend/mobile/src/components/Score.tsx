@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { Star } from "lucide-react-native";
-import { useTheme } from "../hooks/useTheme";
+import { Star } from "lucide-react-native"; 
 
 interface ScoreProps {
   score: number;
