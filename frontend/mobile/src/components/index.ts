@@ -1,3 +1,5 @@
+import EmptyTemplate from "./EmptyTemplate";
+
 export * from "./Button";
 export * from "./Input";
 export * from "./Label";
@@ -12,3 +14,4 @@ export * from "./SearchBar";
 export * from "./Card";
 export * from "./ProductCard";
 
+export { EmptyTemplate };
