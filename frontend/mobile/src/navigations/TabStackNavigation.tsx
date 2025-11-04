@@ -1,10 +1,11 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Home, User } from "lucide-react-native";
+import { Home, User, Heart } from "lucide-react-native";
 
 import { TabStackParamList } from "./params";
 
 import HomeScreen from "../screens/tabs/HomeScreen";
 import ProfileScreen from "../screens/tabs/ProfileScreen";
+import FavoritesScreen from "../screens/tabs/FavoritesScreen";
 import { IconButton } from "../components";
 import { SettingsButton } from "../components/partials";
 
@@ -29,6 +30,14 @@ export function TabStackNavigation() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="favorites"
+        component={FavoritesScreen}
+        options={{
+          title: "Favoritos",
+          tabBarIcon: ({ color, size }) => <Heart color={color} size={size} />,
         }}
       />
     </Tab.Navigator>

@@ -1,4 +1,3 @@
-// default colors
 export const lightColors = {
   primary: "#3B82F6",
   onPrimary: "#FFFFFF",
