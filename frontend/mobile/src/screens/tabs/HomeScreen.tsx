@@ -1,34 +1,49 @@
 import React from "react";
 import { View, StyleSheet, FlatList } from "react-native";
 
-import { SearchBar } from "../../components/ui" 
+import { SearchBar, Layout } from "../../components/ui";
 import { IconButton, Label, ProductCard } from "../../components";
 
 import { EmptyTemplate } from "../../components/ui";
 
 import { spacing } from "../../resourses/spacing";
 
-import { subscribeToProducts, categoriesOptions } from "../../network/services";
+import {
+  subscribeToProducts,
+  categoriesOptions,
+  subscribeToProductsWithFilter,
+} from "../../network/services";
 import { Product, CategoryOptions } from "../../network/models";
+import { iconography } from "../../resourses/iconography";
 
 export default function HomeScreen() {
   const [loading, setLoading] = React.useState(true);
+  const [category, setCategory] = React.useState("");
   const [products, setProducts] = React.useState<Product[]>([]);
   const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
-    const unsubscribe = subscribeToProducts(
-      (products) => {
+    let unsubscribe: () => void;
+    if (category && category != "") {
+      unsubscribe = subscribeToProductsWithFilter(
+        [["category", "==", `${category}`]],
+        (products) => {
+          setProducts(products);
+        },
+        (err) => setError(err)
+      );
+    } else {
+      unsubscribe = subscribeToProducts((products) => {
         setProducts(products);
-      },
-      (err) => setError(err)
-    );
+      }, setError);
+    }
 
     return () => unsubscribe();
-  }, []);
+  }, [category]);
 
-  const handleSelectCategory = (category: CategoryOptions) => {
-    // TODO: aplicar filtros
+  const handleSelectCategory = (category: CategoryOptions | null) => {
+    if (category) setCategory(category.name);
+    if (!category) setCategory("");
   };
 
   const handleSelectedProduct = (product: Product) => {
@@ -55,12 +70,30 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      <Label
-        weight="bold"
-        style={{ marginTop: spacing.lg, marginBottom: spacing.md }}
+      <Layout
+        direction="row"
+        alignHorizontal="center"
+        alignVertical="space-between"
       >
-        Recomendado para ti
-      </Label>
+        <Label
+          weight="bold"
+          style={{ marginTop: spacing.lg, marginBottom: spacing.md }}
+        >
+          {category === ""
+            ? "Recomendado para ti"
+            : `Filtrados por ${category}`}
+        </Label>
+
+        {category !== "" && (
+          <IconButton
+            icon="X"
+            size={iconography.xs}
+            variant="ghost"
+            shape="circle"
+            onPress={() => handleSelectCategory(null)}
+          />
+        )}
+      </Layout>
     </View>
   );
 

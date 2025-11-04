@@ -7,4 +7,5 @@ export interface Product {
   price: number;
   score: number;
   imgs: string[];
+  category: string
 }
