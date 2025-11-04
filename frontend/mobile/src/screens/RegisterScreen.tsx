@@ -4,12 +4,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useNavigation } from "@react-navigation/native";
 
-import { Button, Input, Label, Loading } from "../components";
+import { Loading } from "../components/ui";
+import { Button, Input, Label } from "../components";
 import { spacing } from "../resourses/spacing";
 import { useForm } from "../hooks/useForm";
 
 import { RootStackNavigation } from "../navigations/params";
- 
+
 import { useAuth } from "../hooks/useAuth";
 
 export default function RegisterScreen() {

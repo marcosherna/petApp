@@ -4,7 +4,8 @@ import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
-import { Button, Input, Label, Loading } from "../components";
+import { Loading } from "../components/ui";
+import { Button, Input, Label } from "../components";
 import { RootStackNavigation } from "../navigations/params";
 
 import { spacing } from "../resourses/spacing";

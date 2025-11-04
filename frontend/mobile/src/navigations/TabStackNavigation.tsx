@@ -5,7 +5,7 @@ import { TabStackParamList } from "./params";
 
 import HomeScreen from "../screens/tabs/HomeScreen";
 import ProfileScreen from "../screens/tabs/ProfileScreen";
-import { IconButton } from "../components";
+import { HeaderLogo } from "../components";
 import { SettingsButton } from "../components/partials";
 import AddProductoScreen from "../screens/tabs/AddProductoScreen";
 
@@ -18,9 +18,10 @@ export function TabStackNavigation() {
         name="home"
         component={HomeScreen}
         options={{
-          title: "Home",
+          title: "",
+          tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
-
+          headerLeft: () => <HeaderLogo />,
           headerRight: () => <SettingsButton />,
         }}
       />
