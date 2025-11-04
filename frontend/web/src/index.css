@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@import "sal.js/dist/sal.css";
+
+html {
+  scroll-behavior: smooth; 
+}
+ 
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; 
+}
+ 
+[data-sal] {
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
