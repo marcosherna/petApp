@@ -12,13 +12,16 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+
+// 🔁 Íconos Lucide (alias para no chocar con Image de RN)
+import { Image as ImageIcon, List, ChevronDown, ChevronUp, MapPin } from "lucide-react-native";
 
 // Firebase
-import { auth,} from "../../network/firebase";
+import { auth } from "../../network/firebase";
 import { storage, db } from "../../../firebaseConfig";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadToCloudinary, CLOUDINARY } from "../../network/services/imageUpload";
 
 const CATEGORIES = ["Comida", "Juguetes", "Accesorios", "Camas", "Higiene"];
 const SIZES = ["Pequeño", "Mediano", "Grande"];
@@ -66,13 +69,13 @@ export default function AddProductoScreen() {
     return await res.blob();
   };
 
-  const subirImagenAStorage = async (uri: string): Promise<string> => {
-    const user = auth.currentUser;
-    const fileName = `${Date.now()}_${Math.floor(Math.random() * 100000)}.jpg`;
-    const storageRef = ref(storage, `products/${user?.uid ?? "anon"}/${fileName}`);
-    const blob = await uriToBlob(uri);
-    await uploadBytes(storageRef, blob);
-    return await getDownloadURL(storageRef);
+  const subirImagen = async (uri: string): Promise<string> => {
+    try {
+      return await uploadToCloudinary(uri, CLOUDINARY);
+    } catch (error) {
+      console.error("Error subiendo a Cloudinary:", error);
+      throw error;
+    }
   };
 
   const handlePublicar = async () => {
@@ -88,7 +91,7 @@ export default function AddProductoScreen() {
 
       let photoURL: string | null = null;
       if (imageUri) {
-        photoURL = await subirImagenAStorage(imageUri);
+        photoURL = await subirImagen(imageUri);
       }
 
       const docRef = await addDoc(collection(db, "products"), {
@@ -96,8 +99,8 @@ export default function AddProductoScreen() {
         description: descripcion.trim(),
         price: Number(precio),
         location: ubicacion.trim(),
-        category,            // 👈 agregado
-        size,                // 👈 agregado
+        category,
+        size,
         images: photoURL ? [photoURL] : [],
         createdBy: user?.uid ?? null,
         createdAt: serverTimestamp(),
@@ -134,7 +137,7 @@ export default function AddProductoScreen() {
           ) : (
             <>
               <View style={styles.imageIconWrapper}>
-                <Ionicons name="image-outline" size={32} color="#13ec6d" />
+                <ImageIcon size={32} color="#13ec6d" strokeWidth={2} />
               </View>
               <Text style={styles.imageTitle}>Sube una foto de tu producto</Text>
               <Text style={styles.imageSubtitle}>Toca aquí para seleccionar una imagen</Text>
@@ -175,14 +178,14 @@ export default function AddProductoScreen() {
           <View style={styles.dropdownContainer}>
             <TouchableOpacity style={styles.dropdownHeader} onPress={() => setShowCat(!showCat)}>
               <View style={styles.dropdownLeft}>
-                <MaterialCommunityIcons name="format-list-bulleted" size={18} color="#6aa383" />
+                <List size={18} color="#6aa383" />
                 <Text style={styles.dropdownText}>{category}</Text>
               </View>
-              <Ionicons
-                name={showCat ? "chevron-up-outline" : "chevron-down-outline"}
-                size={18}
-                color="#6aa383"
-              />
+              {showCat ? (
+                <ChevronUp size={18} color="#6aa383" />
+              ) : (
+                <ChevronDown size={18} color="#6aa383" />
+              )}
             </TouchableOpacity>
 
             {showCat && (
@@ -241,7 +244,7 @@ export default function AddProductoScreen() {
         <View style={styles.formGroup}>
           <Text style={styles.label}>Ubicación</Text>
           <View style={styles.inputWithIcon}>
-            <Ionicons name="location-outline" size={18} color="#6aa383" style={{ marginRight: 8 }} />
+            <MapPin size={18} color="#6aa383" style={{ marginRight: 8 }} />
             <TextInput
               style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
               placeholder="Ingresa una dirección"
@@ -267,18 +270,9 @@ export default function AddProductoScreen() {
 }
 
 const styles = StyleSheet.create({
-  // contenedor general
-  container: {
-    flex: 1,
-    backgroundColor: "#f6f8f7",
-  },
+  container: { flex: 1, backgroundColor: "#f6f8f7" },
+  content: { padding: 16 },
 
-  // cuerpo principal
-  content: {
-    padding: 16,
-  },
-
-  // sección de imagen
   imageUploader: {
     alignItems: "center",
     borderWidth: 2,
@@ -290,176 +284,65 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   imageIconWrapper: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 56, height: 56, borderRadius: 28,
     backgroundColor: "#e9fbf1",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "center", justifyContent: "center",
     marginBottom: 8,
   },
-  preview: {
-    width: "100%",
-    height: 220,
-    borderRadius: 12,
-    resizeMode: "cover",
-  },
-  imageTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  imageSubtitle: {
-    fontSize: 13,
-    color: "#618972",
-    marginTop: 6,
-    marginBottom: 10,
-  },
+  preview: { width: "100%", height: 220, borderRadius: 12, resizeMode: "cover" },
+  imageTitle: { fontWeight: "bold", fontSize: 16 },
+  imageSubtitle: { fontSize: 13, color: "#618972", marginTop: 6, marginBottom: 10 },
   selectButton: {
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 24,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    backgroundColor: "#f8faf9",
+    borderWidth: 1, borderColor: "#dbe6e0", borderRadius: 24,
+    paddingVertical: 10, paddingHorizontal: 16, backgroundColor: "#f8faf9",
   },
-  selectButtonText: {
-    fontWeight: "bold",
-    fontSize: 14,
-  },
+  selectButtonText: { fontWeight: "bold", fontSize: 14 },
 
-  // campos del formulario
-  formGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 15,
-    fontWeight: "600",
-    marginBottom: 6,
-    color: "#2d3b34",
-  },
+  formGroup: { marginBottom: 16 },
+  label: { fontSize: 15, fontWeight: "600", marginBottom: 6, color: "#2d3b34" },
   input: {
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 14,
-    height: 48,
-    fontSize: 15,
-    color: "#1c2b24",
+    borderWidth: 1, borderColor: "#dbe6e0", borderRadius: 12,
+    backgroundColor: "#ffffff", paddingHorizontal: 14, height: 48, fontSize: 15, color: "#1c2b24",
   },
-  textArea: {
-    height: 120,
-    textAlignVertical: "top",
-  },
+  textArea: { height: 120, textAlignVertical: "top" },
 
-  // Dropdown categoría
-  dropdownContainer: {
-    position: "relative",
-  },
+  dropdownContainer: { position: "relative" },
   dropdownHeader: {
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    height: 48,
-    paddingHorizontal: 12,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
+    borderWidth: 1, borderColor: "#dbe6e0", borderRadius: 12,
+    backgroundColor: "#ffffff", height: 48, paddingHorizontal: 12,
+    alignItems: "center", flexDirection: "row", justifyContent: "space-between",
   },
-  dropdownLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  dropdownText: {
-    marginLeft: 8,
-    fontSize: 15,
-    color: "#1c2b24",
-  },
+  dropdownLeft: { flexDirection: "row", alignItems: "center" },
+  dropdownText: { marginLeft: 8, fontSize: 15, color: "#1c2b24" },
   dropdownList: {
-    marginTop: 6,
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    overflow: "hidden",
+    marginTop: 6, borderWidth: 1, borderColor: "#dbe6e0",
+    borderRadius: 12, backgroundColor: "#ffffff", overflow: "hidden",
   },
-  dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  dropdownItemActive: {
-    backgroundColor: "#e9fbf1",
-  },
-  dropdownItemText: {
-    fontSize: 15,
-    color: "#1c2b24",
-  },
-  dropdownItemTextActive: {
-    fontWeight: "700",
-    color: "#2d7a52",
-  },
+  dropdownItem: { paddingVertical: 10, paddingHorizontal: 12 },
+  dropdownItemActive: { backgroundColor: "#e9fbf1" },
+  dropdownItemText: { fontSize: 15, color: "#1c2b24" },
+  dropdownItemTextActive: { fontWeight: "700", color: "#2d7a52" },
 
-  // Tamaño chips
-  sizeRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
+  sizeRow: { flexDirection: "row", gap: 8 },
   chip: {
-    paddingHorizontal: 14,
-    height: 38,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "#cfe4d7",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ffffff",
+    paddingHorizontal: 14, height: 38, borderRadius: 22, borderWidth: 1,
+    borderColor: "#cfe4d7", alignItems: "center", justifyContent: "center", backgroundColor: "#ffffff",
   },
-  chipActive: {
-    backgroundColor: "#13ec6d",
-    borderColor: "#13ec6d",
-  },
-  chipText: {
-    fontWeight: "600",
-    color: "#2d3b34",
-  },
-  chipTextActive: {
-    color: "#0e0f0e",
-  },
+  chipActive: { backgroundColor: "#13ec6d", borderColor: "#13ec6d" },
+  chipText: { fontWeight: "600", color: "#2d3b34" },
+  chipTextActive: { color: "#0e0f0e" },
 
-  // input con icono
   inputWithIcon: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 12,
-    height: 48,
+    flexDirection: "row", alignItems: "center",
+    borderWidth: 1, borderColor: "#dbe6e0", borderRadius: 12,
+    backgroundColor: "#ffffff", paddingHorizontal: 12, height: 48,
   },
 
-  // botón inferior
-  footer: {
-    borderTopWidth: 1,
-    borderColor: "#dbe6e0",
-    backgroundColor: "#ffffff",
-    padding: 16,
-  },
+  footer: { borderTopWidth: 1, borderColor: "#dbe6e0", backgroundColor: "#ffffff", padding: 16 },
   publishButton: {
-    backgroundColor: "#13ec6d",
-    borderRadius: 12,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#13ec6d",
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: "#13ec6d", borderRadius: 12, height: 50,
+    justifyContent: "center", alignItems: "center", shadowColor: "#13ec6d",
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 3,
   },
-  publishText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000000",
-  },
+  publishText: { fontSize: 16, fontWeight: "bold", color: "#000000" },
 });
