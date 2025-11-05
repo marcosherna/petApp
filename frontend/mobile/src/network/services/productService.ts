@@ -1,8 +1,36 @@
 import { WhereFilterOp } from "firebase/firestore";
 import { productCollection, subscribe, subscribeWithFilter } from "../firebase";
-import { Product } from "../models/Product";
+import { Product } from "../models/Product"; 
 
 const collectionName = productCollection();
+
+const productMapper = (product: any): Product => {
+  const images = Array.isArray(product.images)
+    ? product.images
+    : [];
+
+  return {
+    ...product,
+    imgs: images,
+    imgCover:
+      images.length > 0
+        ? images[0]
+        : "https://b2bmart.vn/images/placeholder.jpg",
+    price: parseFloat(product.price ?? 0),
+    score: parseFloat(product.score ?? 0),
+    author: product.author
+      ? {
+          name: product.author.name ?? "Autor desconocido",
+          photoURL: product.author.photoURL ?? null,
+          uid: product.author.uid ?? null,
+        }
+      : {
+          name: "Autor desconocido",
+          photoURL: null,
+          uid: null,
+        },
+  };
+};
 
 export const subscribeToProducts = (
   setProducts: (products: Product[]) => void,
@@ -11,21 +39,7 @@ export const subscribeToProducts = (
   const unsubscribe = subscribe(
     collectionName,
     (products) => {
-      const mapper = products.map((product) => {
-        const { id, name, description, price, score, category, images } =
-          product;
-        return {
-          id,
-          name,
-          description,
-          imgs: images,
-          imgCover: images.length >= 0 ? images[0] : "",
-          price: parseFloat(price),
-          score: parseFloat(score),
-          category,
-        } as Product;
-      });
-
+      const mapper = products.map(productMapper);
       setProducts(mapper);
     },
     onError
@@ -45,16 +59,7 @@ export const subscribeToProductsWithFilter = (
     collectionName,
     filters,
     (products: any) => {
-      const mapper = products.map((product: any) => {
-        return {
-          ...product,
-          imgs: product.images,
-          imgCover: product.images.length >= 0 ? product.images[0] : "",
-          price: parseFloat(product.price),
-          score: parseFloat(product.score),
-        } as Product;
-      });
-
+      const mapper = products.map(productMapper); 
       setProducts(mapper);
     },
     onError,

@@ -42,11 +42,19 @@ export default function ProductDetailScreen({
     { label: " 10kg", value: "10" },
   ];
 
-  const images = [
-    { id: 1, source: { uri: "https://picsum.photos/800/400?random=1" } },
-    { id: 2, source: { uri: "https://picsum.photos/800/400?random=2" } },
-    { id: 3, source: { uri: "https://picsum.photos/800/400?random=3" } },
-  ];
+  const images =
+    product.imgs.length > 0
+      ? product.imgs.map((img, index) => ({
+          id: index,
+          source: { uri: img },
+        }))
+      : [
+          {
+            id: 1,
+            source: { uri: "https://b2bmart.vn/images/placeholder.jpg" },
+          },
+        ];
+ 
 
   return (
     <SafeAreaView style={styles.container}>
@@ -72,7 +80,7 @@ export default function ProductDetailScreen({
           <Label size="3xl" weight="bold">
             {product.name}
           </Label>
-          <Label color="gray">Sabor Pollo y Arroz</Label>
+          <Label color="gray">{product.author?.name}</Label>
           <Layout
             direction="row"
             alignVertical="space-between"

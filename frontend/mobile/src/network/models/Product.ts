@@ -1,3 +1,4 @@
+import { Author } from "./Author";
 
 export interface Product {
   id: number | string;
@@ -7,4 +8,6 @@ export interface Product {
   price: number;
   score: number;
   imgs: string[];  category: string
+  author: Author | null
+
 }
