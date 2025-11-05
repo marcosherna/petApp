@@ -18,7 +18,7 @@ import { Image as ImageIcon, List, ChevronDown, ChevronUp, MapPin } from "lucide
 
 // Firebase
 import { auth } from "../../network/firebase";
-import { storage, db } from "../../../firebaseConfig";
+import { storage, db } from "../../network/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { uploadToCloudinary, CLOUDINARY } from "../../network/services/imageUpload";
