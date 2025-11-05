@@ -11,7 +11,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
+//import * as ImagePicker from "expo-image-picker";
 
 // 🔁 Íconos Lucide (alias para no chocar con Image de RN)
 import { Image as ImageIcon, List, ChevronDown, ChevronUp, MapPin } from "lucide-react-native";
