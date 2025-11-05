@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Home, User, Heart } from "lucide-react-native";
+
+import { Home, User, Heart, Package } from "lucide-react-native";
 
 import { TabStackParamList } from "./params";
 
@@ -11,6 +12,7 @@ import FavoritesScreen from "../screens/tabs/FavoritesScreen";
 import { HeaderLogo } from "../components";
 
 import { SettingsButton } from "../components/partials";
+import AddProductoScreen from "../screens/tabs/AddProductoScreen";
 
 const Tab = createBottomTabNavigator<TabStackParamList>();
 
@@ -41,6 +43,16 @@ export function TabStackNavigation() {
         options={{
           title: "Favoritos",
           tabBarIcon: ({ color, size }) => <Heart color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="addProducto"
+        component={AddProductoScreen}
+        options={{
+          title: "Agregar Producto",
+          tabBarIcon: ({ color, size }) => (
+            <Package color={color} size={size} />
+          ),
         }}
       />
     </Tab.Navigator>
