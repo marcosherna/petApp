@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet, FlatList } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import { SearchBar, Layout } from "../../components/ui";
 import { IconButton, Label, ProductCard } from "../../components";
@@ -15,13 +16,15 @@ import {
 } from "../../network/services";
 import { Product, CategoryOptions } from "../../network/models";
 import { iconography } from "../../resourses/iconography";
-import { RootScreenProps } from "../../navigations/params";
+import { RootScreenProps, RootStackNavigation } from "../../navigations/params";
 
-export default function HomeScreen({ navigation }: RootScreenProps) {
+export default function HomeScreen() {
   const [loading, setLoading] = React.useState(true);
   const [category, setCategory] = React.useState("");
   const [products, setProducts] = React.useState<Product[]>([]);
   const [error, setError] = React.useState(null);
+
+  const navigation = useNavigation<RootStackNavigation>();
 
   React.useEffect(() => {
     let unsubscribe: () => void;
