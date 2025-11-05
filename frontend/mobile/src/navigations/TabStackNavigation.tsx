@@ -23,7 +23,8 @@ export function TabStackNavigation() {
         name="home"
         component={HomeScreen}
         options={{
-          title: "Inicio",
+          title: "",
+          tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
           headerLeft: () => <HeaderLogo />,
           headerRight: () => <SettingsButton />,
