@@ -4,7 +4,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { AppStackNavigation } from "./src/navigations/AppStackNavigation";
 import { ThemeProvider } from "./src/providers/themeProvider";
 import { AuthProvider } from "./src/providers/AuthProvider";
-import { UserInfoButtomSheet } from "./src/components/partials";
+// import { UserInfoButtomSheet } from "./src/components/partials";
 
 export default function App() {
   return (

@@ -17,9 +17,15 @@ import Animated, {
   useAnimatedStyle,
   Easing,
 } from "react-native-reanimated";
-import { useTheme } from "../hooks/useTheme";
-import { spacing } from "../resourses/spacing";
-import { fontSizes, fontWeights, lineHeights } from "../resourses/typography";
+
+import { spacing } from "../../resourses/spacing";
+import {
+  fontSizes,
+  fontWeights,
+  lineHeights,
+} from "../../resourses/typography";
+
+import { useTheme } from "../../hooks/useTheme";
 
 interface LoadingProps {
   visible: boolean;

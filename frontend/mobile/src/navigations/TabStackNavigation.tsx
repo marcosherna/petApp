@@ -5,8 +5,11 @@ import { TabStackParamList } from "./params";
 
 import HomeScreen from "../screens/tabs/HomeScreen";
 import ProfileScreen from "../screens/tabs/ProfileScreen";
+
 import FavoritesScreen from "../screens/tabs/FavoritesScreen";
-import { IconButton } from "../components";
+
+import { HeaderLogo } from "../components";
+
 import { SettingsButton } from "../components/partials";
 
 const Tab = createBottomTabNavigator<TabStackParamList>();
@@ -18,9 +21,9 @@ export function TabStackNavigation() {
         name="home"
         component={HomeScreen}
         options={{
-          title: "Home",
+          title: "Inicio",
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
-
+          headerLeft: () => <HeaderLogo />,
           headerRight: () => <SettingsButton />,
         }}
       />
@@ -28,7 +31,7 @@ export function TabStackNavigation() {
         name="profile"
         component={ProfileScreen}
         options={{
-          title: "Profile",
+          title: "Perfil",
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
