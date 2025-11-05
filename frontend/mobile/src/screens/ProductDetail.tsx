@@ -1,31 +1,30 @@
-import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React from "react";
 import {
-  View,
-  Text,
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import {
+  View, 
   ImageBackground,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
+  ScrollView, 
   StyleSheet,
   Dimensions,
 } from "react-native";
-import {
-  ArrowLeft,
-  Heart,
-  Share2,
-  Star,
-  MessageCircle,
-  MapPin,
-  Send,
+import { 
+  Star, 
+  MapPin, 
 } from "lucide-react-native";
+
 import { ProductDetailScreenProps } from "../navigations/params";
+
 import { Divider, ImageCarousel, Layout, Segment } from "../components/ui";
 import { Button, IconButton, Label } from "../components";
-import { useTheme } from "../hooks/useTheme";
+
 import { spacing } from "../resourses/spacing";
 import { iconography } from "../resourses/iconography";
+
 import { useAuth } from "../hooks/useAuth";
+import { useTheme } from "../hooks/useTheme";
 
 const { width } = Dimensions.get("window");
 
@@ -35,6 +34,9 @@ export default function ProductDetailScreen({
 }: ProductDetailScreenProps) {
   const { theme, isDark } = useTheme();
   const { user } = useAuth();
+
+  const insets = useSafeAreaInsets();
+
   const product = route.params;
   const options = [
     { label: " 2kg", value: "2" },
@@ -54,7 +56,6 @@ export default function ProductDetailScreen({
             source: { uri: "https://b2bmart.vn/images/placeholder.jpg" },
           },
         ];
- 
 
   return (
     <SafeAreaView style={styles.container}>
@@ -215,6 +216,7 @@ export default function ProductDetailScreen({
                 ? `${theme.surface}`
                 : `${theme.background}`,
               borderTopColor: theme.outline,
+              paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
             },
           ]}
         >
@@ -239,8 +241,7 @@ export default function ProductDetailScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-
+  }, 
   mapImage: {
     width: "100%",
     height: (width - 32) * 0.75,
@@ -264,10 +265,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     alignSelf: "auto",
   },
-  stars: {
-    flexDirection: "row",
-    gap: 2,
-  },
+  
   bottomBar: {
     position: "absolute",
     bottom: 0,
@@ -279,35 +277,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#e5e5e5",
     gap: 12,
-  },
-  contactButton: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: "#EBF5FF",
-    gap: 8,
-  },
-  contactText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#4A90E2",
-  },
-  locationButton: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: "#4A90E2",
-    gap: 8,
-  },
-  locationButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
-  },
+  }, 
 });

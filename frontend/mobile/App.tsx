@@ -1,5 +1,6 @@
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AppStackNavigation } from "./src/navigations/AppStackNavigation";
 import { ThemeProvider } from "./src/providers/themeProvider";
@@ -12,8 +13,10 @@ export default function App() {
       <ThemeProvider>
         <AuthProvider>
           <KeyboardProvider>
-            <AppStackNavigation />
-          </KeyboardProvider> 
+            <SafeAreaProvider>
+              <AppStackNavigation />
+            </SafeAreaProvider>
+          </KeyboardProvider>
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
