@@ -12,13 +12,14 @@ export const subscribeToProducts = (
     collectionName,
     (products) => {
       const mapper = products.map((product) => {
-        const { id, name, description, imgCover, price, score, category } =
+        const { id, name, description, price, score, category, images } =
           product;
         return {
           id,
           name,
           description,
-          imgCover,
+          imgs: images,
+          imgCover: images.length >= 0 ? images[0] : "",
           price: parseFloat(price),
           score: parseFloat(score),
           category,
@@ -47,6 +48,8 @@ export const subscribeToProductsWithFilter = (
       const mapper = products.map((product: any) => {
         return {
           ...product,
+          imgs: product.images,
+          imgCover: product.images.length >= 0 ? product.images[0] : "",
           price: parseFloat(product.price),
           score: parseFloat(product.score),
         } as Product;
