@@ -13,6 +13,7 @@ import { RootStackParamList } from "./params";
 import { TabStackNavigation } from "./TabStackNavigation";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
+import ProductDetail from "../screens/ProductDetail";
 import { UserInfoBottomSheet } from "../screens/partials/UserInfoBottomSheet";
 
 import { useTheme } from "../hooks/useTheme";
@@ -64,6 +65,8 @@ export function AppStackNavigation() {
           />
           <Stack.Screen name="authLogin" component={LoginScreen} />
           <Stack.Screen name="authRegister" component={RegisterScreen} />
+
+          <Stack.Screen name="productDetail" component={ProductDetail} /> 
         </Stack.Navigator>
 
         <UserInfoBottomSheet

@@ -15,8 +15,9 @@ import {
 } from "../../network/services";
 import { Product, CategoryOptions } from "../../network/models";
 import { iconography } from "../../resourses/iconography";
+import { RootScreenProps } from "../../navigations/params";
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }: RootScreenProps) {
   const [loading, setLoading] = React.useState(true);
   const [category, setCategory] = React.useState("");
   const [products, setProducts] = React.useState<Product[]>([]);
@@ -47,7 +48,7 @@ export default function HomeScreen() {
   };
 
   const handleSelectedProduct = (product: Product) => {
-    console.log(product);
+    navigation.navigate("productDetail", product);
   };
 
   const renderHeader = () => (
