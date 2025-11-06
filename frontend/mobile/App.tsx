@@ -5,7 +5,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppStackNavigation } from "./src/navigations/AppStackNavigation";
 import { ThemeProvider } from "./src/providers/themeProvider";
 import { AuthProvider } from "./src/providers/AuthProvider";
-// import { UserInfoButtomSheet } from "./src/components/partials";
 
 export default function App() {
   return (
