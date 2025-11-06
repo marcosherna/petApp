@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
@@ -20,9 +21,12 @@ import { useForm } from "../../hooks/useForm"; // maneja formularios
 import { Input } from "../../components/Input"; // input estilizado
 
 // Firebase y Cloudinary
-import { db } from "../../network/firebase";
+import { db } from "../../network/firebase"; // si 'db' no existe aquí, usa: ../../../firebaseConfig
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { uploadToCloudinary, CLOUDINARY } from "../../network/services/imageUpload";
+
+// Mapa
+import MapPicker from "../../components/MapPicker";
 
 const CATEGORIES = ["Comida", "Juguetes", "Higiene", "Salud"];
 const SIZES = ["Pequeño", "Mediano", "Grande"];
@@ -46,22 +50,20 @@ export default function AddProductoScreen() {
       size: SIZES[0],
     },
     validations: {
-      name: (v) =>
-        !v?.toString().trim() ? "El nombre es obligatorio" : null,
+      name: (v) => (!v?.toString().trim() ? "El nombre es obligatorio" : null),
       price: (v) =>
-        /^\d+(\.\d{1,2})?$/.test(String(v))
-          ? null
-          : "Formato numérico válido (ej. 12.50)",
-      stock: (v) =>
-        /^\d+$/.test(String(v))
-          ? null
-          : "Solo números enteros",
+        /^\d+(\.\d{1,2})?$/.test(String(v)) ? null : "Formato numérico válido (ej. 12.50)",
+      stock: (v) => (/^\d+$/.test(String(v)) ? null : "Solo números enteros"),
     },
   });
 
   const [showCat, setShowCat] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [subiendo, setSubiendo] = useState(false);
+
+  // mapa
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [showMap, setShowMap] = useState(false);
 
   // Solicitar permisos para galería
   const solicitarPermisos = async () => {
@@ -122,11 +124,13 @@ export default function AddProductoScreen() {
           : null,
         createdAt: serverTimestamp(),
         status: "active",
+        coords: coords ? { lat: coords.lat, lng: coords.lng } : null, // ← guarda coordenadas
       });
 
       // reset
       resetForm();
       setImageUri(null);
+      setCoords(null);
 
       Alert.alert("✅ Producto publicado", `ID: ${docRef.id}`);
     } catch (e) {
@@ -276,6 +280,17 @@ export default function AddProductoScreen() {
               inputStyle={{ borderWidth: 0, paddingHorizontal: 0 }}
             />
           </View>
+
+          {/* Botón para abrir mapa */}
+          <View style={{ marginTop: 8 }}>
+            <TouchableOpacity style={s.selectButton} onPress={() => setShowMap(true)}>
+              <Text style={s.selectButtonText}>
+                {coords
+                  ? `📍 Lat: ${coords.lat.toFixed(5)}, Lng: ${coords.lng.toFixed(5)} (Cambiar)`
+                  : "Elegir en el mapa"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
 
@@ -293,6 +308,23 @@ export default function AddProductoScreen() {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Modal del mapa */}
+      <Modal visible={showMap} animationType="slide" onRequestClose={() => setShowMap(false)}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+          <View style={{ flex: 1 }}>
+            <MapPicker
+              initial={coords ?? { lat: 13.68935, lng: -89.18718 }} // San Salvador por defecto
+              onPick={(p) => setCoords(p)}
+            />
+          </View>
+          <View style={{ padding: 12 }}>
+            <TouchableOpacity style={s.publishButton} onPress={() => setShowMap(false)}>
+              <Text style={s.publishText}>Usar esta ubicación</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
