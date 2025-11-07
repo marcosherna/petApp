@@ -8,15 +8,8 @@ import { usePageTransition } from "../hooks/usePageTransition";
 import { AboutSection, HomeSection } from "./sections";
 
 export default function MainContent() {
-  const { startTransition } = usePageTransition();
-
-  const handleNavigate = (sectionId: string) => { 
-    startTransition(() => { 
-      document
-        .getElementById(sectionId)
-        ?.scrollIntoView({ behavior: "smooth" });
-    });
-  };
+  const { navigateSection } = usePageTransition();
+ 
 
   React.useEffect(() => {
     sal({ root: null, threshold: 0.3, once: false });
@@ -25,7 +18,7 @@ export default function MainContent() {
   return (
     <PageTransitionLayout>
       <div className="app-container bg-white h-screen overflow-hidden">
-        <NavBarApp onNavigate={handleNavigate} /> 
+        <NavBarApp onNavigate={navigateSection} /> 
         <HomeSection id="home" /> 
         <AboutSection id="about" />  
       </div>

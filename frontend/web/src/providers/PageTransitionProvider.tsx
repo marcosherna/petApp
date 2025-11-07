@@ -8,6 +8,7 @@ export const PageTransitionProvider = ({
   children: React.ReactNode;
 }) => {
   const [isTransitioning, setIsTransitioning] = React.useState(false);
+  const [currentPage, setCurrentPage] = React.useState<string | null>(null);
 
   const startTransition = (callback?: () => void) => {
     setIsTransitioning(true);
@@ -17,9 +18,18 @@ export const PageTransitionProvider = ({
     }, 300);
   };
 
+  const navigateSection = (sectionId: string) => {
+    startTransition(() => {
+      document
+        .getElementById(sectionId)
+        ?.scrollIntoView({ behavior: "smooth" });
+      setCurrentPage(sectionId);
+    });
+  };
+
   return (
     <PageTransitionContext.Provider
-      value={{ isTransitioning, startTransition }}
+      value={{ currentPage, isTransitioning, startTransition, navigateSection }}
     >
       {children}
     </PageTransitionContext.Provider>
