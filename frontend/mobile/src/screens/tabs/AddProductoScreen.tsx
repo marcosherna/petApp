@@ -15,17 +15,17 @@ import * as ImagePicker from "expo-image-picker";
 import { Image as ImageIcon, List, ChevronDown, ChevronUp, MapPin } from "lucide-react-native";
 
 // hooks y componentes del proyecto
-import { useAuth } from "../../hooks/useAuth"; // obtiene { user }
-import { useTheme } from "../../hooks/useTheme"; // obtiene { theme }
-import { useForm } from "../../hooks/useForm"; // maneja formularios
-import { Input } from "../../components/Input"; // input estilizado
+import { useAuth } from "../../hooks/useAuth";           // obtiene { user } (solo para createdBy/author)
+import { useTheme } from "../../hooks/useTheme";         // obtiene { theme }
+import { useForm } from "../../hooks/useForm";           // maneja formularios
+import { Input } from "../../components/Input";          // input estilizado
 
 // Firebase y Cloudinary
-import { db } from "../../network/firebase"; // si 'db' no existe aquí, usa: ../../../firebaseConfig
+import { db } from "../../network/firebase";             // si 'db' no existe aquí, usa: ../../../firebaseConfig
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { uploadToCloudinary, CLOUDINARY } from "../../network/services/imageUpload";
 
-// Mapa
+// Mapa nativo (tu archivo reemplazado)
 import MapPicker from "../../components/MapPicker";
 
 const CATEGORIES = ["Comida", "Juguetes", "Higiene", "Salud"];
@@ -116,15 +116,11 @@ export default function AddProductoScreen() {
         score: { avg: 0, count: 0 },
         createdBy: user?.uid ?? null,
         author: user
-          ? {
-              uid: user.uid,
-              name: user.displayName ?? null,
-              photoURL: user.photoURL ?? null,
-            }
+          ? { uid: user.uid, name: user.displayName ?? null, photoURL: user.photoURL ?? null }
           : null,
         createdAt: serverTimestamp(),
         status: "active",
-        coords: coords ? { lat: coords.lat, lng: coords.lng } : null, // ← guarda coordenadas
+        coords: coords ? { lat: coords.lat, lng: coords.lng } : null, // ← guarda coordenadas del mapa nativo
       });
 
       // reset
@@ -309,13 +305,14 @@ export default function AddProductoScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Modal del mapa */}
+      {/* Modal del mapa (usa el MapPicker nativo) */}
       <Modal visible={showMap} animationType="slide" onRequestClose={() => setShowMap(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
           <View style={{ flex: 1 }}>
             <MapPicker
               initial={coords ?? { lat: 13.68935, lng: -89.18718 }} // San Salvador por defecto
               onPick={(p) => setCoords(p)}
+              onClose={() => setShowMap(false)}
             />
           </View>
           <View style={{ padding: 12 }}>

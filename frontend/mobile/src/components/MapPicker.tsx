@@ -1,69 +1,94 @@
-import React, { useMemo } from "react";
-import { View, StyleSheet } from "react-native";
-import { WebView, WebViewMessageEvent } from "react-native-webview";
-
-const buildHTML = (lat: number, lng: number) => `<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<style>html,body,#map{height:100%;margin:0;padding:0}</style>
-</head>
-<body>
-<div id="map"></div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-  const map = L.map('map').setView([${lat}, ${lng}], 14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
-
-  let marker = L.marker([${lat}, ${lng}], { draggable: true }).addTo(map);
-
-  function send(pos) {
-    window.ReactNativeWebView.postMessage(JSON.stringify(pos));
-  }
-
-  marker.on('dragend', () => {
-    const p = marker.getLatLng();
-    send({ lat: p.lat, lng: p.lng });
-  });
-
-  map.on('click', (e) => {
-    const { latlng } = e;
-    marker.setLatLng(latlng);
-    send({ lat: latlng.lat, lng: latlng.lng });
-  });
-</script>
-</body>
-</html>`;
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import MapView, { Marker, MapPressEvent, Region } from "react-native-maps";
+import * as Location from "expo-location";
 
 type Props = {
-  initial?: { lat: number; lng: number };
-  onPick: (pos: { lat: number; lng: number }) => void;
+  initial?: { lat: number; lng: number } | null;
+  onPick: (coords: { lat: number; lng: number }) => void;
+  onClose?: () => void;
 };
 
-export default function MapPicker({ initial, onPick }: Props) {
-  const start = initial ?? { lat: 13.68935, lng: -89.18718 }; // San Salvador de ejemplo
-  const source = useMemo(() => ({ html: buildHTML(start.lat, start.lng) }), [start.lat, start.lng]);
+export default function MapPicker({ initial, onPick, onClose }: Props) {
+  const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(initial ?? null);
+  const [region, setRegion] = useState<Region>({
+    latitude: initial?.lat ?? 13.69294, // San Salvador por defecto
+    longitude: initial?.lng ?? -89.21819,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  });
 
-  const handleMessage = (e: WebViewMessageEvent) => {
-    try {
-      const data = JSON.parse(e.nativeEvent.data);
-      if (data && typeof data.lat === "number" && typeof data.lng === "number") {
-        onPick(data);
+  useEffect(() => {
+    (async () => {
+      // Pedir permiso de ubicación para centrar el mapa
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === "granted") {
+        const loc = await Location.getCurrentPositionAsync({});
+        setRegion((r) => ({
+          ...r,
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+        }));
       }
-    } catch {}
+    })();
+  }, []);
+
+  const handlePress = (e: MapPressEvent) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    setMarker({ lat: latitude, lng: longitude });
   };
 
   return (
-    <View style={styles.container}>
-      <WebView originWhitelist={["*"]} source={source} onMessage={handleMessage} />
+    <View style={{ flex: 1 }}>
+      <MapView
+        style={{ flex: 1 }}
+        region={region}
+        onRegionChangeComplete={setRegion}
+        onPress={handlePress}
+      >
+        {marker && <Marker coordinate={{ latitude: marker.lat, longitude: marker.lng }} />}
+      </MapView>
+
+      {/* Botones inferiores */}
+      <View style={styles.footer}>
+        {onClose && (
+          <TouchableOpacity style={[styles.btn, styles.cancel]} onPress={onClose}>
+            <Text style={styles.btnText}>Cancelar</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={[styles.btn, !marker && { opacity: 0.6 }]}
+          disabled={!marker}
+          onPress={() => marker && onPick(marker)}
+        >
+          <Text style={styles.btnText}>Usar esta ubicación</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  footer: {
+    position: "absolute",
+    bottom: 16,
+    left: 16,
+    right: 16,
+    flexDirection: "row",
+    gap: 12,
+  },
+  btn: {
+    flex: 1,
+    backgroundColor: "#111827",
+    padding: 12,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  cancel: {
+    backgroundColor: "#6B7280",
+  },
+  btnText: {
+    color: "white",
+    fontWeight: "600",
+  },
 });
