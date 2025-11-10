@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
@@ -28,7 +29,7 @@ import { useForm } from "../../hooks/useForm"; // maneja formularios
 import { Input } from "../../components/Input"; // input estilizado
 
 // Firebase y Cloudinary
-import { db } from "../../network/firebase";
+import { auth, db } from "../../network/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
