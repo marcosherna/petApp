@@ -23,7 +23,7 @@ export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
 
-export const productCollection = () => `products-general`;
+export const productCollection = () => `products`;
 
 export const subscribe = (
   collectionName: string,

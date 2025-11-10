@@ -1,11 +1,21 @@
+// src/network/models.ts
+import { Author } from "./Author";
 
 export interface Product {
-  id: number | string;
+  id: string;                      
   name: string;
-  imgCover?: string;
   description: string;
   price: number;
-  score: number;
-  imgs: string[];
-  category: string
+  imgCover?: string | null;
+  imgs: string[];         
+  author: Author | null;
+  createdBy?: string | null;
+  createdAt?: any;
+  status?: "active" | "under_review" | "inactive";
+  category: string;
+  size?: "Pequeño" | "Mediano" | "Grande";
+  stock?: number;
+  location?: string;               
+  coords?: { lat: number; lng: number } | null;  
+  score?: { avg: number; count: number } | null;
 }
