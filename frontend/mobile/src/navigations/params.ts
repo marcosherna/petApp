@@ -3,6 +3,7 @@ import type {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
+import { Product } from "../network/models";
 
 export type AuthStackParamList = {
   register: undefined;
@@ -15,6 +16,7 @@ export type RootStackParamList = {
   mainApp: undefined;
   authLogin: undefined;
   authRegister: undefined;
+  productDetail: Product;
 };
 
 export type TabStackParamList = {
@@ -43,3 +45,8 @@ export type RegisterScreenProps = NativeStackScreenProps<
 
 export type AuthStackScreenProps =
   NativeStackNavigationProp<AuthStackParamList>;
+
+export type ProductDetailScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  "productDetail"
+>;

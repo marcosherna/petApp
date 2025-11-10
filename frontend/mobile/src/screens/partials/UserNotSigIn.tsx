@@ -1,6 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Activity, LogIn, UserPlus } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { RootStackNavigation } from "../../navigations/params";
 
@@ -19,13 +20,20 @@ export default function UserNotSigIn({ onClose }: UserNotSigInProps) {
   const { theme } = useTheme();
   const navigation = useNavigation<RootStackNavigation>();
 
+  const insets = useSafeAreaInsets();
+
   const handleNavigation = (screen: any) => {
     onClose?.();
     navigation.navigate(screen);
   };
 
   return (
-    <View style={style.container}>
+    <View
+      style={[
+        style.container,
+        { paddingBottom: insets.bottom > 0 ? insets.bottom : 12 },
+      ]}
+    >
       <View style={style.container_info}>
         <View
           style={[style.icon_info, { backgroundColor: `${theme.accent}33` }]}

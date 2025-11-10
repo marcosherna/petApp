@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Avatar } from "../../components/ui";
 import { IconButton, Label, ToggleThemeButton } from "../../components";
@@ -11,6 +12,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 export default function UserSignIn({ onClose }: { onClose?: () => void }) {
   const { user, signOut } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const handleOnSignOut = async () => {
     try {
@@ -21,7 +23,12 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
     }
   };
   return (
-    <View style={{ paddingHorizontal: spacing.md, paddingBottom: spacing.lg }}>
+    <View
+      style={{
+        paddingHorizontal: spacing.md,
+        paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
+      }}
+    >
       <View style={[style.container, style.container_user]}>
         <Avatar
           name={user?.displayName ?? "D. E"}

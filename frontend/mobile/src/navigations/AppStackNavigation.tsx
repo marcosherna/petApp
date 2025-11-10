@@ -13,16 +13,15 @@ import { RootStackParamList } from "./params";
 import { TabStackNavigation } from "./TabStackNavigation";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
-import { UserInfoBottomSheet } from "../screens/partials/UserInfoBottomSheet";
+import ProductDetail from "../screens/ProductDetail";
 
 import { useTheme } from "../hooks/useTheme";
-import { useAuth } from "../hooks/useAuth";
+import { BottomSheetModalProvider } from "../providers/BottomSheetModalProvider";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppStackNavigation() {
   const { theme, isDark } = useTheme();
-  const { modalWarningOrInfo, onCloseModal } = useAuth();
 
   const navTheme: NavigationTheme = {
     dark: isDark,
@@ -46,30 +45,29 @@ export function AppStackNavigation() {
       />
 
       <NavigationContainer theme={navTheme}>
-        <Stack.Navigator
-          screenOptions={() => ({
-            title: "",
-            headerShown: true,
-            headerTransparent: true,
-            headerShadowVisible: false,
-            headerStyle: {
-              backgroundColor: "transparent",
-            },
-          })}
-        >
-          <Stack.Screen
-            name="mainApp"
-            component={TabStackNavigation}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="authLogin" component={LoginScreen} />
-          <Stack.Screen name="authRegister" component={RegisterScreen} />
-        </Stack.Navigator>
+        <BottomSheetModalProvider>
+          <Stack.Navigator
+            screenOptions={() => ({
+              title: "",
+              headerShown: true,
+              headerTransparent: true,
+              headerShadowVisible: false,
+              headerStyle: {
+                backgroundColor: "transparent",
+              },
+            })}
+          >
+            <Stack.Screen
+              name="mainApp"
+              component={TabStackNavigation}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="authLogin" component={LoginScreen} />
+            <Stack.Screen name="authRegister" component={RegisterScreen} />
 
-        <UserInfoBottomSheet
-          visible={modalWarningOrInfo}
-          onClose={onCloseModal}
-        />
+            <Stack.Screen name="productDetail" component={ProductDetail} />
+          </Stack.Navigator>
+        </BottomSheetModalProvider>
       </NavigationContainer>
     </>
   );

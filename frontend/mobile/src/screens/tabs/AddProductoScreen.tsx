@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -22,9 +21,14 @@ import {
   MapPin,
 } from "lucide-react-native";
 
-// Firebase
-import { auth } from "../../network/firebase";
-import { storage, db } from "../../network/firebase";
+// hooks y componentes del proyecto
+import { useAuth } from "../../hooks/useAuth"; // obtiene { user }
+import { useTheme } from "../../hooks/useTheme"; // obtiene { theme }
+import { useForm } from "../../hooks/useForm"; // maneja formularios
+import { Input } from "../../components/Input"; // input estilizado
+
+// Firebase y Cloudinary
+import { db } from "../../network/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
@@ -32,22 +36,42 @@ import {
   CLOUDINARY,
 } from "../../network/services/imageUpload";
 
-const CATEGORIES = ["Comida", "Juguetes", "Accesorios", "Camas", "Higiene"];
+const CATEGORIES = ["Comida", "Juguetes", "Higiene", "Salud"];
 const SIZES = ["Pequeño", "Mediano", "Grande"];
 
 export default function AddProductoScreen() {
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [precio, setPrecio] = useState("");
-  const [ubicacion, setUbicacion] = useState("");
+  const { user } = useAuth();
 
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [size, setSize] = useState<string>(SIZES[0]);
+  // obtener colores del tema actual
+  const { theme } = useTheme();
+  const colors = theme;
+
+  // formulario
+  const { values, errors, handleChange, validateForm, resetForm } = useForm({
+    initialValues: {
+      name: "",
+      description: "",
+      price: "",
+      stock: "",
+      location: "",
+      category: CATEGORIES[0],
+      size: SIZES[0],
+    },
+    validations: {
+      name: (v) => (!v?.toString().trim() ? "El nombre es obligatorio" : null),
+      price: (v) =>
+        /^\d+(\.\d{1,2})?$/.test(String(v))
+          ? null
+          : "Formato numérico válido (ej. 12.50)",
+      stock: (v) => (/^\d+$/.test(String(v)) ? null : "Solo números enteros"),
+    },
+  });
+
   const [showCat, setShowCat] = useState(false);
-
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [subiendo, setSubiendo] = useState(false);
 
+  // Solicitar permisos para galería
   const solicitarPermisos = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -65,30 +89,17 @@ export default function AddProductoScreen() {
     if (!ok) return;
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: "images", // API nueva
+      mediaTypes: "images",
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.9,
     });
 
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-    }
+    if (!result.canceled) setImageUri(result.assets[0].uri);
   };
 
-  const uriToBlob = async (uri: string): Promise<Blob> => {
-    const res = await fetch(uri);
-    return await res.blob();
-  };
-
-  const subirImagen = async (uri: string): Promise<string> => {
-    try {
-      return await uploadToCloudinary(uri, CLOUDINARY);
-    } catch (error) {
-      console.error("Error subiendo a Cloudinary:", error);
-      throw error;
-    }
-  };
+  const subirImagen = async (uri: string) =>
+    uploadToCloudinary(uri, CLOUDINARY);
 
   const handlePublicar = async () => {
     const user = auth.currentUser;
@@ -106,43 +117,51 @@ export default function AddProductoScreen() {
       setSubiendo(true);
 
       let photoURL: string | null = null;
-      if (imageUri) {
-        photoURL = await subirImagen(imageUri);
-      }
+      if (imageUri) photoURL = await subirImagen(imageUri);
+
+      const priceNum = Number(values.price);
+      const stockNum = Number(values.stock);
 
       const docRef = await addDoc(collection(db, "products"), {
-        name: nombre.trim(),
-        description: descripcion.trim(),
-        price: Number(precio),
-        location: ubicacion.trim(),
-        category,
-        size,
+        name: values.name.trim(),
+        description: values.description.trim(),
+        price: priceNum,
+        stock: stockNum,
+        location: values.location.trim(),
+        category: values.category,
+        size: values.size,
         images: photoURL ? [photoURL] : [],
+        score: { avg: 0, count: 0 },
         createdBy: user?.uid ?? null,
+        author: user
+          ? {
+              uid: user.uid,
+              name: user.displayName ?? null,
+              photoURL: user.photoURL ?? null,
+            }
+          : null,
         createdAt: serverTimestamp(),
         status: "active",
       });
 
-      setNombre("");
-      setDescripcion("");
-      setPrecio("");
-      setUbicacion("");
-      setCategory(CATEGORIES[0]);
-      setSize(SIZES[0]);
+      // reset
+      resetForm();
       setImageUri(null);
 
-      Alert.alert("Producto publicado", `ID: ${docRef.id}`);
-    } catch (err) {
-      console.error(err);
+      Alert.alert("✅ Producto publicado", `ID: ${docRef.id}`);
+    } catch (e) {
+      console.error(e);
       Alert.alert("Error", "No se pudo publicar el producto.");
     } finally {
       setSubiendo(false);
     }
   };
 
+  const s = themedStyles(colors);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+    <SafeAreaView style={s.container}>
+      <ScrollView contentContainerStyle={s.content}>
         {/* Imagen */}
         <TouchableOpacity
           style={styles.imageUploader}
@@ -158,8 +177,8 @@ export default function AddProductoScreen() {
             </>
           ) : (
             <>
-              <View style={styles.imageIconWrapper}>
-                <ImageIcon size={32} color="#13ec6d" strokeWidth={2} />
+              <View style={s.imageIconWrapper}>
+                <ImageIcon size={32} color={colors.primary} strokeWidth={2} />
               </View>
               <Text style={styles.imageTitle}>
                 Sube una foto de tu producto
@@ -175,27 +194,23 @@ export default function AddProductoScreen() {
         </TouchableOpacity>
 
         {/* Nombre */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Nombre del Producto</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ej: Collar de cuero para perro"
-            value={nombre}
-            onChangeText={setNombre}
-          />
-        </View>
+        <Input
+          label="Nombre del Producto"
+          placeholder="Ej: Collar de cuero para perro"
+          value={values.name}
+          onChangeText={(t: string) => handleChange("name", t)}
+          error={errors.name}
+        />
 
         {/* Descripción */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Descripción</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Describe las características y beneficios..."
-            value={descripcion}
-            onChangeText={setDescripcion}
-            multiline
-          />
-        </View>
+        <Input
+          label="Descripción"
+          placeholder="Describe las características y beneficios..."
+          value={values.description}
+          onChangeText={(t: string) => handleChange("description", t)}
+          multiline
+          numberOfLines={4}
+        />
 
         {/* Categoría (dropdown) */}
         <View style={styles.formGroup}>
@@ -211,14 +226,14 @@ export default function AddProductoScreen() {
                 <Text style={styles.dropdownText}>{category}</Text>
               </View>
               {showCat ? (
-                <ChevronUp size={18} color="#6aa383" />
+                <ChevronUp size={18} color={colors.secondaryText} />
               ) : (
-                <ChevronDown size={18} color="#6aa383" />
+                <ChevronDown size={18} color={colors.secondaryText} />
               )}
             </TouchableOpacity>
 
             {showCat && (
-              <View style={styles.dropdownList}>
+              <View style={s.dropdownList}>
                 {CATEGORIES.map((c) => (
                   <TouchableOpacity
                     key={c}
@@ -227,7 +242,7 @@ export default function AddProductoScreen() {
                       c === category && styles.dropdownItemActive,
                     ]}
                     onPress={() => {
-                      setCategory(c);
+                      handleChange("category", c);
                       setShowCat(false);
                     }}
                   >
@@ -247,28 +262,36 @@ export default function AddProductoScreen() {
         </View>
 
         {/* Precio */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Precio</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="0.00"
-            keyboardType="decimal-pad"
-            value={precio}
-            onChangeText={setPrecio}
-          />
-        </View>
+        <Input
+          label="Precio"
+          placeholder="0.00"
+          keyboardType="decimal-pad"
+          value={values.price}
+          onChangeText={(t: string) => handleChange("price", t)}
+          error={errors.price}
+        />
 
-        {/* Tamaño (chips) */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Opciones de Tamaño</Text>
-          <View style={styles.sizeRow}>
-            {SIZES.map((s) => {
-              const active = s === size;
+        {/* Stock */}
+        <Input
+          label="Stock"
+          placeholder="Cantidad disponible"
+          keyboardType="number-pad"
+          value={values.stock}
+          onChangeText={(t: string) => handleChange("stock", t)}
+          error={errors.stock}
+        />
+
+        {/* Tamaño */}
+        <View style={s.formGroup}>
+          <Text style={s.label}>Tamaño</Text>
+          <View style={s.sizeRow}>
+            {SIZES.map((opt) => {
+              const active = opt === values.size;
               return (
                 <TouchableOpacity
-                  key={s}
-                  style={[styles.chip, active && styles.chipActive]}
-                  onPress={() => setSize(s)}
+                  key={opt}
+                  style={[s.chip, active && s.chipActive]}
+                  onPress={() => handleChange("size", opt)}
                 >
                   <Text
                     style={[styles.chipText, active && styles.chipTextActive]}
@@ -292,17 +315,19 @@ export default function AddProductoScreen() {
                 { flex: 1, borderWidth: 0, paddingHorizontal: 0 },
               ]}
               placeholder="Ingresa una dirección"
-              value={ubicacion}
-              onChangeText={setUbicacion}
+              value={values.location}
+              onChangeText={(t: string) => handleChange("location", t)}
+              containerStyle={{ flex: 1 }}
+              inputStyle={{ borderWidth: 0, paddingHorizontal: 0 }}
             />
           </View>
         </View>
       </ScrollView>
 
       {/* Botón inferior */}
-      <View style={styles.footer}>
+      <View style={s.footer}>
         <TouchableOpacity
-          style={[styles.publishButton, subiendo && { opacity: 0.7 }]}
+          style={[s.publishButton, subiendo && { opacity: 0.7 }]}
           onPress={handlePublicar}
           disabled={subiendo}
         >
@@ -449,3 +474,15 @@ const styles = StyleSheet.create({
   },
   publishText: { fontSize: 16, fontWeight: "bold", color: "#000000" },
 });
+function themedStyles(colors: {
+  primary: string;
+  onPrimary: string;
+  background: string;
+  surface: string;
+  text: string;
+  secondaryText: string;
+  outline: string;
+  accent: string;
+}) {
+  throw new Error("Function not implemented.");
+}
