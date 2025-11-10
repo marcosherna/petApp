@@ -1,4 +1,3 @@
-// src/screens/tabs/ProfileScreen.tsx
 import React from "react";
 import {
   View,
@@ -17,28 +16,26 @@ import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Feather } from "@expo/vector-icons";
+import { Heart, PlusSquare } from "lucide-react-native"; 
 
 import { Button } from "../../components";
 import { useAuth } from "../../hooks/useAuth";
 import { RootStackNavigation } from "../../navigations/params";
 import { auth, storage } from "../../network/firebase";
 
-// ---------- Tabs internos del perfil ----------
+// ---------- Tabs internos ----------
 function FavoritesTab() {
-  // Aquí renderizas la grilla/lista de favoritos del usuario
   return (
     <View style={tabStyles.container}>
-      <Text style={tabStyles.text}>Tus favoritos aparecerán aquí.</Text>
+      <Text style={tabStyles.text}>Tus favoritos aparecerán aquí ❤️</Text>
     </View>
   );
 }
 
 function CreateTab() {
-  // Aquí puedes renderizar un CTA o el flujo para crear contenido/publicación
   return (
     <View style={tabStyles.container}>
-      <Text style={tabStyles.text}>Crea algo nuevo desde este tab.</Text>
+      <Text style={tabStyles.text}>Crea algo nuevo desde aquí ➕</Text>
     </View>
   );
 }
@@ -59,6 +56,7 @@ export default function ProfileScreen() {
     setPhoto(user?.photoURL ?? null);
   }, [user?.photoURL]);
 
+  // --- Manejo de cambio de foto ---
   const handleChangePhoto = () => {
     const opts = ["Galería", "Cámara", "Quitar", "Cancelar"];
     const CANCEL_INDEX = 3;
@@ -79,17 +77,12 @@ export default function ProfileScreen() {
         }
       );
     } else {
-      Alert.alert(
-        "Foto de perfil",
-        "Elige una opción",
-        [
-          { text: "Galería", onPress: pickFromGallery },
-          { text: "Cámara", onPress: takePhoto },
-          { text: "Quitar", style: "destructive", onPress: removePhoto },
-          { text: "Cancelar", style: "cancel" },
-        ],
-        { cancelable: true }
-      );
+      Alert.alert("Foto de perfil", "Elige una opción", [
+        { text: "Galería", onPress: pickFromGallery },
+        { text: "Cámara", onPress: takePhoto },
+        { text: "Quitar", style: "destructive", onPress: removePhoto },
+        { text: "Cancelar", style: "cancel" },
+      ]);
     }
   };
 
@@ -100,7 +93,6 @@ export default function ProfileScreen() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.9,
@@ -131,35 +123,25 @@ export default function ProfileScreen() {
     try {
       setUpdatingPhoto(true);
 
-      // convertir a blob
       const res = await fetch(uri);
       const blob = await res.blob();
       const fileType = blob.type || "image/jpeg";
 
-      // subir a Storage (sobrescribe para mantener una sola foto)
       const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
       const task = uploadBytesResumable(storageRef, blob, { contentType: fileType });
 
       await new Promise<void>((resolve, reject) => {
-        task.on(
-          "state_changed",
-          // (snap) => console.log('progress', snap.bytesTransferred / snap.totalBytes),
-          (error) => reject(error),
-          () => resolve()
-        );
+        task.on("state_changed", undefined, reject, resolve);
       });
 
       const url = await getDownloadURL(storageRef);
-
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, { photoURL: url });
-      }
-
+      if (auth.currentUser) await updateProfile(auth.currentUser, { photoURL: url });
       setPhoto(url);
+
       Alert.alert("Listo", "Tu foto de perfil se actualizó.");
     } catch (e: any) {
       console.log("storage upload error:", e?.code, e?.message);
-      Alert.alert("Error", "No se pudo actualizar la foto. Revisa permisos/reglas y vuelve a intentar.");
+      Alert.alert("Error", "No se pudo actualizar la foto.");
     } finally {
       setUpdatingPhoto(false);
     }
@@ -191,6 +173,7 @@ export default function ProfileScreen() {
     );
   }
 
+  // --- UI ---
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -206,7 +189,7 @@ export default function ProfileScreen() {
           </View>
         ) : (
           <>
-            {/* HEADER del perfil (foto + datos) */}
+            {/* --- FOTO --- */}
             <View style={[styles.card, styles.center]}>
               <TouchableOpacity onPress={handleChangePhoto} activeOpacity={0.85}>
                 {photo ? (
@@ -227,15 +210,15 @@ export default function ProfileScreen() {
               <Text style={{ marginTop: 8, color: "#666" }}>Toca la foto para cambiarla</Text>
             </View>
 
+            {/* --- DATOS --- */}
             <View style={styles.card}>
               <Text style={styles.label}>Nombre</Text>
               <Text style={styles.value}>{user?.displayName || "Sin nombre"}</Text>
-
               <Text style={styles.label}>Correo</Text>
               <Text style={styles.value}>{user?.email || "—"}</Text>
             </View>
 
-            {/* TABS estilo TikTok */}
+            {/* --- TABS (lucide icons) --- */}
             <View style={styles.tabsContainer}>
               <TopTabs.Navigator
                 screenOptions={{
@@ -250,7 +233,7 @@ export default function ProfileScreen() {
                   component={FavoritesTab}
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <Feather name={focused ? "heart" : "heart"} size={22} />
+                      <Heart size={22} color={focused ? "black" : "#999"} strokeWidth={2} />
                     ),
                   }}
                 />
@@ -259,7 +242,7 @@ export default function ProfileScreen() {
                   component={CreateTab}
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <Feather name="plus-square" size={22} />
+                      <PlusSquare size={22} color={focused ? "black" : "#999"} strokeWidth={2} />
                     ),
                   }}
                 />
@@ -274,6 +257,7 @@ export default function ProfileScreen() {
   );
 }
 
+// --- Estilos ---
 const AVATAR_SIZE = 120;
 
 const styles = StyleSheet.create({
@@ -305,7 +289,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tabsContainer: {
-    height: 260, // ajusta según tu contenido interno; si usarás listas, podrías hacer esto flexible
+    height: 260,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 12,
