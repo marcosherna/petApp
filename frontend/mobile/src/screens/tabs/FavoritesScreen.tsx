@@ -1,5 +1,4 @@
-// src/screens/tabs/FavoritesScreen.tsx
-import React, { useState } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -10,16 +9,14 @@ import {
 } from "react-native";
 import { Heart, ArrowLeft } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
-
-const COLORS = {
-  primary: "#13ec6d",
-  text: "#111814",
-  secondary: "#618972",
-  card: "#fff",
-  border: "#f0f4f2",
-  heart: "#ef4444",
-  bg: "#f6f8f7",
-};
+import { useTheme } from "../../hooks/useTheme";
+import { spacing } from "../../resourses/spacing";
+import {
+  fontSizes,
+  fontWeights,
+  lineHeights,
+} from "../../resourses/typography";
+import { iconography } from "../../resourses/iconography";
 
 type Item = {
   id: string;
@@ -59,6 +56,28 @@ const SEED: Item[] = [
 export default function FavoritesScreen() {
   const navigation = useNavigation<any>();
   const [items, setItems] = useState<Item[]>(SEED);
+  const { theme } = useTheme();
+
+  const styles = createStyles(theme);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: "Mis Favoritos",
+      headerTitleAlign: "center",
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() =>
+            navigation.canGoBack()
+              ? navigation.goBack()
+              : navigation.navigate("home")
+          }
+          style={styles.headerButton}
+        >
+          <ArrowLeft size={iconography.sm} color={theme.text} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, theme, styles]);
 
   const toggle = (id: string) => {
     setItems((prev) =>
@@ -66,15 +85,10 @@ export default function FavoritesScreen() {
     );
   };
 
-  const handleBack = () => {
-    if (navigation.canGoBack()) navigation.goBack();
-    else navigation.navigate("home");
-  };
-
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.card}>
       <Image source={{ uri: item.image }} style={styles.img} />
-      <View style={{ flex: 1 }}>
+      <View style={styles.cardContent}>
         <Text numberOfLines={2} style={styles.title}>
           {item.title}
         </Text>
@@ -82,9 +96,9 @@ export default function FavoritesScreen() {
       </View>
       <TouchableOpacity onPress={() => toggle(item.id)} style={styles.heartBtn}>
         <Heart
-          size={22}
-          color={item.liked ? COLORS.heart : COLORS.secondary}
-          fill={item.liked ? COLORS.heart : "transparent"}
+          size={iconography.sm}
+          color={item.liked ? theme.accent : theme.secondaryText}
+          fill={item.liked ? theme.accent : "transparent"}
         />
       </TouchableOpacity>
     </View>
@@ -92,118 +106,119 @@ export default function FavoritesScreen() {
 
   return (
     <View style={styles.safe}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
-          <ArrowLeft size={22} color={COLORS.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Mis Favoritos</Text>
-        <View style={{ width: 40 }} />
-      </View>
-
       <FlatList
         contentContainerStyle={styles.listContent}
         data={items}
         keyExtractor={(it) => it.id}
         renderItem={renderItem}
-        ListEmptyComponent={EmptyState}
+        ListEmptyComponent={() => <EmptyState theme={theme} />}
       />
     </View>
   );
 }
 
-function EmptyState() {
+function EmptyState({ theme }: { theme: any }) {
+  const emptyStyles = createEmptyStateStyles(theme);
+
   return (
-    <View style={{ alignItems: "center", marginTop: 48 }}>
-      <View
-        style={{
-          width: 96,
-          height: 96,
-          borderRadius: 96,
-          backgroundColor: "#13ec6d33",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 12,
-        }}
-      >
-        <Heart size={40} color={COLORS.primary} />
+    <View style={emptyStyles.container}>
+      <View style={emptyStyles.iconContainer}>
+        <Heart size={iconography.xl} color={theme.primary} />
       </View>
-      <Text style={{ fontWeight: "700", color: COLORS.text }}>
-        Aún no tienes favoritos
-      </Text>
-      <Text
-        style={{
-          marginTop: 6,
-          color: COLORS.secondary,
-          textAlign: "center",
-        }}
-      >
+      <Text style={emptyStyles.title}>Aún no tienes favoritos</Text>
+      <Text style={emptyStyles.subtitle}>
         Toca el corazón para guardar productos aquí.
       </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.bg },
-  header: {
-    height: 56,
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.card,
-    paddingHorizontal: 12,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 9999,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontWeight: "700",
-    fontSize: 18,
-    color: COLORS.text,
-    marginRight: 40,
-  },
-  listContent: { padding: 16, paddingBottom: 96 },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.card,
-    padding: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    marginBottom: 12,
-  },
-  img: {
-    width: 92,
-    height: 92,
-    borderRadius: 12,
-    marginRight: 12,
-    backgroundColor: "#e8e8e8",
-  },
-  title: {
-    color: COLORS.text,
-    fontWeight: "700",
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  price: { color: COLORS.primary, fontWeight: "800" },
-  heartBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 9999,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 8,
-  },
-});
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    listContent: {
+      padding: spacing.md,
+      paddingBottom: spacing.xl * 3,
+    },
+    card: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.surface,
+      padding: spacing.sm,
+      borderRadius: spacing.md,
+      borderWidth: 1,
+      borderColor: theme.outline,
+      shadowColor: "#000",
+      shadowOpacity: 0.06,
+      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 2 },
+      marginBottom: spacing.sm,
+    },
+    img: {
+      width: spacing.xl * 3,
+      height: spacing.xl * 3,
+      borderRadius: spacing.sm,
+      marginRight: spacing.sm,
+      backgroundColor: "#e8e8e8",
+    },
+    cardContent: {
+      flex: 1,
+    },
+    title: {
+      color: theme.text,
+      fontWeight: fontWeights.bold,
+      fontSize: fontSizes.md,
+      lineHeight: lineHeights.md,
+      marginBottom: spacing.xs,
+    },
+    price: {
+      color: theme.primary,
+      fontWeight: fontWeights.extrabold,
+      fontSize: fontSizes.sm,
+    },
+    heartBtn: {
+      width: iconography.xl,
+      height: iconography.xl,
+      borderRadius: iconography.xl / 2,
+      alignItems: "center",
+      justifyContent: "center",
+      marginLeft: spacing.sm,
+    },
+    headerButton: {
+      marginLeft: spacing.sm,
+    },
+  });
+
+const createEmptyStateStyles = (theme: any) =>
+  StyleSheet.create({
+    container: {
+      alignItems: "center",
+      marginTop: spacing.xl + spacing.md,
+      paddingHorizontal: spacing.md,
+    },
+    iconContainer: {
+      width: spacing.xl * 3,
+      height: spacing.xl * 3,
+      borderRadius: spacing.xl * 1.5,
+      backgroundColor: `${theme.primary}33`,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: spacing.sm,
+    },
+    title: {
+      fontWeight: fontWeights.bold,
+      fontSize: fontSizes.lg,
+      lineHeight: lineHeights.lg,
+      color: theme.text,
+      marginBottom: spacing.xs,
+    },
+    subtitle: {
+      fontSize: fontSizes.sm,
+      lineHeight: lineHeights.sm,
+      color: theme.secondaryText,
+      textAlign: "center",
+    },
+  });
