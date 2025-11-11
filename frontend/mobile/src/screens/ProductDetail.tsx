@@ -10,13 +10,21 @@ import { Star, MapPin } from "lucide-react-native";
 import { ProductDetailScreenProps } from "../navigations/params";
 
 import { Divider, ImageCarousel, Layout, Segment } from "../components/ui";
-import { Button, IconButton, Label, FavoriteButton } from "../components";
+import {
+  Button,
+  IconButton,
+  Label,
+  FavoriteButton,
+  PressableLayout,
+} from "../components";
 
 import { spacing } from "../resourses/spacing";
 import { iconography } from "../resourses/iconography";
 
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
+import { useGlobalBottomSheetModal } from "../hooks/useGlobalBottomSheetModal";
+import { RateProduct } from "./partials/RateProduct";
 
 const { width } = Dimensions.get("window");
 
@@ -63,6 +71,8 @@ export default function ProductDetailScreen({
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
 
+  const { openModal } = useGlobalBottomSheetModal();
+
   const product = route.params;
   const options = [
     { label: " 2kg", value: "2" },
@@ -84,6 +94,17 @@ export default function ProductDetailScreen({
     console.log(isFavorite);
     // TODO: implement method
   };
+
+  const handleScoreChange = React.useCallback((score: number) => {
+    console.log("Nuevo puntaje:", score);
+    // TODO: guardar en Firestore, API, etc.
+  }, []);
+
+  const handleRateProduct = React.useCallback(() => {
+    openModal(
+      <RateProduct onChangeScore={(score) => handleScoreChange(score)} />
+    );
+  }, [openModal, handleScoreChange]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,11 +135,19 @@ export default function ProductDetailScreen({
             alignHorizontal="center"
             fullWidth
           >
-            <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-              <Star size={iconography.sm} fill="#F5A623" stroke="#F5A623" />
-              <Label weight="semibold">4.8</Label>
-              <Label size="sm">(132 valoraciones)</Label>
-            </Layout>
+            <PressableLayout
+              onPress={() => handleRateProduct()}
+              style={{
+                paddingVertical: 0,
+                paddingHorizontal: 0,
+              }}
+            >
+              <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
+                <Star size={iconography.sm} fill="#F5A623" stroke="#F5A623" />
+                <Label weight="semibold">4.8</Label>
+                <Label size="sm">(132 valoraciones)</Label>
+              </Layout>
+            </PressableLayout>
 
             <Label size="3xl" weight="bold">
               ${product.price}

@@ -8,3 +8,4 @@ export * from "./ToggleThemeButton";
 export * from "./headerLogo";
 export * from "./ProductCard";
 export * from "./FavoriteButton"
+export * from "./PressableLayout"
