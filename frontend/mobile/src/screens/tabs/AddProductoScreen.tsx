@@ -105,9 +105,9 @@ export default function AddProductoScreen() {
   const handlePublicar = async () => {
     const user = auth.currentUser;
 
-    if (!nombre.trim())
+    if (!values.name.trim())
       return Alert.alert("Falta el nombre", "Ingresa el nombre del producto.");
-    if (!precio.trim() || isNaN(Number(precio))) {
+    if (!values.price.trim() || isNaN(Number(values.price))) {
       return Alert.alert(
         "Precio inválido",
         "Ingresa un precio numérico (ej: 12.50)."
@@ -224,7 +224,7 @@ export default function AddProductoScreen() {
             >
               <View style={styles.dropdownLeft}>
                 <List size={18} color="#6aa383" />
-                <Text style={styles.dropdownText}>{category}</Text>
+                <Text style={styles.dropdownText}>{values.category}</Text>
               </View>
               {showCat ? (
                 <ChevronUp size={18} color={colors.secondaryText} />
@@ -240,7 +240,7 @@ export default function AddProductoScreen() {
                     key={c}
                     style={[
                       styles.dropdownItem,
-                      c === category && styles.dropdownItemActive,
+                      c === values.category && styles.dropdownItemActive,
                     ]}
                     onPress={() => {
                       handleChange("category", c);
@@ -250,7 +250,7 @@ export default function AddProductoScreen() {
                     <Text
                       style={[
                         styles.dropdownItemText,
-                        c === category && styles.dropdownItemTextActive,
+                        c === values.category && styles.dropdownItemTextActive,
                       ]}
                     >
                       {c}
@@ -297,7 +297,7 @@ export default function AddProductoScreen() {
                   <Text
                     style={[styles.chipText, active && styles.chipTextActive]}
                   >
-                    {s}
+                    {opt}
                   </Text>
                 </TouchableOpacity>
               );
@@ -318,8 +318,6 @@ export default function AddProductoScreen() {
               placeholder="Ingresa una dirección"
               value={values.location}
               onChangeText={(t: string) => handleChange("location", t)}
-              containerStyle={{ flex: 1 }}
-              inputStyle={{ borderWidth: 0, paddingHorizontal: 0 }}
             />
           </View>
         </View>
@@ -485,5 +483,74 @@ function themedStyles(colors: {
   outline: string;
   accent: string;
 }) {
-  throw new Error("Function not implemented.");
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: 16,
+    },
+    imageIconWrapper: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.surface,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 8,
+    },
+    dropdownList: {
+      marginTop: 6,
+      borderWidth: 1,
+      borderColor: colors.outline,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      overflow: "hidden",
+    },
+    formGroup: {
+      marginBottom: 16,
+    },
+    label: {
+      fontSize: 15,
+      fontWeight: "600",
+      marginBottom: 6,
+      color: colors.text,
+    },
+    sizeRow: {
+      flexDirection: "row",
+      gap: 8,
+    },
+    chip: {
+      paddingHorizontal: 14,
+      height: 38,
+      borderRadius: 22,
+      borderWidth: 1,
+      borderColor: colors.outline,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.surface,
+    },
+    chipActive: {
+      backgroundColor: colors.accent,
+      borderColor: colors.accent,
+    },
+    footer: {
+      borderTopWidth: 1,
+      borderColor: colors.outline,
+      backgroundColor: colors.surface,
+      padding: 16,
+    },
+    publishButton: {
+      backgroundColor: colors.accent,
+      borderRadius: 12,
+      height: 50,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: colors.accent,
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+  });
 }
