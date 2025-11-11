@@ -110,9 +110,9 @@ export default function HomeScreen() {
         <ProductCard
           id={item.id}
           name={item.name}
-          img={item.imgCover}
+          img={item.imgCover ?? item.imgs?.[0] ?? undefined}
           price={item.price}
-          score={item.score}
+          score={item.score?.avg ?? 0}
           style={{ flex: 1, marginBottom: spacing.md }}
           onSelected={() => handleSelectedProduct(item)}
         />

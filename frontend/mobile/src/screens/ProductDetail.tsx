@@ -3,17 +3,9 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import {
-  View, 
-  ImageBackground,
-  ScrollView, 
-  StyleSheet,
-  Dimensions,
-} from "react-native";
-import { 
-  Star, 
-  MapPin, 
-} from "lucide-react-native";
+import { View, ScrollView, StyleSheet, Dimensions } from "react-native";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { Star, MapPin } from "lucide-react-native";
 
 import { ProductDetailScreenProps } from "../navigations/params";
 
@@ -28,13 +20,34 @@ import { useTheme } from "../hooks/useTheme";
 
 const { width } = Dimensions.get("window");
 
-export default function ProductDetailScreen({
-  navigation,
-  route,
-}: ProductDetailScreenProps) {
+// --- Mapa nativo con pin (sin WebView) ---
+type SellerMapProps = { lat: number; lng: number; height?: number; radius?: number };
+const SellerMap: React.FC<SellerMapProps> = ({ lat, lng, height = 220, radius = 12 }) => {
+  return (
+    <View style={{ height, borderRadius: radius, overflow: "hidden" }}>
+      <MapView
+        style={{ flex: 1 }}
+        provider={PROVIDER_GOOGLE}             // en iOS usa Apple Maps automáticamente
+        initialRegion={{
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        }}
+        pitchEnabled={false}
+        rotateEnabled={false}
+        showsCompass={false}
+        toolbarEnabled={false}
+      >
+        <Marker coordinate={{ latitude: lat, longitude: lng }} />
+      </MapView>
+    </View>
+  );
+};
+
+export default function ProductDetailScreen({ navigation, route }: ProductDetailScreenProps) {
   const { theme, isDark } = useTheme();
   const { user } = useAuth();
-
   const insets = useSafeAreaInsets();
 
   const product = route.params;
@@ -46,23 +59,12 @@ export default function ProductDetailScreen({
 
   const images =
     product.imgs.length > 0
-      ? product.imgs.map((img, index) => ({
-          id: index,
-          source: { uri: img },
-        }))
-      : [
-          {
-            id: 1,
-            source: { uri: "https://b2bmart.vn/images/placeholder.jpg" },
-          },
-        ];
+      ? product.imgs.map((img, index) => ({ id: index, source: { uri: img } }))
+      : [{ id: 1, source: { uri: "https://b2bmart.vn/images/placeholder.jpg" } }];
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={[styles.container, {}]}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Hero Image */}
         <ImageCarousel
           images={images}
@@ -73,37 +75,22 @@ export default function ProductDetailScreen({
         />
 
         {/* Title & Price */}
-        <Layout
-          paddingHorizontal={spacing.md}
-          gap={spacing.sm}
-          style={{ marginTop: 8 }}
-        >
-          <Label size="3xl" weight="bold">
-            {product.name}
-          </Label>
+        <Layout paddingHorizontal={spacing.md} gap={spacing.sm} style={{ marginTop: 8 }}>
+          <Label size="3xl" weight="bold">{product.name}</Label>
           <Label color="gray">{product.author?.name}</Label>
-          <Layout
-            direction="row"
-            alignVertical="space-between"
-            alignHorizontal="center"
-            fullWidth
-          >
+
+          <Layout direction="row" alignVertical="space-between" alignHorizontal="center" fullWidth>
             <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
               <Star size={iconography.sm} fill="#F5A623" stroke="#F5A623" />
               <Label weight="semibold">4.8</Label>
               <Label size="sm">(132 valoraciones)</Label>
             </Layout>
 
-            <Label size="3xl" weight="bold">
-              ${product.price}
-            </Label>
+            <Label size="3xl" weight="bold">${product.price}</Label>
           </Layout>
         </Layout>
 
-        <Divider
-          style={{ paddingHorizontal: spacing.lg }}
-          margin={spacing.lg}
-        />
+        <Divider style={{ paddingHorizontal: spacing.lg }} margin={spacing.lg} />
 
         {/* Size Selector */}
         <Layout paddingHorizontal={spacing.md} gap={spacing.sm}>
@@ -116,12 +103,9 @@ export default function ProductDetailScreen({
             containerStyle={{ width: "100%" }}
           />
         </Layout>
+
         {/* Description */}
-        <Layout
-          paddingHorizontal={spacing.md}
-          gap={spacing.sm}
-          style={{ marginTop: spacing.md }}
-        >
+        <Layout paddingHorizontal={spacing.md} gap={spacing.sm} style={{ marginTop: spacing.md }}>
           <Label weight="semibold">Descripcion</Label>
           <Label align="justify" color="gray" paragraph>
             {product.description}
@@ -129,49 +113,52 @@ export default function ProductDetailScreen({
         </Layout>
 
         {/* Location */}
-        <Layout
-          paddingHorizontal={spacing.md}
-          gap={spacing.sm}
-          style={{ marginTop: spacing.md }}
-        >
+        <Layout paddingHorizontal={spacing.md} gap={spacing.sm} style={{ marginTop: spacing.md }}>
           <Label weight="semibold">Ubicacion del vendedor</Label>
-          <ImageBackground
-            source={{
-              uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuCB2kWrNsJ9c14_hTT3p6ftKaaVtc66ufl2Nrkg_sRyP4YoFd2rRk8JhUm2MFYCn2CDeEOdzayJAUy2l3p7f0-yAiW3oZB-Bgqw1qnI4TR2-qgT7puxXLzaAmwPpGv35vTLEOKI7Z6ivGiKsl8O4TamVIiL-_8g3M5undVOrSi27nja4y7JynvV--VfS627Pcx1NH0Ht1HZGDZirzr-tOWPBmt_jaifFQrbcIbNyraZ3cGVbCUGdJqBwFi1o3zyn_YUc4t_OSI8j_ig",
-            }}
-            style={styles.mapImage}
-            imageStyle={styles.mapImageStyle}
-          />
+
+          {product.coords?.lat && product.coords?.lng ? (
+            <SellerMap
+              lat={product.coords.lat}
+              lng={product.coords.lng}
+              height={(width - 32) * 0.75}
+              radius={12}
+            />
+          ) : (
+            // Si el producto no tiene coords, no renderizamos mapa
+            <View
+              style={{
+                height: (width - 32) * 0.75,
+                borderRadius: 12,
+                backgroundColor: isDark ? theme.outline : "#eee",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Label color="gray">Ubicación no disponible</Label>
+            </View>
+          )}
 
           <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
             <MapPin size={iconography.sm} color={theme.primary} />
             <Layout gap={spacing.xs}>
-              <Label weight="semibold">PetLife Store</Label>
-              <Label size="sm">Av. Libertador 1234, Buenos Aires</Label>
+              <Label weight="semibold">{product.author?.name ?? "Vendedor"}</Label>
+              <Label size="sm">
+                {product.location && product.location.trim() !== ""
+                  ? product.location
+                  : product.coords?.lat
+                  ? `Lat: ${product.coords.lat.toFixed(5)}, Lng: ${product.coords.lng.toFixed(5)}`
+                  : "Ubicación no disponible"}
+              </Label>
             </Layout>
           </Layout>
         </Layout>
 
-        <Divider
-          style={{ paddingHorizontal: spacing.lg }}
-          margin={spacing.lg}
-        />
+        <Divider style={{ paddingHorizontal: spacing.lg }} margin={spacing.lg} />
 
         {/* Reviews */}
-        <Layout
-          paddingHorizontal={spacing.md}
-          gap={spacing.sm}
-          style={{ paddingBottom: 100 }}
-        >
-          <Layout
-            direction="row"
-            alignVertical="space-between"
-            alignHorizontal="center"
-            fullWidth
-          >
-            <Label size="xl" weight="bold">
-              Reseñas de usuarios
-            </Label>
+        <Layout paddingHorizontal={spacing.md} gap={spacing.sm} style={{ paddingBottom: 100 }}>
+          <Layout direction="row" alignVertical="space-between" alignHorizontal="center" fullWidth>
+            <Label size="xl" weight="bold">Reseñas de usuarios</Label>
             <Label color={theme.primary}>Ver todas</Label>
           </Layout>
 
@@ -179,17 +166,10 @@ export default function ProductDetailScreen({
             <View
               style={[
                 styles.reviewCard,
-                {
-                  backgroundColor: isDark ? theme.outline : theme.background,
-                  gap: 8,
-                },
+                { backgroundColor: isDark ? theme.outline : theme.background, gap: 8 },
               ]}
             >
-              <Layout
-                direction="row"
-                alignVertical="space-between"
-                alignHorizontal="center"
-              >
+              <Layout direction="row" alignVertical="space-between" alignHorizontal="center">
                 <Label weight="semibold">Laura G.</Label>
                 <Layout direction="row" gap={2}>
                   {[...Array(5)].map((_, i) => (
@@ -198,8 +178,7 @@ export default function ProductDetailScreen({
                 </Layout>
               </Layout>
               <Label size="md" weight="extralight">
-                ¡A mi perro le encanta! Tiene mucha más energía y su pelo brilla
-                como nunca.
+                ¡A mi perro le encanta! Tiene mucha más energía y su pelo brilla como nunca.
               </Label>
             </View>
           </Layout>
@@ -212,23 +191,14 @@ export default function ProductDetailScreen({
           style={[
             styles.bottomBar,
             {
-              backgroundColor: isDark
-                ? `${theme.surface}`
-                : `${theme.background}`,
+              backgroundColor: isDark ? `${theme.surface}` : `${theme.background}`,
               borderTopColor: theme.outline,
               paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
             },
           ]}
         >
-          <IconButton
-            icon="Heart"
-            variant="outline"
-            color="#E4080A"
-            colorShape="#E4080A"
-            shape="rounded"
-          />
+          <IconButton icon="Heart" variant="outline" color="#E4080A" colorShape="#E4080A" shape="rounded" />
           <IconButton icon="MapPin" variant="outline" shape="rounded" />
-
           <View style={{ flex: 1 }}>
             <Button title="Contactar" onPress={() => {}} />
           </View>
@@ -239,20 +209,7 @@ export default function ProductDetailScreen({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  }, 
-  mapImage: {
-    width: "100%",
-    height: (width - 32) * 0.75,
-    borderRadius: 12,
-    overflow: "hidden",
-    marginBottom: 12,
-  },
-  mapImageStyle: {
-    borderRadius: 12,
-  },
-
+  container: { flex: 1 },
   reviewCard: {
     backgroundColor: "#fff",
     padding: 16,
@@ -265,17 +222,14 @@ const styles = StyleSheet.create({
     elevation: 2,
     alignSelf: "auto",
   },
-  
   bottomBar: {
     position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: 0, left: 0, right: 0,
     flexDirection: "row",
     padding: 16,
     backgroundColor: "rgba(248, 249, 250, 0.8)",
     borderTopWidth: 1,
     borderTopColor: "#e5e5e5",
     gap: 12,
-  }, 
+  },
 });
