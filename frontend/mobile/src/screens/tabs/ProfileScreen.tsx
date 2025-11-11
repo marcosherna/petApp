@@ -16,7 +16,7 @@ import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Heart, PlusSquare } from "lucide-react-native"; 
+import { Heart, PlusSquare } from "lucide-react-native";
 
 import { Button } from "../../components";
 import { useAuth } from "../../hooks/useAuth";
@@ -50,7 +50,9 @@ export default function ProfileScreen() {
   const goToRegister = () => navigation.navigate("authRegister");
 
   const [updatingPhoto, setUpdatingPhoto] = React.useState(false);
-  const [photo, setPhoto] = React.useState<string | null>(user?.photoURL ?? null);
+  const [photo, setPhoto] = React.useState<string | null>(
+    user?.photoURL ?? null
+  );
 
   React.useEffect(() => {
     setPhoto(user?.photoURL ?? null);
@@ -128,14 +130,17 @@ export default function ProfileScreen() {
       const fileType = blob.type || "image/jpeg";
 
       const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
-      const task = uploadBytesResumable(storageRef, blob, { contentType: fileType });
+      const task = uploadBytesResumable(storageRef, blob, {
+        contentType: fileType,
+      });
 
       await new Promise<void>((resolve, reject) => {
         task.on("state_changed", undefined, reject, resolve);
       });
 
       const url = await getDownloadURL(storageRef);
-      if (auth.currentUser) await updateProfile(auth.currentUser, { photoURL: url });
+      if (auth.currentUser)
+        await updateProfile(auth.currentUser, { photoURL: url });
       setPhoto(url);
 
       Alert.alert("Listo", "Tu foto de perfil se actualizó.");
@@ -191,7 +196,10 @@ export default function ProfileScreen() {
           <>
             {/* --- FOTO --- */}
             <View style={[styles.card, styles.center]}>
-              <TouchableOpacity onPress={handleChangePhoto} activeOpacity={0.85}>
+              <TouchableOpacity
+                onPress={handleChangePhoto}
+                activeOpacity={0.85}
+              >
                 {photo ? (
                   <Image source={{ uri: photo }} style={styles.avatar} />
                 ) : (
@@ -207,13 +215,17 @@ export default function ProfileScreen() {
                   <ActivityIndicator />
                 </View>
               )}
-              <Text style={{ marginTop: 8, color: "#666" }}>Toca la foto para cambiarla</Text>
+              <Text style={{ marginTop: 8, color: "#666" }}>
+                Toca la foto para cambiarla
+              </Text>
             </View>
 
             {/* --- DATOS --- */}
             <View style={styles.card}>
               <Text style={styles.label}>Nombre</Text>
-              <Text style={styles.value}>{user?.displayName || "Sin nombre"}</Text>
+              <Text style={styles.value}>
+                {user?.displayName || "Sin nombre"}
+              </Text>
               <Text style={styles.label}>Correo</Text>
               <Text style={styles.value}>{user?.email || "—"}</Text>
             </View>
@@ -233,7 +245,11 @@ export default function ProfileScreen() {
                   component={FavoritesTab}
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <Heart size={22} color={focused ? "black" : "#999"} strokeWidth={2} />
+                      <Heart
+                        size={22}
+                        color={focused ? "black" : "#999"}
+                        strokeWidth={2}
+                      />
                     ),
                   }}
                 />
@@ -242,7 +258,11 @@ export default function ProfileScreen() {
                   component={CreateTab}
                   options={{
                     tabBarIcon: ({ focused }) => (
-                      <PlusSquare size={22} color={focused ? "black" : "#999"} strokeWidth={2} />
+                      <PlusSquare
+                        size={22}
+                        color={focused ? "black" : "#999"}
+                        strokeWidth={2}
+                      />
                     ),
                   }}
                 />
@@ -298,6 +318,11 @@ const styles = StyleSheet.create({
 });
 
 const tabStyles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "white", justifyContent: "center", alignItems: "center" },
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   text: { color: "#666" },
 });

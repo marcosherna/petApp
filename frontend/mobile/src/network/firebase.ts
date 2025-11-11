@@ -8,19 +8,22 @@ import {
   where,
   WhereFilterOp,
 } from "firebase/firestore";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 import { app } from "../../firebaseConfig";
 import { FirebaseError } from "firebase/app";
-import { getStorage } from "firebase/storage";
+import { getStorage } from "@firebase/storage";
 
 export const database = getFirestore(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
 
-import { getAuth } from "firebase/auth";
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
 
-export const auth = getAuth(app);
-
-export const productCollection = () => `products`;
+export const productCollection = () => `products-general`;
 
 export const subscribe = (
   collectionName: string,
@@ -90,5 +93,3 @@ export const subscribeWithFilter = (
 
   return unsubscribe;
 };
-
-export const storage = getStorage(app);
