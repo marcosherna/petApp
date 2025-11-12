@@ -21,9 +21,14 @@
       ]
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Necesitamos acceder a tu galería para actualizar tu foto de perfil.",
+        "NSCameraUsageDescription": "Necesitamos acceso a la cámara para tomar tu foto de perfil."
+      }
     },
     "android": {
+      "permissions": ["READ_MEDIA_IMAGES", "CAMERA"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
