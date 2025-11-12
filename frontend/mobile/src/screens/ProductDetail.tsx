@@ -10,21 +10,17 @@ import { Star, MapPin } from "lucide-react-native";
 import { ProductDetailScreenProps } from "../navigations/params";
 
 import { Divider, ImageCarousel, Layout, Segment } from "../components/ui";
-import {
-  Button,
-  IconButton,
-  Label,
-  FavoriteButton,
-  PressableLayout,
-} from "../components";
+import { Button, IconButton, Label, FavoriteButton } from "../components";
 
 import { spacing } from "../resourses/spacing";
 import { iconography } from "../resourses/iconography";
 
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
-import { useGlobalBottomSheetModal } from "../hooks/useGlobalBottomSheetModal";
-import { RateProduct } from "./partials/RateProduct";
+import { useProduct } from "../hooks/useProduct";
+
+import { ProductProvider } from "../providers/ProductProvider";
+import RateProduct from "./partials/RateProduct";
 
 const { width } = Dimensions.get("window");
 
@@ -63,17 +59,13 @@ const SellerMap: React.FC<SellerMapProps> = ({
   );
 };
 
-export default function ProductDetailScreen({
-  navigation,
-  route,
-}: ProductDetailScreenProps) {
+function ProductDetailContent() {
   const { theme, isDark } = useTheme();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
 
-  const { openModal } = useGlobalBottomSheetModal();
+  const { product } = useProduct();
 
-  const product = route.params;
   const options = [
     { label: " 2kg", value: "2" },
     { label: " 5kg", value: "5" },
@@ -81,7 +73,7 @@ export default function ProductDetailScreen({
   ];
 
   const images =
-    product.imgs.length > 0
+    product && product.imgs.length > 0
       ? product.imgs.map((img, index) => ({ id: index, source: { uri: img } }))
       : [
           {
@@ -94,17 +86,6 @@ export default function ProductDetailScreen({
     console.log(isFavorite);
     // TODO: implement method
   };
-
-  const handleScoreChange = React.useCallback((score: number) => {
-    console.log("Nuevo puntaje:", score);
-    // TODO: guardar en Firestore, API, etc.
-  }, []);
-
-  const handleRateProduct = React.useCallback(() => {
-    openModal(
-      <RateProduct onChangeScore={(score) => handleScoreChange(score)} />
-    );
-  }, [openModal, handleScoreChange]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -125,9 +106,9 @@ export default function ProductDetailScreen({
           style={{ marginTop: 8 }}
         >
           <Label size="3xl" weight="bold">
-            {product.name}
+            {product?.name}
           </Label>
-          <Label color="gray">{product.author?.name}</Label>
+          <Label color="gray">{product?.author?.name}</Label>
 
           <Layout
             direction="row"
@@ -135,22 +116,10 @@ export default function ProductDetailScreen({
             alignHorizontal="center"
             fullWidth
           >
-            <PressableLayout
-              onPress={() => handleRateProduct()}
-              style={{
-                paddingVertical: 0,
-                paddingHorizontal: 0,
-              }}
-            >
-              <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-                <Star size={iconography.sm} fill="#F5A623" stroke="#F5A623" />
-                <Label weight="semibold">4.8</Label>
-                <Label size="sm">(132 valoraciones)</Label>
-              </Layout>
-            </PressableLayout>
+            <RateProduct />
 
             <Label size="3xl" weight="bold">
-              ${product.price}
+              ${product?.price}
             </Label>
           </Layout>
         </Layout>
@@ -180,7 +149,7 @@ export default function ProductDetailScreen({
         >
           <Label weight="semibold">Descripcion</Label>
           <Label align="justify" color="gray" paragraph>
-            {product.description}
+            {product?.description}
           </Label>
         </Layout>
 
@@ -192,7 +161,7 @@ export default function ProductDetailScreen({
         >
           <Label weight="semibold">Ubicacion del vendedor</Label>
 
-          {product.coords?.lat && product.coords?.lng ? (
+          {product?.coords?.lat && product.coords?.lng ? (
             <SellerMap
               lat={product.coords.lat}
               lng={product.coords.lng}
@@ -218,12 +187,12 @@ export default function ProductDetailScreen({
             <MapPin size={iconography.sm} color={theme.primary} />
             <Layout gap={spacing.xs}>
               <Label weight="semibold">
-                {product.author?.name ?? "Vendedor"}
+                {product?.author?.name ?? "Vendedor"}
               </Label>
               <Label size="sm">
-                {product.location && product.location.trim() !== ""
+                {product?.location && product?.location.trim() !== ""
                   ? product.location
-                  : product.coords?.lat
+                  : product?.coords?.lat
                   ? `Lat: ${product.coords.lat.toFixed(
                       5
                     )}, Lng: ${product.coords.lng.toFixed(5)}`
@@ -313,6 +282,19 @@ export default function ProductDetailScreen({
         </View>
       )}
     </SafeAreaView>
+  );
+}
+
+export default function ProductDetailScreen({
+  navigation,
+  route,
+}: ProductDetailScreenProps) {
+  const product = route.params;
+
+  return (
+    <ProductProvider initialProduct={product}>
+      <ProductDetailContent />
+    </ProductProvider>
   );
 }
 
