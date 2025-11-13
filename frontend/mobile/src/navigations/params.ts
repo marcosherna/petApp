@@ -17,6 +17,8 @@ export type RootStackParamList = {
   authLogin: undefined;
   authRegister: undefined;
   productDetail: Product;
+  addProducto: undefined;
+  editProducto: Product;
 };
 
 export type TabStackParamList = {

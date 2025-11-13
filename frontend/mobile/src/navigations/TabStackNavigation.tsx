@@ -35,16 +35,6 @@ export function TabStackNavigation() {
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
-      <Tab.Screen
-        name="addProducto"
-        component={AddProductoScreen}
-        options={{
-          title: "Agregar Producto",
-          tabBarIcon: ({ color, size }) => (
-            <Package color={color} size={size} />
-          ),
-        }}
-      />
     </Tab.Navigator>
   );
 }
