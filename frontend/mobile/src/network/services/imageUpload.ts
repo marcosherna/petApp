@@ -40,3 +40,24 @@ export async function uploadToCloudinary(
   // URL https servida por CDN
   return json.secure_url as string;
 }
+
+
+
+
+// Note: este apartado es para la foto de perfil de usuario
+// === NUEVO: config para fotos de perfil ===
+export const CLOUDINARY_PROFILE: CloudinaryConfig = {
+  cloudName: "dvej3xdxr",
+  uploadPreset: "petapp_unsigned", // el mismo preset si permite unsigned
+  folder: "users",                  // carpeta separada de 'products'
+};
+
+// (opcional) helper específico para perfiles
+export async function uploadProfilePhoto(uri: string, uid: string) {
+  // sube a subcarpeta por usuario: users/<uid>
+  return uploadToCloudinary(uri, {
+    cloudName: CLOUDINARY_PROFILE.cloudName,
+    uploadPreset: CLOUDINARY_PROFILE.uploadPreset,
+    folder: `${CLOUDINARY_PROFILE.folder}/${uid}`,
+  });
+}

@@ -38,6 +38,8 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
+
+import { uploadProfilePhoto } from "../../network/services/imageUpload";
 /* ===================== Item UI reutilizable ===================== */
 
 function ProductRow({
@@ -226,24 +228,26 @@ export default function ProfileScreen() {
     if (!user) return;
     try {
       setUpdatingPhoto(true);
-      const res = await fetch(uri);
-      const blob = await res.blob();
-      const fileType = blob.type || "image/jpeg";
-      const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
-      const task = uploadBytesResumable(storageRef, blob, { contentType: fileType });
-      await new Promise<void>((resolve, reject) => {
-        task.on("state_changed", undefined, reject, resolve);
-      });
-      const url = await getDownloadURL(storageRef);
-      if (auth.currentUser) await updateProfile(auth.currentUser, { photoURL: url });
+
+      // 1) Subir a Cloudinary (carpeta users/<uid>)
+      const url = await uploadProfilePhoto(uri, user.uid);
+
+      // 2) Guardar la URL en Firebase Auth (photoURL)
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { photoURL: url });
+      }
+
+      // 3) Actualizar UI local
       setPhoto(url);
       Alert.alert("Listo", "Tu foto de perfil se actualizó.");
-    } catch {
+    } catch (e: any) {
+      console.log("cloudinary upload error:", e?.message);
       Alert.alert("Error", "No se pudo actualizar la foto.");
     } finally {
       setUpdatingPhoto(false);
     }
   };
+
 
   const removePhoto = async () => {
     try {
