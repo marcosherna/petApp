@@ -19,10 +19,10 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 export const auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage)
-}); 
+  persistence: getReactNativePersistence(AsyncStorage),
+});
 
-export const productCollection = () => `products-general`;
+export const productCollection = () => `products`;
 
 export const subscribe = (
   collectionName: string,
