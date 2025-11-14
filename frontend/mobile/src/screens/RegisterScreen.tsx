@@ -1,21 +1,64 @@
-import { View, Text, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useNavigation } from "@react-navigation/native";
 
+import { Loading } from "../components/ui";
 import { Button, Input, Label } from "../components";
+import { spacing } from "../resourses/spacing";
+import { useForm } from "../hooks/useForm";
+
 import { RootStackNavigation } from "../navigations/params";
 
-export default function RegisterScreen() {
-  const navigation = useNavigation<RootStackNavigation>();
+import { useAuth } from "../hooks/useAuth";
 
-  const handleMainAppOnPress = () => {
-    navigation.navigate("mainApp");
+export default function RegisterScreen() {
+  const { register } = useAuth();
+  const navigation = useNavigation<RootStackNavigation>();
+  const [loading, setLoading] = React.useState(false);
+
+  const { values, errors, handleChange, validateForm, isFormValid } = useForm({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+    validations: {
+      name: (value) => (!value ? "El nombre es obligatorio" : null),
+      email: (value) =>
+        !/\S+@\S+\.\S+/.test(value) ? "Correo no válido" : null,
+      password: (value) =>
+        value.length < 8 ? "Debe tener al menos 8 caracteres" : null,
+    },
+  });
+
+  const handleSubmit = async () => {
+    const valid = validateForm();
+    if (!valid) return;
+    console.log("Formulario válido:", values);
+
+    try {
+      setLoading(true);
+      const { name, email, password } = values;
+
+      await register(name, email, password);
+      if (navigation.canGoBack()) navigation.pop();
+    } catch (error) {
+      // TODO: implements toast
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <View style={styles.container_content}> 
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container_content}>
           <Label size="6xl" weight="extrabold">
             Register
           </Label>
@@ -23,35 +66,64 @@ export default function RegisterScreen() {
         </View>
 
         <View>
-          <Input label="Nombre" placeholder="user example" />
-          <Input label="Correo" placeholder="example.user@gmail.com" />
-          <Input label="Contrasenia" placeholder="********" />
+          {/* <TextInput placeholder="asdsdad"></TextInput>
+          <TextInput placeholder="asdsdad"></TextInput>
+          <TextInput placeholder="asdsdad"></TextInput>
+          <TextInput placeholder="asdsdad"></TextInput> */}
+          <Input
+            label="Nombre"
+            placeholder="user example"
+            value={values.name}
+            onChangeText={(text) => handleChange("name", text)}
+            error={errors.name}
+          />
+
+          <Input
+            label="Correo"
+            placeholder="example.user@gmail.com"
+            value={values.email}
+            keyboardType="email-address"
+            onChangeText={(text) => handleChange("email", text)}
+            error={errors.email}
+          />
+
+          <Input
+            label="Contraseña"
+            placeholder="admin-1234"
+            // secureTextEntry={true} TODO: hace ruido visual
+            value={values.password}
+            onChangeText={(text) => handleChange("password", text)}
+            error={errors.password}
+          />
         </View>
 
         <View style={{ marginTop: 10 }}>
-          <Button title="Registrarse" onPress={() => handleMainAppOnPress()} />
+          <Button
+            title="Registrarse"
+            onPress={async () => await handleSubmit()}
+            disabled={!isFormValid()}
+          />
         </View>
-      </View>
+      </KeyboardAwareScrollView>
+
+      <Loading visible={loading} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     flexDirection: "column",
     justifyContent: "flex-end",
-    padding: 16,
+    padding: spacing.md,
   },
   container_inputs: {
-    gap: 8,
+    gap: spacing.md,
   },
   container_content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  title: {
-    fontSize: 30,
   },
 });
