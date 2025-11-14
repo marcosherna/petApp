@@ -329,7 +329,7 @@ export default function ProductDetailScreen({
           ]}
         >
           <FavoriteButton
-            key={`favorite-${product.id}-${isFavorite}`} // ✅ Mantenida para la persistencia.
+            key={`favorite-${product.id}-${isFavorite}`}
             defaultValue={isFavorite}
             onPress={(value) => handleFavorite(value)}
           />
