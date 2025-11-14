@@ -16,7 +16,6 @@ import {
   Label,
   FavoriteButton,
   PressableLayout,
-  // Importaciones completas
 } from "../components";
 
 import { spacing } from "../resourses/spacing";
@@ -24,10 +23,17 @@ import { iconography } from "../resourses/iconography";
 
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
-import { useGlobalBottomSheetModal } from "../hooks/useGlobalBottomSheetModal";
-import { RateProduct } from "./partials/RateProduct";
+import { useProduct } from "../hooks/useProduct";
 
-// 🔥 FAVORITOS SERVICES
+import { ProductProvider } from "../providers/ProductProvider";
+import RateProduct from "./partials/RateProduct";
+import {
+  CommentList,
+  CommentButton,
+  BottomSheetComment,
+  ViewAllButton,
+} from "./partials/CommentProduct";
+
 import {
   addFavorite,
   removeFavorite,
@@ -56,30 +62,24 @@ const SellerMap: React.FC<any> = ({ lat, lng, height = 220, radius = 12 }) => {
   );
 };
 
-export default function ProductDetailScreen({
-  navigation,
-  route,
-}: ProductDetailScreenProps) {
+function ProductDetailContent({ navigation, route }: any) {
   const { theme, isDark } = useTheme();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const { product, openComment } = useProduct();
 
-  const { openModal } = useGlobalBottomSheetModal();
+  // ---- FAVORITOS ----
+  const prod = route?.params ?? product;
 
-  const product = route.params;
-
-  // 🔥 favorito local
   const [isFavorite, setIsFavorite] = React.useState(false);
 
-  // verificar si ya es favorito
   React.useEffect(() => {
-    if (!user) return;
+    if (!user || !prod?.id) return;
     (async () => {
-      // ✅ Verifica el estado cada vez que cambie el usuario o el producto
-      const fav = await isProductFavorite(user.uid, product.id);
+      const fav = await isProductFavorite(user.uid, prod.id);
       setIsFavorite(fav);
     })();
-  }, [user, product.id]);
+  }, [user, prod?.id]);
 
   const handleFavorite = async (value: boolean) => {
     if (!user) {
@@ -92,18 +92,13 @@ export default function ProductDetailScreen({
     }
 
     try {
-      // ⚠️ LÓGICA CORREGIDA (INVERTIDA por fallo del componente FavoriteButton):
-      // Si el botón devuelve 'false', el usuario quiere AGREGAR (corazón lleno).
       if (value === false) {
-        await addFavorite(user.uid, product);
+        await addFavorite(user.uid, prod);
         Alert.alert("Favoritos", "Producto agregado ❤️");
-        // Establecer el estado local correctamente
         setIsFavorite(true);
       } else {
-        // Si el botón devuelve 'true', el usuario quiere REMOVER (corazón vacío).
-        await removeFavorite(user.uid, product.id);
+        await removeFavorite(user.uid, prod.id);
         Alert.alert("Favoritos", "Producto eliminado 💔");
-        // Establecer el estado local correctamente
         setIsFavorite(false);
       }
     } catch (err) {
@@ -112,6 +107,7 @@ export default function ProductDetailScreen({
     }
   };
 
+  // ---- SELECTOR ----
   const options = [
     { label: " 2kg", value: "2" },
     { label: " 5kg", value: "5" },
@@ -119,24 +115,17 @@ export default function ProductDetailScreen({
   ];
 
   const images =
-    product.imgs && product.imgs.length > 0 // ⬅️ CORRECCIÓN: Se comprueba que 'product.imgs' no sea undefined
-      ? product.imgs.map((img, index) => ({ id: index, source: { uri: img } }))
+    prod?.imgs && prod.imgs.length > 0
+      ? prod.imgs.map((img: any, index: any) => ({
+          id: index,
+          source: { uri: img },
+        }))
       : [
           {
             id: 1,
             source: { uri: "https://b2bmart.vn/images/placeholder.jpg" },
           },
         ];
-
-  const handleScoreChange = React.useCallback((score: number) => {
-    console.log("Nuevo puntaje:", score);
-  }, []);
-
-  const handleRateProduct = React.useCallback(() => {
-    openModal(
-      <RateProduct onChangeScore={(score) => handleScoreChange(score)} />
-    );
-  }, [openModal, handleScoreChange]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -156,9 +145,9 @@ export default function ProductDetailScreen({
           style={{ marginTop: 8 }}
         >
           <Label size="3xl" weight="bold">
-            {product.name}
+            {prod?.name}
           </Label>
-          <Label color="gray">{product.author?.name}</Label>
+          <Label color="gray">{prod?.author?.name}</Label>
 
           <Layout
             direction="row"
@@ -166,22 +155,9 @@ export default function ProductDetailScreen({
             alignHorizontal="center"
             fullWidth
           >
-            <PressableLayout
-              onPress={() => handleRateProduct()}
-              style={{
-                paddingVertical: 0,
-                paddingHorizontal: 0,
-              }}
-            >
-              <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-                <Star size={iconography.sm} fill="#F5A623" stroke="#F5A623" />
-                <Label weight="semibold">4.8</Label>
-                <Label size="sm">(132 valoraciones)</Label>
-              </Layout>
-            </PressableLayout>
-
+            <RateProduct />
             <Label size="3xl" weight="bold">
-              ${product.price}
+              ${prod?.price}
             </Label>
           </Layout>
         </Layout>
@@ -211,7 +187,7 @@ export default function ProductDetailScreen({
         >
           <Label weight="semibold">Descripción</Label>
           <Label align="justify" color="gray" paragraph>
-            {product.description}
+            {prod?.description}
           </Label>
         </Layout>
 
@@ -223,10 +199,10 @@ export default function ProductDetailScreen({
         >
           <Label weight="semibold">Ubicación del vendedor</Label>
 
-          {product.coords?.lat && product.coords?.lng ? (
+          {prod?.coords?.lat && prod.coords?.lng ? (
             <SellerMap
-              lat={product.coords.lat}
-              lng={product.coords.lng}
+              lat={prod.coords.lat}
+              lng={prod.coords.lng}
               height={(width - 32) * 0.75}
               radius={12}
             />
@@ -248,15 +224,15 @@ export default function ProductDetailScreen({
             <MapPin size={iconography.sm} color={theme.primary} />
             <Layout gap={spacing.xs}>
               <Label weight="semibold">
-                {product.author?.name ?? "Vendedor"}
+                {prod?.author?.name ?? "Vendedor"}
               </Label>
               <Label size="sm">
-                {product.location && product.location.trim() !== ""
-                  ? product.location
-                  : product.coords?.lat
-                  ? `Lat: ${product.coords.lat.toFixed(
+                {prod?.location && prod.location.trim() !== ""
+                  ? prod.location
+                  : prod?.coords?.lat
+                  ? `Lat: ${prod.coords.lat.toFixed(
                       5
-                    )}, Lng: ${product.coords.lng.toFixed(5)}`
+                    )}, Lng: ${prod.coords.lng.toFixed(5)}`
                   : "Ubicación no disponible"}
               </Label>
             </Layout>
@@ -283,9 +259,10 @@ export default function ProductDetailScreen({
             <Label size="xl" weight="bold">
               Reseñas de usuarios
             </Label>
-            <Label color={theme.primary}>Ver todas</Label>
+            <ViewAllButton />
           </Layout>
 
+          {/* TU CARD DE RATING + los comentarios de tu compañero */}
           <Layout>
             <View
               style={[
@@ -312,6 +289,9 @@ export default function ProductDetailScreen({
                 ¡A mi perro le encanta!
               </Label>
             </View>
+
+            {/* Comentarios de tu compañero */}
+            <CommentList maxFields={1} />
           </Layout>
         </Layout>
       </ScrollView>
@@ -329,19 +309,36 @@ export default function ProductDetailScreen({
           ]}
         >
           <FavoriteButton
-            key={`favorite-${product.id}-${isFavorite}`}
+            key={`favorite-${prod.id}-${isFavorite}`}
             defaultValue={isFavorite}
             onPress={(value) => handleFavorite(value)}
           />
 
           <IconButton icon="MapPin" variant="outline" shape="rounded" />
 
+          <CommentButton />
+
           <View style={{ flex: 1 }}>
             <Button title="Contactar" onPress={() => {}} />
           </View>
         </View>
       )}
+
+      <BottomSheetComment />
     </SafeAreaView>
+  );
+}
+
+export default function ProductDetailScreen({
+  navigation,
+  route,
+}: ProductDetailScreenProps) {
+  const product = route.params;
+
+  return (
+    <ProductProvider initialProduct={product}>
+      <ProductDetailContent navigation={navigation} route={route} />
+    </ProductProvider>
   );
 }
 
