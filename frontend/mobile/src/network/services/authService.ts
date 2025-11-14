@@ -6,7 +6,8 @@ import {
   User,
 } from "firebase/auth";
 
-import { auth as authenticate } from "../firebase";
+import { auth as authenticate, database } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 // const auth = getAuth(app);
 
@@ -14,8 +15,6 @@ export const unsubscribeSession = (callback: (user: User | null) => void) =>
   onAuthStateChanged(authenticate, (currentUser) => {
     callback(currentUser);
   });
-
- 
 
 export const register = async (
   name: string,
@@ -33,7 +32,7 @@ export const register = async (
   return user;
 };
 
-export const sigIn  = async (email: string, password: string) => {
+export const sigIn = async (email: string, password: string) => {
   const userCredential = await signInWithEmailAndPassword(
     authenticate,
     email,
@@ -47,3 +46,16 @@ export const sigIn  = async (email: string, password: string) => {
 export const signOut = async () => {
   await authenticate.signOut();
 };
+
+export async function getUserRating(
+  userId: string,
+  productId: string
+): Promise<number> {
+  const ratingDoc = await getDoc(
+    doc(database, "products", productId, "ratings", userId)
+  );
+  if (ratingDoc.exists()) {
+    return parseInt(ratingDoc.data().rating);
+  }
+  return 0;
+}
