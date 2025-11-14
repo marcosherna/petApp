@@ -38,24 +38,7 @@ export function TabStackNavigation() {
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
-      <Tab.Screen
-        name="favorites"
-        component={FavoritesScreen}
-        options={{
-          title: "Favoritos",
-          tabBarIcon: ({ color, size }) => <Heart color={color} size={size} />,
-        }}
-      />
-      <Tab.Screen
-        name="addProducto"
-        component={AddProductoScreen}
-        options={{
-          title: "Agregar Producto",
-          tabBarIcon: ({ color, size }) => (
-            <Package color={color} size={size} />
-          ),
-        }}
-      />
+
     </Tab.Navigator>
   );
 }

@@ -4,7 +4,7 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { View, ScrollView, StyleSheet, Dimensions } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from "react-native-maps";
 import { Star, MapPin } from "lucide-react-native";
 
 import { ProductDetailScreenProps } from "../navigations/params";
@@ -44,20 +44,16 @@ const SellerMap: React.FC<SellerMapProps> = ({
   return (
     <View style={{ height, borderRadius: radius, overflow: "hidden" }}>
       <MapView
+        provider={PROVIDER_DEFAULT}
         style={{ flex: 1 }}
-        provider={PROVIDER_GOOGLE} // en iOS usa Apple Maps automáticamente
         initialRegion={{
-          latitude: lat,
-          longitude: lng,
+          latitude: 13.68935,
+          longitude: -89.18718,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}
-        pitchEnabled={false}
-        rotateEnabled={false}
-        showsCompass={false}
-        toolbarEnabled={false}
       >
-        <Marker coordinate={{ latitude: lat, longitude: lng }} />
+        <Marker coordinate={{ latitude: 13.68935, longitude: -89.18718 }} />
       </MapView>
     </View>
   );
