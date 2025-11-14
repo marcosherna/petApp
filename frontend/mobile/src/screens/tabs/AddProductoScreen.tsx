@@ -8,12 +8,10 @@ import {
   Image,
   ActivityIndicator,
   Alert,
-  TextInput,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-
-// 🔁 Íconos Lucide (alias para no chocar con Image de RN)
 import {
   Image as ImageIcon,
   List,
@@ -23,19 +21,21 @@ import {
 } from "lucide-react-native";
 
 // hooks y componentes del proyecto
-import { useAuth } from "../../hooks/useAuth"; // obtiene { user }
+import { useAuth } from "../../hooks/useAuth"; // obtiene { user } (solo para createdBy/author)
 import { useTheme } from "../../hooks/useTheme"; // obtiene { theme }
 import { useForm } from "../../hooks/useForm"; // maneja formularios
 import { Input } from "../../components/Input"; // input estilizado
 
 // Firebase y Cloudinary
-import { auth, db } from "../../network/firebase";
+import { db } from "../../network/firebase"; // si 'db' no existe aquí, usa: ../../../firebaseConfig
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   uploadToCloudinary,
   CLOUDINARY,
 } from "../../network/services/imageUpload";
+
+// Mapa nativo (tu archivo reemplazado)
+import MapPicker from "../../components/MapPicker";
 
 const CATEGORIES = ["Comida", "Juguetes", "Higiene", "Salud"];
 const SIZES = ["Pequeño", "Mediano", "Grande"];
@@ -72,6 +72,12 @@ export default function AddProductoScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [subiendo, setSubiendo] = useState(false);
 
+  // mapa
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
+  const [showMap, setShowMap] = useState(false);
+
   // Solicitar permisos para galería
   const solicitarPermisos = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -103,16 +109,8 @@ export default function AddProductoScreen() {
     uploadToCloudinary(uri, CLOUDINARY);
 
   const handlePublicar = async () => {
-    const user = auth.currentUser;
-
-    if (!values.name.trim())
-      return Alert.alert("Falta el nombre", "Ingresa el nombre del producto.");
-    if (!values.price.trim() || isNaN(Number(values.price))) {
-      return Alert.alert(
-        "Precio inválido",
-        "Ingresa un precio numérico (ej: 12.50)."
-      );
-    }
+    const ok = validateForm();
+    if (!ok) return;
 
     try {
       setSubiendo(true);
@@ -143,11 +141,13 @@ export default function AddProductoScreen() {
           : null,
         createdAt: serverTimestamp(),
         status: "active",
+        coords: coords ? { lat: coords.lat, lng: coords.lng } : null, // ← guarda coordenadas del mapa nativo
       });
 
       // reset
       resetForm();
       setImageUri(null);
+      setCoords(null);
 
       Alert.alert("✅ Producto publicado", `ID: ${docRef.id}`);
     } catch (e) {
@@ -165,30 +165,26 @@ export default function AddProductoScreen() {
       <ScrollView contentContainerStyle={s.content}>
         {/* Imagen */}
         <TouchableOpacity
-          style={styles.imageUploader}
+          style={s.imageUploader}
           onPress={seleccionarImagen}
           activeOpacity={0.85}
         >
           {imageUri ? (
             <>
-              <Image source={{ uri: imageUri }} style={styles.preview} />
-              <Text style={styles.imageSubtitle}>
-                Toca para cambiar la imagen
-              </Text>
+              <Image source={{ uri: imageUri }} style={s.preview} />
+              <Text style={s.imageSubtitle}>Toca para cambiar la imagen</Text>
             </>
           ) : (
             <>
               <View style={s.imageIconWrapper}>
                 <ImageIcon size={32} color={colors.primary} strokeWidth={2} />
               </View>
-              <Text style={styles.imageTitle}>
-                Sube una foto de tu producto
-              </Text>
-              <Text style={styles.imageSubtitle}>
+              <Text style={s.imageTitle}>Sube una foto de tu producto</Text>
+              <Text style={s.imageSubtitle}>
                 Toca aquí para seleccionar una imagen
               </Text>
-              <View style={styles.selectButton}>
-                <Text style={styles.selectButtonText}>Seleccionar Archivo</Text>
+              <View style={s.selectButton}>
+                <Text style={s.selectButtonText}>Seleccionar Archivo</Text>
               </View>
             </>
           )}
@@ -213,18 +209,17 @@ export default function AddProductoScreen() {
           numberOfLines={4}
         />
 
-        {/* Categoría (dropdown) */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Categoría</Text>
-
-          <View style={styles.dropdownContainer}>
+        {/* Categoría */}
+        <View style={s.formGroup}>
+          <Text style={s.label}>Categoría</Text>
+          <View style={s.dropdownContainer}>
             <TouchableOpacity
-              style={styles.dropdownHeader}
+              style={s.dropdownHeader}
               onPress={() => setShowCat(!showCat)}
             >
-              <View style={styles.dropdownLeft}>
-                <List size={18} color="#6aa383" />
-                <Text style={styles.dropdownText}>{values.category}</Text>
+              <View style={s.dropdownLeft}>
+                <List size={18} color={colors.secondaryText} />
+                <Text style={s.dropdownText}>{values.category}</Text>
               </View>
               {showCat ? (
                 <ChevronUp size={18} color={colors.secondaryText} />
@@ -239,8 +234,8 @@ export default function AddProductoScreen() {
                   <TouchableOpacity
                     key={c}
                     style={[
-                      styles.dropdownItem,
-                      c === values.category && styles.dropdownItemActive,
+                      s.dropdownItem,
+                      c === values.category && s.dropdownItemActive,
                     ]}
                     onPress={() => {
                       handleChange("category", c);
@@ -249,8 +244,8 @@ export default function AddProductoScreen() {
                   >
                     <Text
                       style={[
-                        styles.dropdownItemText,
-                        c === values.category && styles.dropdownItemTextActive,
+                        s.dropdownItemText,
+                        c === values.category && s.dropdownItemTextActive,
                       ]}
                     >
                       {c}
@@ -294,9 +289,7 @@ export default function AddProductoScreen() {
                   style={[s.chip, active && s.chipActive]}
                   onPress={() => handleChange("size", opt)}
                 >
-                  <Text
-                    style={[styles.chipText, active && styles.chipTextActive]}
-                  >
+                  <Text style={[s.chipText, active && s.chipTextActive]}>
                     {opt}
                   </Text>
                 </TouchableOpacity>
@@ -305,20 +298,38 @@ export default function AddProductoScreen() {
           </View>
         </View>
 
-        {/* Ubicación (con icono a la izquierda) */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Ubicación</Text>
-          <View style={styles.inputWithIcon}>
-            <MapPin size={18} color="#6aa383" style={{ marginRight: 8 }} />
-            <TextInput
-              style={[
-                styles.input,
-                { flex: 1, borderWidth: 0, paddingHorizontal: 0 },
-              ]}
+        {/* Ubicación */}
+        <View style={s.formGroup}>
+          <Text style={s.label}>Ubicación</Text>
+          <View style={s.inputWithIcon}>
+            <MapPin
+              size={18}
+              color={colors.secondaryText}
+              style={{ marginRight: 8 }}
+            />
+            <Input
               placeholder="Ingresa una dirección"
               value={values.location}
               onChangeText={(t: string) => handleChange("location", t)}
+              containerStyle={{ flex: 1 }}
+              inputStyle={{ borderWidth: 0, paddingHorizontal: 0 }}
             />
+          </View>
+
+          {/* Botón para abrir mapa */}
+          <View style={{ marginTop: 8 }}>
+            <TouchableOpacity
+              style={s.selectButton}
+              onPress={() => setShowMap(true)}
+            >
+              <Text style={s.selectButtonText}>
+                {coords
+                  ? `📍 Lat: ${coords.lat.toFixed(
+                      5
+                    )}, Lng: ${coords.lng.toFixed(5)} (Cambiar)`
+                  : "Elegir en el mapa"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -331,175 +342,118 @@ export default function AddProductoScreen() {
           disabled={subiendo}
         >
           {subiendo ? (
-            <ActivityIndicator />
+            <ActivityIndicator color={colors.onPrimary} />
           ) : (
-            <Text style={styles.publishText}>Publicar Producto</Text>
+            <Text style={s.publishText}>Publicar Producto</Text>
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Modal del mapa (usa el MapPicker nativo) */}
+      <Modal
+        visible={showMap}
+        animationType="slide"
+        onRequestClose={() => setShowMap(false)}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+          <View style={{ flex: 1 }}>
+            <MapPicker
+              initial={coords ?? { lat: 13.68935, lng: -89.18718 }} // San Salvador por defecto
+              onPick={(p) => setCoords(p)}
+              onClose={() => setShowMap(false)}
+            />
+          </View>
+          <View style={{ padding: 12 }}>
+            <TouchableOpacity
+              style={s.publishButton}
+              onPress={() => setShowMap(false)}
+            >
+              <Text style={s.publishText}>Usar esta ubicación</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f6f8f7" },
-  content: { padding: 16 },
-
-  imageUploader: {
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#dbe6e0",
-    borderStyle: "dashed",
-    borderRadius: 16,
-    paddingVertical: 16,
-    backgroundColor: "#ffffff",
-    marginBottom: 20,
-  },
-  imageIconWrapper: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#e9fbf1",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 8,
-  },
-  preview: {
-    width: "100%",
-    height: 220,
-    borderRadius: 12,
-    resizeMode: "cover",
-  },
-  imageTitle: { fontWeight: "bold", fontSize: 16 },
-  imageSubtitle: {
-    fontSize: 13,
-    color: "#618972",
-    marginTop: 6,
-    marginBottom: 10,
-  },
-  selectButton: {
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 24,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    backgroundColor: "#f8faf9",
-  },
-  selectButtonText: { fontWeight: "bold", fontSize: 14 },
-
-  formGroup: { marginBottom: 16 },
-  label: { fontSize: 15, fontWeight: "600", marginBottom: 6, color: "#2d3b34" },
-  input: {
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 14,
-    height: 48,
-    fontSize: 15,
-    color: "#1c2b24",
-  },
-  textArea: { height: 120, textAlignVertical: "top" },
-
-  dropdownContainer: { position: "relative" },
-  dropdownHeader: {
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    height: 48,
-    paddingHorizontal: 12,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  dropdownLeft: { flexDirection: "row", alignItems: "center" },
-  dropdownText: { marginLeft: 8, fontSize: 15, color: "#1c2b24" },
-  dropdownList: {
-    marginTop: 6,
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    overflow: "hidden",
-  },
-  dropdownItem: { paddingVertical: 10, paddingHorizontal: 12 },
-  dropdownItemActive: { backgroundColor: "#e9fbf1" },
-  dropdownItemText: { fontSize: 15, color: "#1c2b24" },
-  dropdownItemTextActive: { fontWeight: "700", color: "#2d7a52" },
-
-  sizeRow: { flexDirection: "row", gap: 8 },
-  chip: {
-    paddingHorizontal: 14,
-    height: 38,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "#cfe4d7",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ffffff",
-  },
-  chipActive: { backgroundColor: "#13ec6d", borderColor: "#13ec6d" },
-  chipText: { fontWeight: "600", color: "#2d3b34" },
-  chipTextActive: { color: "#0e0f0e" },
-
-  inputWithIcon: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#dbe6e0",
-    borderRadius: 12,
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 12,
-    height: 48,
-  },
-
-  footer: {
-    borderTopWidth: 1,
-    borderColor: "#dbe6e0",
-    backgroundColor: "#ffffff",
-    padding: 16,
-  },
-  publishButton: {
-    backgroundColor: "#13ec6d",
-    borderRadius: 12,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#13ec6d",
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  publishText: { fontSize: 16, fontWeight: "bold", color: "#000000" },
-});
-function themedStyles(colors: {
-  primary: string;
-  onPrimary: string;
-  background: string;
-  surface: string;
-  text: string;
-  secondaryText: string;
-  outline: string;
-  accent: string;
-}) {
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    content: {
-      padding: 16,
+// estilos
+const themedStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { padding: 16 },
+    imageUploader: {
+      alignItems: "center",
+      borderWidth: 2,
+      borderColor: colors.outline,
+      borderStyle: "dashed",
+      borderRadius: 16,
+      paddingVertical: 16,
+      backgroundColor: colors.surface,
+      marginBottom: 20,
     },
     imageIconWrapper: {
       width: 56,
       height: 56,
       borderRadius: 28,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceAlt ?? "#e9fbf1",
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 8,
     },
+    preview: {
+      width: "100%",
+      height: 220,
+      borderRadius: 12,
+      resizeMode: "cover",
+    },
+    imageTitle: { fontWeight: "bold", fontSize: 16, color: colors.text },
+    imageSubtitle: {
+      fontSize: 13,
+      color: colors.secondaryText,
+      marginTop: 6,
+      marginBottom: 10,
+    },
+    selectButton: {
+      borderWidth: 1,
+      borderColor: colors.outline,
+      borderRadius: 24,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      backgroundColor: colors.surface,
+    },
+    selectButtonText: { fontWeight: "bold", fontSize: 14, color: colors.text },
+    formGroup: { marginBottom: 16 },
+    label: {
+      fontSize: 15,
+      fontWeight: "600",
+      marginBottom: 6,
+      color: colors.text,
+    },
+    inputWithIcon: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: colors.outline,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      paddingHorizontal: 12,
+      height: 48,
+    },
+    dropdownContainer: { position: "relative" },
+    dropdownHeader: {
+      borderWidth: 1,
+      borderColor: colors.outline,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      height: 48,
+      paddingHorizontal: 12,
+      alignItems: "center",
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    dropdownLeft: { flexDirection: "row", alignItems: "center" },
+    dropdownText: { marginLeft: 8, fontSize: 15, color: colors.text },
     dropdownList: {
       marginTop: 6,
       borderWidth: 1,
@@ -508,19 +462,11 @@ function themedStyles(colors: {
       backgroundColor: colors.surface,
       overflow: "hidden",
     },
-    formGroup: {
-      marginBottom: 16,
-    },
-    label: {
-      fontSize: 15,
-      fontWeight: "600",
-      marginBottom: 6,
-      color: colors.text,
-    },
-    sizeRow: {
-      flexDirection: "row",
-      gap: 8,
-    },
+    dropdownItem: { paddingVertical: 10, paddingHorizontal: 12 },
+    dropdownItemActive: { backgroundColor: colors.surfaceAlt ?? "#e9fbf1" },
+    dropdownItemText: { fontSize: 15, color: colors.text },
+    dropdownItemTextActive: { fontWeight: "700", color: colors.primary },
+    sizeRow: { flexDirection: "row", gap: 8 },
     chip: {
       paddingHorizontal: 14,
       height: 38,
@@ -532,9 +478,11 @@ function themedStyles(colors: {
       backgroundColor: colors.surface,
     },
     chipActive: {
-      backgroundColor: colors.accent,
-      borderColor: colors.accent,
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
     },
+    chipText: { fontWeight: "600", color: colors.text },
+    chipTextActive: { color: colors.onPrimary },
     footer: {
       borderTopWidth: 1,
       borderColor: colors.outline,
@@ -542,15 +490,15 @@ function themedStyles(colors: {
       padding: 16,
     },
     publishButton: {
-      backgroundColor: colors.accent,
+      backgroundColor: colors.primary,
       borderRadius: 12,
       height: 50,
       justifyContent: "center",
       alignItems: "center",
-      shadowColor: colors.accent,
-      shadowOpacity: 0.3,
+      shadowColor: colors.primary,
+      shadowOpacity: 0.25,
       shadowRadius: 8,
       elevation: 3,
     },
+    publishText: { fontSize: 16, fontWeight: "bold", color: colors.onPrimary },
   });
-}
