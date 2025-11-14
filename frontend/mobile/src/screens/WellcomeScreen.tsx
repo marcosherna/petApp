@@ -1,11 +1,11 @@
 import { View, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { wellcomeScreenProps } from "../navigations/params";
+import { RootScreenProps } from "../navigations/params";
 
 import { Button, Label } from "../components";
 
-export default function WellcomeScreen({ navigation }: wellcomeScreenProps) {
+export default function WellcomeScreen({ navigation }: RootScreenProps) {
   const handleLoginOnPress = () => {
     navigation.navigate("authLogin");
   };
