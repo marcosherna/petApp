@@ -1,30 +1,23 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  Image,
-  Alert,
-  Platform,
-  ActionSheetIOS,
-  TouchableOpacity,
-  useWindowDimensions,
-  ScrollView,
-  FlatList,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { updateProfile } from "firebase/auth";
-import { Heart, PlusSquare, Pencil, Trash2 } from "lucide-react-native";
 
-import { Button, Label } from "../../components";
 import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../hooks/useTheme";
 import { RootStackNavigation } from "../../navigations/params";
-import { auth, storage, db } from "../../network/firebase";
+
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "../../network/firebase";
+
+import { ProfileHeader } from "../../components/profile/ProfileHeader";
+import { ProfileTabs } from "../../components/profile/ProfileTabs";
+import { ProductList } from "../../components/profile/ProductList";
+import { FavoritesList } from "../../components/profile/FavoritesList";
+import { usePhotoPicker } from "../../components/profile/PhotoPicker";
+
 import { spacing } from "../../resourses/spacing";
+<<<<<<< HEAD
 import { EmptyTemplate } from "../../components/ui";
 import { Product } from "../../network/models";
 
@@ -94,21 +87,34 @@ type SlimProduct = {
   price: number;
   imgCover?: string;
 };
+=======
+import { Label, IconButton, Button } from "../../components";
+>>>>>>> 2638447 (favoritos)
 
 export default function ProfileScreen() {
   const navigation = useNavigation<RootStackNavigation>();
   const { user, loading, signOut } = useAuth();
-  const { height } = useWindowDimensions();
+  const { theme } = useTheme();
 
+<<<<<<< HEAD
   const [activeTab, setActiveTab] = React.useState<"favorites" | "myProducts">(
     "myProducts"
   );
+=======
+  const [tab, setTab] = useState<"myProducts" | "favorites">("myProducts");
+  const [products, setProducts] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [productCount, setProductCount] = useState(0);
+>>>>>>> 2638447 (favoritos)
 
-  // Contador y listas
-  const [productCount, setProductCount] = React.useState<number>(0);
-  const [products, setProducts] = React.useState<SlimProduct[]>([]);
-  const [favorites, setFavorites] = React.useState<SlimProduct[]>([]);
+  /* FOTO */
+  const {
+    photo,
+    loading: updatingPhoto,
+    openOptions,
+  } = usePhotoPicker(user?.photoURL ?? null);
 
+<<<<<<< HEAD
   // ---- Mis productos ----
   React.useEffect(() => {
     if (!user?.uid) {
@@ -121,31 +127,34 @@ export default function ProfileScreen() {
       where("createdBy", "==", user.uid)
     );
     const off1 = onSnapshot(qCount, (snap) => setProductCount(snap.size));
+=======
+  /* MIS PRODUCTOS */
+  useEffect(() => {
+    if (!user?.uid) return;
+>>>>>>> 2638447 (favoritos)
 
-    const qList = query(
+    const q = query(
       collection(db, "products"),
       where("createdBy", "==", user.uid)
     );
-    const off2 = onSnapshot(qList, (snap) => {
-      const rows: SlimProduct[] = [];
+
+    return onSnapshot(q, (snap) => {
+      const list: any[] = [];
       snap.forEach((d) => {
-        const data = d.data() as any;
-        rows.push({
+        const data = d.data();
+        list.push({
           id: d.id,
           name: data.name,
-          price: data.price ?? 0,
+          price: data.price,
           imgCover: data.imgCover ?? data.images?.[0],
         });
       });
-      setProducts(rows);
+      setProducts(list);
+      setProductCount(snap.size);
     });
-
-    return () => {
-      off1();
-      off2();
-    };
   }, [user?.uid]);
 
+<<<<<<< HEAD
   // ---- Favoritos (ajusta a tu esquema) ----
   React.useEffect(() => {
     if (!user?.uid) {
@@ -159,20 +168,33 @@ export default function ProfileScreen() {
     );
     const off = onSnapshot(qFav, (snap) => {
       const rows: SlimProduct[] = [];
+=======
+  /* FAVORITOS */
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const q = query(
+      collection(db, "favorites"),
+      where("userId", "==", user.uid)
+    );
+
+    return onSnapshot(q, (snap) => {
+      const list: any[] = [];
+>>>>>>> 2638447 (favoritos)
       snap.forEach((d) => {
-        const data = d.data() as any;
-        rows.push({
-          id: d.id, // o data.productId si quieres
+        const data = d.data();
+        list.push({
+          id: data.productId,
           name: data.name,
-          price: data.price ?? 0,
+          price: data.price,
           imgCover: data.imgCover,
         });
       });
-      setFavorites(rows);
+      setFavorites(list);
     });
-    return () => off();
   }, [user?.uid]);
 
+<<<<<<< HEAD
   // Foto de perfil
   const [updatingPhoto, setUpdatingPhoto] = React.useState(false);
   const [photo, setPhoto] = React.useState<string | null>(
@@ -299,27 +321,33 @@ export default function ProfileScreen() {
   };
 
   if (loading) {
+=======
+  /* EDITAR / ELIMINAR PRODUCTO */
+  const deleteProduct = (id: string, name?: string) => {
+    navigation.navigate("editProducto", { id, name: name || "" } as any);
+  };
+
+  if (loading)
+>>>>>>> 2638447 (favoritos)
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.center}>
-          <ActivityIndicator />
-          <Text style={{ marginTop: 8 }}>Cargando…</Text>
-        </View>
+      <SafeAreaView style={styles.center}>
+        <View />
       </SafeAreaView>
     );
-  }
-
-  const dataToRender = activeTab === "favorites" ? favorites : products;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* ÚNICO SCROLL GENERAL */}
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
       <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 20, paddingBottom: 24 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          padding: spacing.md,
+          gap: spacing.lg,
+        }}
       >
+        {/* CUANDO NO HAY USUARIO */}
         {!user ? (
+<<<<<<< HEAD
           <View style={styles.card}>
             <Text style={styles.text}>No has iniciado sesión.</Text>
             <View style={{ gap: 8 }}>
@@ -444,6 +472,102 @@ export default function ProfileScreen() {
                   />
                 }
               />
+=======
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: theme.surface,
+                borderColor: theme.outline,
+                alignItems: "center",
+                gap: spacing.md,
+              },
+            ]}
+          >
+            <Label size="lg" weight="bold" color={theme.text}>
+              No has iniciado sesión
+            </Label>
+
+            <Button
+              title="Iniciar sesión"
+              variant="primary"
+              onPress={() => navigation.navigate("authLogin")}
+              style={{ minWidth: 160 }}
+            />
+          </View>
+        ) : (
+          <>
+            {/* HEADER */}
+            <ProfileHeader
+              photo={photo}
+              updatingPhoto={updatingPhoto}
+              name={user.displayName || "Usuario"}
+              email={user.email || ""}
+              productCount={productCount}
+              onChangePhoto={openOptions}
+              onEditProfile={() => {}}
+              onLogout={signOut}
+            />
+
+            {/* TABS + LISTA */}
+            <View
+              style={[
+                styles.card,
+                {
+                  backgroundColor: theme.surface,
+                  borderColor: theme.outline,
+                },
+              ]}
+            >
+              <ProfileTabs active={tab} onChange={setTab} />
+
+              {/* BOTÓN NUEVO (SOLO SI TAB = MIS PRODUCTOS) */}
+              {tab === "myProducts" && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: spacing.sm,
+                  }}
+                >
+                  <Label size="xl" weight="bold" color={theme.text}>
+                    Mis productos
+                  </Label>
+
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      backgroundColor: theme.primary,
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      borderRadius: 14,
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <IconButton
+                      icon="Plus"
+                      size={14}
+                      color="#fff"
+                      colorShape="transparent"
+                      variant="ghost"
+                      onPress={() => navigation.navigate("addProducto")}
+                    />
+                    <Label color="#fff" weight="bold" size="sm">
+                      Nuevo
+                    </Label>
+                  </View>
+                </View>
+              )}
+
+              {/* LISTAS */}
+              {tab === "myProducts" ? (
+                <ProductList data={products} onDelete={deleteProduct} />
+              ) : (
+                <FavoritesList data={favorites} />
+              )}
+>>>>>>> 2638447 (favoritos)
             </View>
           </>
         )}
@@ -452,22 +576,16 @@ export default function ProfileScreen() {
   );
 }
 
-/* ===================== Estilos ===================== */
-
-const AVATAR_SIZE = 100;
-
+/* ESTILOS */
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  center: { justifyContent: "center", alignItems: "center", flex: 1 },
-
   card: {
     borderWidth: 1,
-    borderColor: "#e5e7eb",
     borderRadius: 12,
-    padding: 16,
-    gap: 10,
-    backgroundColor: "white",
+    padding: spacing.md,
+    gap: spacing.md,
   },
+<<<<<<< HEAD
   text: { marginBottom: 12 },
   // perfil
   profileRow: { flexDirection: "row", alignItems: "center", gap: 16 },
@@ -487,72 +605,11 @@ const styles = StyleSheet.create({
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE / 2,
     backgroundColor: "#eee",
+=======
+  center: {
+    flex: 1,
+>>>>>>> 2638447 (favoritos)
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 10,
   },
-
-  // barra de tabs de iconos
-  tabsBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    justifyContent: "flex-start",
-  },
-  tabIcon: {
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    padding: 8,
-    borderRadius: 10,
-  },
-  tabIconActive: {
-    borderColor: "#2563eb",
-    backgroundColor: "#eff6ff",
-  },
-
-  // header sección productos/favoritos
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 6,
-  },
-  addPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#2563eb",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-  addPillText: { color: "white", fontWeight: "600" },
-
-  // fila de producto
-  productRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: "#E0E0E0",
-  },
-  productImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  productInfo: { flex: 1 },
-  productName: { fontWeight: "600", fontSize: 15, marginBottom: 4 },
-  productPrice: { color: "#007BFF", fontWeight: "bold" },
-  productActions: {
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  iconButton: { borderWidth: 1, borderRadius: 8, padding: 4 },
 });
