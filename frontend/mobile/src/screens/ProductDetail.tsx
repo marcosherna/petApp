@@ -5,7 +5,7 @@ import {
 } from "react-native-safe-area-context";
 import { View, ScrollView, StyleSheet, Dimensions } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import { Star, MapPin } from "lucide-react-native";
+import { MapPin } from "lucide-react-native";
 
 import { ProductDetailScreenProps } from "../navigations/params";
 
@@ -21,6 +21,12 @@ import { useProduct } from "../hooks/useProduct";
 
 import { ProductProvider } from "../providers/ProductProvider";
 import RateProduct from "./partials/RateProduct";
+import {
+  CommentList,
+  CommentButton,
+  BottomSheetComment,
+  ViewAllButton,
+} from "./partials/CommentProduct";
 
 const { width } = Dimensions.get("window");
 
@@ -64,7 +70,7 @@ function ProductDetailContent() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
 
-  const { product } = useProduct();
+  const { product, openComment } = useProduct();
 
   const options = [
     { label: " 2kg", value: "2" },
@@ -222,36 +228,11 @@ function ProductDetailContent() {
             <Label size="xl" weight="bold">
               Reseñas de usuarios
             </Label>
-            <Label color={theme.primary}>Ver todas</Label>
+            <ViewAllButton />
           </Layout>
 
-          <Layout>
-            <View
-              style={[
-                styles.reviewCard,
-                {
-                  backgroundColor: isDark ? theme.outline : theme.background,
-                  gap: 8,
-                },
-              ]}
-            >
-              <Layout
-                direction="row"
-                alignVertical="space-between"
-                alignHorizontal="center"
-              >
-                <Label weight="semibold">Laura G.</Label>
-                <Layout direction="row" gap={2}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} fill="#F5A623" stroke="#F5A623" />
-                  ))}
-                </Layout>
-              </Layout>
-              <Label size="md" weight="extralight">
-                ¡A mi perro le encanta! Tiene mucha más energía y su pelo brilla
-                como nunca.
-              </Label>
-            </View>
+          <Layout fullWidth>
+            <CommentList maxFields={1} />
           </Layout>
         </Layout>
       </ScrollView>
@@ -269,18 +250,22 @@ function ProductDetailContent() {
               paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
             },
           ]}
-        >
-          {/* <IconButton icon="Heart" variant="outline" color="#E4080A" colorShape="#E4080A" shape="rounded" /> */}
+        > 
           <FavoriteButton
             defaultValue={false}
             onPress={(isFavorite) => handleFavorite(isFavorite)}
           />
           <IconButton icon="MapPin" variant="outline" shape="rounded" />
+
+          <CommentButton />
+
           <View style={{ flex: 1 }}>
             <Button title="Contactar" onPress={() => {}} />
           </View>
         </View>
       )}
+
+      <BottomSheetComment />
     </SafeAreaView>
   );
 }

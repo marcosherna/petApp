@@ -18,9 +18,10 @@ import { Product } from "../models/Product";
 const collectionName = productCollection();
 
 const productMapper = (product: any): Product => {
-  const images = Array.isArray(product.images) ? product.images : [];
+  const images = Array.isArray(product.images) ? product.images : []; 
 
   return {
+    id: product.id,
     ...product,
     imgs: images,
     imgCover:
@@ -55,7 +56,7 @@ export const subscribeToProducts = (
   const unsubscribe = subscribe(
     collectionName,
     (products) => {
-      const mapper = products.map(productMapper);
+      const mapper = products.map(productMapper); 
       setProducts(mapper);
     },
     onError
