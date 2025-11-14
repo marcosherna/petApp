@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native";
 
 import { SearchBar, Layout } from "../../components/ui";
 import { IconButton, Label, ProductCard } from "../../components";
-
 import { EmptyTemplate } from "../../components/ui";
 
 import { spacing } from "../../resourses/spacing";
@@ -14,40 +13,41 @@ import {
   categoriesOptions,
   subscribeToProductsWithFilter,
 } from "../../network/services";
+
 import { Product, CategoryOptions } from "../../network/models";
 import { iconography } from "../../resourses/iconography";
-import { RootScreenProps, RootStackNavigation } from "../../navigations/params";
+import { RootStackNavigation } from "../../navigations/params";
+
+// IMPORTAMOS EL MODAL DE IA
+/*import { AIModal } from "../../components/ia/AIModal";*/
 
 export default function HomeScreen() {
-  const [loading, setLoading] = React.useState(true);
   const [category, setCategory] = React.useState("");
   const [products, setProducts] = React.useState<Product[]>([]);
   const [error, setError] = React.useState(null);
+
+  // CONTROL DEL MODAL IA
+  const [showAIModal, setShowAIModal] = React.useState(false);
 
   const navigation = useNavigation<RootStackNavigation>();
 
   React.useEffect(() => {
     let unsubscribe: () => void;
-    if (category && category != "") {
+    if (category && category !== "") {
       unsubscribe = subscribeToProductsWithFilter(
         [["category", "==", `${category}`]],
-        (products) => {
-          setProducts(products);
-        },
-        (err) => setError(err)
+        (products) => setProducts(products),
+        setError
       );
     } else {
-      unsubscribe = subscribeToProducts((products) => {
-        setProducts(products);
-      }, setError);
+      unsubscribe = subscribeToProducts(setProducts, setError);
     }
-
     return () => unsubscribe();
   }, [category]);
 
   const handleSelectCategory = (category: CategoryOptions | null) => {
     if (category) setCategory(category.name);
-    if (!category) setCategory("");
+    else setCategory("");
   };
 
   const handleSelectedProduct = (product: Product) => {
@@ -56,8 +56,24 @@ export default function HomeScreen() {
 
   const renderHeader = () => (
     <View style={styles.header_container}>
-      <SearchBar placeholder="Buscar comida, juguetes y más..." />
+      {/* --- BUSCADOR CON BOTÓN DE IA ARRIBA --- */}
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <SearchBar placeholder="Buscar comida, juguetes y más..." />
+
+        {/* BOTÓN DE IA */}
+        <IconButton
+          icon="Sparkles"
+          size={28}
+          variant="ghost"
+          shape="circle"
+          color="#4a90e2"
+          colorShape="#4a90e2"
+          onPress={() => setShowAIModal(true)}
+        />
+      </View>
+
       <Label weight="bold">Explora por Categoría</Label>
+
       <View style={styles.categories_container}>
         {categoriesOptions.map((category, index) => (
           <View key={index} style={styles.category}>
@@ -102,33 +118,38 @@ export default function HomeScreen() {
   );
 
   return (
-    <FlatList
-      data={products}
-      numColumns={2}
-      keyExtractor={(item) => item.name}
-      renderItem={({ item }) => (
-        <ProductCard
-          id={item.id}
-          name={item.name}
-          img={item.imgCover ?? item.imgs?.[0] ?? undefined}
-          price={item.price}
-          score={item.score?.avg ?? 0}
-          style={{ flex: 1, marginBottom: spacing.md }}
-          onSelected={() => handleSelectedProduct(item)}
-        />
-      )}
-      ListHeaderComponent={renderHeader}
-      columnWrapperStyle={{ gap: spacing.md }}
-      contentContainerStyle={{ padding: spacing.md }}
-      showsVerticalScrollIndicator={false}
-      ListEmptyComponent={
-        <EmptyTemplate
-          message="No hay productos disponibles"
-          subMessage="Intenta con otros filtros o regresa más tarde"
-          icon="package"
-        />
-      }
-    />
+    <>
+      <FlatList
+        data={products}
+        numColumns={2}
+        keyExtractor={(item) => item.name}
+        renderItem={({ item }) => (
+          <ProductCard
+            id={item.id}
+            name={item.name}
+            img={item.imgCover ?? item.imgs?.[0] ?? undefined}
+            price={item.price}
+            score={item.score?.avg ?? 0}
+            style={{ flex: 1, marginBottom: spacing.md }}
+            onSelected={() => handleSelectedProduct(item)}
+          />
+        )}
+        ListHeaderComponent={renderHeader}
+        columnWrapperStyle={{ gap: spacing.md }}
+        contentContainerStyle={{ padding: spacing.md }}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <EmptyTemplate
+            message="No hay productos disponibles"
+            subMessage="Intenta con otros filtros o regresa más tarde"
+            icon="package"
+          />
+        }
+      />
+
+      {/* MODAL DE IA */}
+      {/* <AIModal visible={showAIModal} onClose={() => setShowAIModal(false)} /> */}
+    </>
   );
 }
 

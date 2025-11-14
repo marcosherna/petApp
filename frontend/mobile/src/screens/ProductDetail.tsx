@@ -3,8 +3,8 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { View, ScrollView, StyleSheet, Dimensions } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE, PROVIDER_DEFAULT } from "react-native-maps";
+import { View, ScrollView, StyleSheet, Dimensions, Alert } from "react-native";
+import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 import { Star, MapPin } from "lucide-react-native";
 
 import { ProductDetailScreenProps } from "../navigations/params";
@@ -16,6 +16,7 @@ import {
   Label,
   FavoriteButton,
   PressableLayout,
+  // Importaciones completas
 } from "../components";
 
 import { spacing } from "../resourses/spacing";
@@ -26,34 +27,30 @@ import { useTheme } from "../hooks/useTheme";
 import { useGlobalBottomSheetModal } from "../hooks/useGlobalBottomSheetModal";
 import { RateProduct } from "./partials/RateProduct";
 
+// 🔥 FAVORITOS SERVICES
+import {
+  addFavorite,
+  removeFavorite,
+  isProductFavorite,
+} from "../network/services/favorites";
+
 const { width } = Dimensions.get("window");
 
-// --- Mapa nativo con pin (sin WebView) ---
-type SellerMapProps = {
-  lat: number;
-  lng: number;
-  height?: number;
-  radius?: number;
-};
-const SellerMap: React.FC<SellerMapProps> = ({
-  lat,
-  lng,
-  height = 220,
-  radius = 12,
-}) => {
+// --- Mapa ---
+const SellerMap: React.FC<any> = ({ lat, lng, height = 220, radius = 12 }) => {
   return (
     <View style={{ height, borderRadius: radius, overflow: "hidden" }}>
       <MapView
         provider={PROVIDER_DEFAULT}
         style={{ flex: 1 }}
         initialRegion={{
-          latitude: 13.68935,
-          longitude: -89.18718,
+          latitude: lat ?? 13.68935,
+          longitude: lng ?? -89.18718,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}
       >
-        <Marker coordinate={{ latitude: 13.68935, longitude: -89.18718 }} />
+        <Marker coordinate={{ latitude: lat, longitude: lng }} />
       </MapView>
     </View>
   );
@@ -70,6 +67,51 @@ export default function ProductDetailScreen({
   const { openModal } = useGlobalBottomSheetModal();
 
   const product = route.params;
+
+  // 🔥 favorito local
+  const [isFavorite, setIsFavorite] = React.useState(false);
+
+  // verificar si ya es favorito
+  React.useEffect(() => {
+    if (!user) return;
+    (async () => {
+      // ✅ Verifica el estado cada vez que cambie el usuario o el producto
+      const fav = await isProductFavorite(user.uid, product.id);
+      setIsFavorite(fav);
+    })();
+  }, [user, product.id]);
+
+  const handleFavorite = async (value: boolean) => {
+    if (!user) {
+      Alert.alert(
+        "Inicia sesión",
+        "Necesitas iniciar sesión para usar favoritos."
+      );
+      navigation.navigate("authLogin");
+      return;
+    }
+
+    try {
+      // ⚠️ LÓGICA CORREGIDA (INVERTIDA por fallo del componente FavoriteButton):
+      // Si el botón devuelve 'false', el usuario quiere AGREGAR (corazón lleno).
+      if (value === false) {
+        await addFavorite(user.uid, product);
+        Alert.alert("Favoritos", "Producto agregado ❤️");
+        // Establecer el estado local correctamente
+        setIsFavorite(true);
+      } else {
+        // Si el botón devuelve 'true', el usuario quiere REMOVER (corazón vacío).
+        await removeFavorite(user.uid, product.id);
+        Alert.alert("Favoritos", "Producto eliminado 💔");
+        // Establecer el estado local correctamente
+        setIsFavorite(false);
+      }
+    } catch (err) {
+      console.error("Error updating favorite:", err);
+      Alert.alert("Error", "No se pudo actualizar favoritos");
+    }
+  };
+
   const options = [
     { label: " 2kg", value: "2" },
     { label: " 5kg", value: "5" },
@@ -77,7 +119,7 @@ export default function ProductDetailScreen({
   ];
 
   const images =
-    product.imgs.length > 0
+    product.imgs && product.imgs.length > 0 // ⬅️ CORRECCIÓN: Se comprueba que 'product.imgs' no sea undefined
       ? product.imgs.map((img, index) => ({ id: index, source: { uri: img } }))
       : [
           {
@@ -86,14 +128,8 @@ export default function ProductDetailScreen({
           },
         ];
 
-  const handleFavorite = (isFavorite: boolean) => {
-    console.log(isFavorite);
-    // TODO: implement method
-  };
-
   const handleScoreChange = React.useCallback((score: number) => {
     console.log("Nuevo puntaje:", score);
-    // TODO: guardar en Firestore, API, etc.
   }, []);
 
   const handleRateProduct = React.useCallback(() => {
@@ -105,7 +141,6 @@ export default function ProductDetailScreen({
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Hero Image */}
         <ImageCarousel
           images={images}
           height={320}
@@ -114,7 +149,7 @@ export default function ProductDetailScreen({
           indicatorSize={10}
         />
 
-        {/* Title & Price */}
+        {/* Título */}
         <Layout
           paddingHorizontal={spacing.md}
           gap={spacing.sm}
@@ -156,7 +191,7 @@ export default function ProductDetailScreen({
           margin={spacing.lg}
         />
 
-        {/* Size Selector */}
+        {/* Selector */}
         <Layout paddingHorizontal={spacing.md} gap={spacing.sm}>
           <Label weight="semibold"> Tamaño disponible</Label>
           <Segment
@@ -168,25 +203,25 @@ export default function ProductDetailScreen({
           />
         </Layout>
 
-        {/* Description */}
+        {/* Descripción */}
         <Layout
           paddingHorizontal={spacing.md}
           gap={spacing.sm}
           style={{ marginTop: spacing.md }}
         >
-          <Label weight="semibold">Descripcion</Label>
+          <Label weight="semibold">Descripción</Label>
           <Label align="justify" color="gray" paragraph>
             {product.description}
           </Label>
         </Layout>
 
-        {/* Location */}
+        {/* Ubicación */}
         <Layout
           paddingHorizontal={spacing.md}
           gap={spacing.sm}
           style={{ marginTop: spacing.md }}
         >
-          <Label weight="semibold">Ubicacion del vendedor</Label>
+          <Label weight="semibold">Ubicación del vendedor</Label>
 
           {product.coords?.lat && product.coords?.lng ? (
             <SellerMap
@@ -196,7 +231,6 @@ export default function ProductDetailScreen({
               radius={12}
             />
           ) : (
-            // Si el producto no tiene coords, no renderizamos mapa
             <View
               style={{
                 height: (width - 32) * 0.75,
@@ -234,7 +268,7 @@ export default function ProductDetailScreen({
           margin={spacing.lg}
         />
 
-        {/* Reviews */}
+        {/* Reseñas */}
         <Layout
           paddingHorizontal={spacing.md}
           gap={spacing.sm}
@@ -275,34 +309,33 @@ export default function ProductDetailScreen({
                 </Layout>
               </Layout>
               <Label size="md" weight="extralight">
-                ¡A mi perro le encanta! Tiene mucha más energía y su pelo brilla
-                como nunca.
+                ¡A mi perro le encanta!
               </Label>
             </View>
           </Layout>
         </Layout>
       </ScrollView>
 
-      {/* Bottom Bar */}
+      {/*Bottom Bar */}
       {user && (
         <View
           style={[
             styles.bottomBar,
             {
-              backgroundColor: isDark
-                ? `${theme.surface}`
-                : `${theme.background}`,
+              backgroundColor: isDark ? theme.surface : theme.background,
               borderTopColor: theme.outline,
               paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
             },
           ]}
         >
-          {/* <IconButton icon="Heart" variant="outline" color="#E4080A" colorShape="#E4080A" shape="rounded" /> */}
           <FavoriteButton
-            defaultValue={false}
-            onPress={(isFavorite) => handleFavorite(isFavorite)}
+            key={`favorite-${product.id}-${isFavorite}`} // ✅ Mantenida para la persistencia.
+            defaultValue={isFavorite}
+            onPress={(value) => handleFavorite(value)}
           />
+
           <IconButton icon="MapPin" variant="outline" shape="rounded" />
+
           <View style={{ flex: 1 }}>
             <Button title="Contactar" onPress={() => {}} />
           </View>
@@ -333,9 +366,7 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: "row",
     padding: 16,
-    backgroundColor: "rgba(248, 249, 250, 0.8)",
     borderTopWidth: 1,
-    borderTopColor: "#e5e5e5",
     gap: 12,
   },
 });

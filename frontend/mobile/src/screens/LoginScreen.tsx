@@ -1,22 +1,25 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useNavigation } from "@react-navigation/native";
+import { PawPrint } from "lucide-react-native";
 
-import { Loading } from "../components/ui";
 import { Button, Input, Label } from "../components";
-import { RootStackNavigation } from "../navigations/params";
-
+import { Loading } from "../components/ui";
 import { spacing } from "../resourses/spacing";
 
-import { useForm } from "../hooks/useForm"; 
+import { useForm } from "../hooks/useForm";
 import { useAuth } from "../hooks/useAuth";
+import { useTheme } from "../hooks/useTheme";
+import { RootStackNavigation } from "../navigations/params";
 
 export default function LoginScreen() {
-  const { sigIn } = useAuth()
-  const [loading, setLoading] = React.useState(false);
   const navigation = useNavigation<RootStackNavigation>();
+  const { sigIn } = useAuth();
+  const { theme } = useTheme();
+
+  const [loading, setLoading] = React.useState(false);
 
   const { values, errors, handleChange, validateForm, isFormValid } = useForm({
     initialValues: {
@@ -24,71 +27,97 @@ export default function LoginScreen() {
       password: "",
     },
     validations: {
-      email: (value) =>
-        !/\S+@\S+\.\S+/.test(value) ? "Correo no válido" : null,
-      password: (value) =>
-        value.length < 8 ? "Debe tener al menos 8 caracteres" : null,
+      email: (v) => (!/\S+@\S+\.\S+/.test(v) ? "Correo no válido" : null),
+      password: (v) =>
+        v.length < 8 ? "Debe tener al menos 8 caracteres" : null,
     },
   });
 
   const handleSubmit = async () => {
-    const valid = validateForm();
-    if (!valid) return;
+    if (!validateForm()) return;
+
     try {
       setLoading(true);
-      const { email, password } = values;
-
-      await sigIn(email, password); 
-
-      if (navigation.canGoBack()) navigation.pop();
-    } catch (error) {
-      // TOOD: implement toast
-      console.log(error);
+      await sigIn(values.email, values.password);
+      navigation.goBack();
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.container_content}>
-          <Label size="5xl" weight="extrabold">
-            Login
-          </Label>
-          {/* TODO: place appropriate content, such as text or images */}
+        {/* LOGO */}
+        <View style={styles.logoContainer}>
+          <View
+            style={[
+              styles.logoCircle,
+              { backgroundColor: theme.primary + "22" },
+            ]}
+          >
+            <PawPrint size={36} color={theme.primary} />
+          </View>
         </View>
 
-        <View>
+        {/* TITULO */}
+        <View style={styles.header}>
+          <Label size="4xl" weight="bold" align="center" color={theme.text}>
+            Bienvenido de vuelta
+          </Label>
+
+          <Label
+            size="md"
+            align="center"
+            color={theme.secondaryText}
+            style={{ marginTop: spacing.xs }}
+          >
+            Inicia sesión para continuar 🐾
+          </Label>
+        </View>
+
+        {/* FORMULARIO */}
+        <View style={styles.form}>
           <Input
             label="Correo"
             placeholder="example.user@gmail.com"
             value={values.email}
             keyboardType="email-address"
-            onChangeText={(text) => handleChange("email", text)}
+            onChangeText={(t) => handleChange("email", t)}
             error={errors.email}
           />
 
           <Input
             label="Contraseña"
-            placeholder="admin-1234"
-            // secureTextEntry={true} TODO: hace ruido visual
+            placeholder="••••••••"
+            secureTextEntry
+            showTogglePassword
             value={values.password}
-            onChangeText={(text) => handleChange("password", text)}
+            onChangeText={(t) => handleChange("password", t)}
             error={errors.password}
           />
         </View>
 
-        <View style={{ marginTop: 10 }}>
-          <Button
-            title="Iniciar sesion"
-            onPress={() => handleSubmit()}
-            disabled={!isFormValid()}
-          />
-        </View>
+        {/* BOTÓN */}
+        <Button
+          title="Iniciar sesión"
+          onPress={handleSubmit}
+          disabled={!isFormValid()}
+          style={{ marginTop: spacing.md }}
+        />
+
+        {/* LINK A REGISTRO */}
+        <TouchableOpacity
+          style={styles.registerLink}
+          onPress={() => navigation.navigate("authRegister")}
+        >
+          <Label size="sm" color={theme.primary} weight="medium">
+            ¿No tienes cuenta? Regístrate aquí
+          </Label>
+        </TouchableOpacity>
       </KeyboardAwareScrollView>
 
       <Loading visible={loading} />
@@ -96,19 +125,38 @@ export default function LoginScreen() {
   );
 }
 
+/* ESTILOS */
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    flexDirection: "column",
-    justifyContent: "flex-end",
-    padding: spacing.md,
+    padding: spacing.lg,
+    justifyContent: "center",
+    gap: spacing.lg,
   },
-  container_inputs: {
-    gap: spacing.md,
+
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: spacing.sm,
   },
-  container_content: {
-    flexGrow: 1,
+  logoCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 999,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  header: {
+    alignItems: "center",
+    marginBottom: spacing.md,
+  },
+
+  form: {
+    gap: spacing.md,
+  },
+
+  registerLink: {
+    marginTop: spacing.sm,
+    alignSelf: "center",
   },
 });
