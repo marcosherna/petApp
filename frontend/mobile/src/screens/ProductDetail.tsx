@@ -1,16 +1,16 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { View, ScrollView, StyleSheet, Dimensions } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import { MapPin } from "lucide-react-native";
 
 import { ProductDetailScreenProps } from "../navigations/params";
 
 import { Divider, ImageCarousel, Layout, Segment } from "../components/ui";
-import { Button, IconButton, Label, FavoriteButton } from "../components";
+import { Button, IconButton, Label, FavoriteButton, Map } from "../components";
 
 import { spacing } from "../resourses/spacing";
 import { iconography } from "../resourses/iconography";
@@ -30,7 +30,6 @@ import {
 
 const { width } = Dimensions.get("window");
 
-// --- Mapa nativo con pin (sin WebView) ---
 type SellerMapProps = {
   lat: number;
   lng: number;
@@ -43,11 +42,33 @@ const SellerMap: React.FC<SellerMapProps> = ({
   height = 220,
   radius = 12,
 }) => {
+  const mToProduct = useRef<MapView>(null);
+
+  useEffect(() => {
+    if (lat && lng && mToProduct) {
+      mToProduct.current?.animateToRegion(
+        {
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        },
+        800
+      );
+    }
+  }, [lat, lng]);
+
   return (
-    <View style={{ height, borderRadius: radius, overflow: "hidden" }}>
-      <MapView
-        style={{ flex: 1 }}
-        provider={PROVIDER_GOOGLE} // en iOS usa Apple Maps automáticamente
+    <View
+      style={{
+        height,
+        borderRadius: radius,
+        overflow: "hidden",
+        width: "100%",
+      }}
+    >
+      <Map
+        ref={mToProduct}
         initialRegion={{
           latitude: lat,
           longitude: lng,
@@ -60,7 +81,7 @@ const SellerMap: React.FC<SellerMapProps> = ({
         toolbarEnabled={false}
       >
         <Marker coordinate={{ latitude: lat, longitude: lng }} />
-      </MapView>
+      </Map>
     </View>
   );
 };
@@ -183,6 +204,7 @@ function ProductDetailContent() {
                 backgroundColor: isDark ? theme.outline : "#eee",
                 alignItems: "center",
                 justifyContent: "center",
+                width: "100%",
               }}
             >
               <Label color="gray">Ubicación no disponible</Label>
@@ -250,7 +272,7 @@ function ProductDetailContent() {
               paddingBottom: insets.bottom > 0 ? insets.bottom : 12,
             },
           ]}
-        > 
+        >
           <FavoriteButton
             defaultValue={false}
             onPress={(isFavorite) => handleFavorite(isFavorite)}
