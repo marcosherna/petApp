@@ -1,7 +1,7 @@
-import { ReactNode, useCallback, useState } from "react";
+import { ReactNode, useCallback, useRef, useState } from "react";
 import { ProductContext } from "../contexts/ProductContext";
 import { Product } from "../network/models";
-
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 export const ProductProvider = ({
   children,
@@ -10,6 +10,7 @@ export const ProductProvider = ({
   children: ReactNode;
   initialProduct?: Product | null;
 }) => {
+  const commetRef = useRef<BottomSheetModal>(null);
   const [product, setProduct] = useState<Product | null>(initialProduct);
 
   const updateProduct = useCallback((changes: Partial<Product>) => {
@@ -18,6 +19,14 @@ export const ProductProvider = ({
 
   const clearProduct = useCallback(() => setProduct(null), []);
 
+  const openComment = () => {
+    commetRef?.current?.present();
+  };
+
+  const closeComment = () => {
+    commetRef?.current?.dismiss();
+  };
+
   return (
     <ProductContext.Provider
       value={{
@@ -25,6 +34,9 @@ export const ProductProvider = ({
         setProduct,
         updateProduct,
         clearProduct,
+        commentSheetRef: commetRef,
+        openComment,
+        closeComment,
       }}
     >
       {children}

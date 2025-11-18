@@ -11,5 +11,6 @@ export * from "./Avatar";
 export * from "./Loading";
 export * from "./Divider";
 export * from "./Segment";
+export * from "./GestureIconButton";
 
 export { EmptyTemplate, Score, SearchBar, Layout, ImageCarousel };

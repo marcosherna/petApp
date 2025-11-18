@@ -21,6 +21,7 @@ const productMapper = (product: any): Product => {
   const images = Array.isArray(product.images) ? product.images : [];
 
   return {
+    id: product.id,
     ...product,
     imgs: images,
     imgCover:

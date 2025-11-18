@@ -12,18 +12,27 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { Image as ImageIcon, List, ChevronDown, ChevronUp, MapPin } from "lucide-react-native";
+import {
+  Image as ImageIcon,
+  List,
+  ChevronDown,
+  ChevronUp,
+  MapPin,
+} from "lucide-react-native";
 
 // hooks y componentes del proyecto
-import { useAuth } from "../../hooks/useAuth";           // obtiene { user } (solo para createdBy/author)
-import { useTheme } from "../../hooks/useTheme";         // obtiene { theme }
-import { useForm } from "../../hooks/useForm";           // maneja formularios
-import { Input } from "../../components/Input";          // input estilizado
+import { useAuth } from "../../hooks/useAuth"; // obtiene { user } (solo para createdBy/author)
+import { useTheme } from "../../hooks/useTheme"; // obtiene { theme }
+import { useForm } from "../../hooks/useForm"; // maneja formularios
+import { Input } from "../../components/Input"; // input estilizado
 
 // Firebase y Cloudinary
-import { db } from "../../network/firebase";             // si 'db' no existe aquí, usa: ../../../firebaseConfig
+import { db } from "../../network/firebase"; // si 'db' no existe aquí, usa: ../../../firebaseConfig
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { uploadToCloudinary, CLOUDINARY } from "../../network/services/imageUpload";
+import {
+  uploadToCloudinary,
+  CLOUDINARY,
+} from "../../network/services/imageUpload";
 
 // Mapa nativo (tu archivo reemplazado)
 import MapPicker from "../../components/MapPicker";
@@ -52,7 +61,9 @@ export default function AddProductoScreen() {
     validations: {
       name: (v) => (!v?.toString().trim() ? "El nombre es obligatorio" : null),
       price: (v) =>
-        /^\d+(\.\d{1,2})?$/.test(String(v)) ? null : "Formato numérico válido (ej. 12.50)",
+        /^\d+(\.\d{1,2})?$/.test(String(v))
+          ? null
+          : "Formato numérico válido (ej. 12.50)",
       stock: (v) => (/^\d+$/.test(String(v)) ? null : "Solo números enteros"),
     },
   });
@@ -62,14 +73,19 @@ export default function AddProductoScreen() {
   const [subiendo, setSubiendo] = useState(false);
 
   // mapa
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
   const [showMap, setShowMap] = useState(false);
 
   // Solicitar permisos para galería
   const solicitarPermisos = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permiso requerido", "Necesitamos acceso a tu galería para seleccionar imágenes.");
+      Alert.alert(
+        "Permiso requerido",
+        "Necesitamos acceso a tu galería para seleccionar imágenes."
+      );
       return false;
     }
     return true;
@@ -89,7 +105,8 @@ export default function AddProductoScreen() {
     if (!result.canceled) setImageUri(result.assets[0].uri);
   };
 
-  const subirImagen = async (uri: string) => uploadToCloudinary(uri, CLOUDINARY);
+  const subirImagen = async (uri: string) =>
+    uploadToCloudinary(uri, CLOUDINARY);
 
   const handlePublicar = async () => {
     const ok = validateForm();
@@ -116,7 +133,11 @@ export default function AddProductoScreen() {
         score: { avg: 0, count: 0 },
         createdBy: user?.uid ?? null,
         author: user
-          ? { uid: user.uid, name: user.displayName ?? null, photoURL: user.photoURL ?? null }
+          ? {
+              uid: user.uid,
+              name: user.displayName ?? null,
+              photoURL: user.photoURL ?? null,
+            }
           : null,
         createdAt: serverTimestamp(),
         status: "active",
@@ -143,7 +164,11 @@ export default function AddProductoScreen() {
     <SafeAreaView style={s.container}>
       <ScrollView contentContainerStyle={s.content}>
         {/* Imagen */}
-        <TouchableOpacity style={s.imageUploader} onPress={seleccionarImagen} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={s.imageUploader}
+          onPress={seleccionarImagen}
+          activeOpacity={0.85}
+        >
           {imageUri ? (
             <>
               <Image source={{ uri: imageUri }} style={s.preview} />
@@ -155,7 +180,9 @@ export default function AddProductoScreen() {
                 <ImageIcon size={32} color={colors.primary} strokeWidth={2} />
               </View>
               <Text style={s.imageTitle}>Sube una foto de tu producto</Text>
-              <Text style={s.imageSubtitle}>Toca aquí para seleccionar una imagen</Text>
+              <Text style={s.imageSubtitle}>
+                Toca aquí para seleccionar una imagen
+              </Text>
               <View style={s.selectButton}>
                 <Text style={s.selectButtonText}>Seleccionar Archivo</Text>
               </View>
@@ -186,7 +213,10 @@ export default function AddProductoScreen() {
         <View style={s.formGroup}>
           <Text style={s.label}>Categoría</Text>
           <View style={s.dropdownContainer}>
-            <TouchableOpacity style={s.dropdownHeader} onPress={() => setShowCat(!showCat)}>
+            <TouchableOpacity
+              style={s.dropdownHeader}
+              onPress={() => setShowCat(!showCat)}
+            >
               <View style={s.dropdownLeft}>
                 <List size={18} color={colors.secondaryText} />
                 <Text style={s.dropdownText}>{values.category}</Text>
@@ -203,7 +233,10 @@ export default function AddProductoScreen() {
                 {CATEGORIES.map((c) => (
                   <TouchableOpacity
                     key={c}
-                    style={[s.dropdownItem, c === values.category && s.dropdownItemActive]}
+                    style={[
+                      s.dropdownItem,
+                      c === values.category && s.dropdownItemActive,
+                    ]}
                     onPress={() => {
                       handleChange("category", c);
                       setShowCat(false);
@@ -256,7 +289,9 @@ export default function AddProductoScreen() {
                   style={[s.chip, active && s.chipActive]}
                   onPress={() => handleChange("size", opt)}
                 >
-                  <Text style={[s.chipText, active && s.chipTextActive]}>{opt}</Text>
+                  <Text style={[s.chipText, active && s.chipTextActive]}>
+                    {opt}
+                  </Text>
                 </TouchableOpacity>
               );
             })}
@@ -267,7 +302,11 @@ export default function AddProductoScreen() {
         <View style={s.formGroup}>
           <Text style={s.label}>Ubicación</Text>
           <View style={s.inputWithIcon}>
-            <MapPin size={18} color={colors.secondaryText} style={{ marginRight: 8 }} />
+            <MapPin
+              size={18}
+              color={colors.secondaryText}
+              style={{ marginRight: 8 }}
+            />
             <Input
               placeholder="Ingresa una dirección"
               value={values.location}
@@ -279,10 +318,15 @@ export default function AddProductoScreen() {
 
           {/* Botón para abrir mapa */}
           <View style={{ marginTop: 8 }}>
-            <TouchableOpacity style={s.selectButton} onPress={() => setShowMap(true)}>
+            <TouchableOpacity
+              style={s.selectButton}
+              onPress={() => setShowMap(true)}
+            >
               <Text style={s.selectButtonText}>
                 {coords
-                  ? `📍 Lat: ${coords.lat.toFixed(5)}, Lng: ${coords.lng.toFixed(5)} (Cambiar)`
+                  ? `📍 Lat: ${coords.lat.toFixed(
+                      5
+                    )}, Lng: ${coords.lng.toFixed(5)} (Cambiar)`
                   : "Elegir en el mapa"}
               </Text>
             </TouchableOpacity>
@@ -306,7 +350,11 @@ export default function AddProductoScreen() {
       </View>
 
       {/* Modal del mapa (usa el MapPicker nativo) */}
-      <Modal visible={showMap} animationType="slide" onRequestClose={() => setShowMap(false)}>
+      <Modal
+        visible={showMap}
+        animationType="slide"
+        onRequestClose={() => setShowMap(false)}
+      >
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
           <View style={{ flex: 1 }}>
             <MapPicker
@@ -316,7 +364,10 @@ export default function AddProductoScreen() {
             />
           </View>
           <View style={{ padding: 12 }}>
-            <TouchableOpacity style={s.publishButton} onPress={() => setShowMap(false)}>
+            <TouchableOpacity
+              style={s.publishButton}
+              onPress={() => setShowMap(false)}
+            >
               <Text style={s.publishText}>Usar esta ubicación</Text>
             </TouchableOpacity>
           </View>
@@ -350,9 +401,19 @@ const themedStyles = (colors: any) =>
       justifyContent: "center",
       marginBottom: 8,
     },
-    preview: { width: "100%", height: 220, borderRadius: 12, resizeMode: "cover" },
+    preview: {
+      width: "100%",
+      height: 220,
+      borderRadius: 12,
+      resizeMode: "cover",
+    },
     imageTitle: { fontWeight: "bold", fontSize: 16, color: colors.text },
-    imageSubtitle: { fontSize: 13, color: colors.secondaryText, marginTop: 6, marginBottom: 10 },
+    imageSubtitle: {
+      fontSize: 13,
+      color: colors.secondaryText,
+      marginTop: 6,
+      marginBottom: 10,
+    },
     selectButton: {
       borderWidth: 1,
       borderColor: colors.outline,
@@ -363,7 +424,12 @@ const themedStyles = (colors: any) =>
     },
     selectButtonText: { fontWeight: "bold", fontSize: 14, color: colors.text },
     formGroup: { marginBottom: 16 },
-    label: { fontSize: 15, fontWeight: "600", marginBottom: 6, color: colors.text },
+    label: {
+      fontSize: 15,
+      fontWeight: "600",
+      marginBottom: 6,
+      color: colors.text,
+    },
     inputWithIcon: {
       flexDirection: "row",
       alignItems: "center",
@@ -411,10 +477,18 @@ const themedStyles = (colors: any) =>
       justifyContent: "center",
       backgroundColor: colors.surface,
     },
-    chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+    chipActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
     chipText: { fontWeight: "600", color: colors.text },
     chipTextActive: { color: colors.onPrimary },
-    footer: { borderTopWidth: 1, borderColor: colors.outline, backgroundColor: colors.surface, padding: 16 },
+    footer: {
+      borderTopWidth: 1,
+      borderColor: colors.outline,
+      backgroundColor: colors.surface,
+      padding: 16,
+    },
     publishButton: {
       backgroundColor: colors.primary,
       borderRadius: 12,
