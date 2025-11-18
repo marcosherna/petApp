@@ -17,9 +17,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const database = getFirestore(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
 export const auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage)
-}); 
+  persistence: getReactNativePersistence(AsyncStorage),
+});
 
 export const productCollection = () => `products`;
 
@@ -57,24 +58,24 @@ export const subscribeWithFilter = (
   limitResults?: number
 ) => {
   const ref = collection(database, collectionName);
- 
+
   let q: any = query(ref);
- 
+
   if (filters.length > 0) {
     const whereClauses = filters.map(([field, op, value]) =>
       where(field, op, value)
     );
     q = query(ref, ...whereClauses);
   }
- 
+
   if (orderByField) {
     q = query(q, orderBy(orderByField, orderDirection));
   }
- 
+
   if (limitResults) {
     q = query(q, limit(limitResults));
   }
- 
+
   const unsubscribe = onSnapshot(
     q,
     (snapshot: any) => {

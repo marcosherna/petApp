@@ -6,7 +6,6 @@ import {
 } from "@gorhom/bottom-sheet";
 import { View } from "react-native";
 
-
 import { BottomSheetModalContext } from "../contexts/BottomSheetModalContext";
 import { useTheme } from "../hooks/useTheme";
 
@@ -18,9 +17,9 @@ export const BottomSheetModalProvider = ({
   const modalRef = useRef<BottomSheetModal>(null);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
   const { theme, isDark } = useTheme();
- 
+
   const snapPoints = useMemo(() => ["30%", "40%"], []);
- 
+
   const openModal = useCallback((content: React.ReactNode) => {
     setModalContent(content);
     modalRef.current?.present();
@@ -29,7 +28,7 @@ export const BottomSheetModalProvider = ({
   const closeModal = useCallback(() => {
     modalRef.current?.dismiss();
   }, []);
- 
+
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -67,7 +66,7 @@ export const BottomSheetModalProvider = ({
             borderTopRightRadius: 10,
             overflow: "hidden",
           }}
-        > 
+        >
           {modalContent ? (
             <View style={{ padding: 20 }}>{modalContent}</View>
           ) : null}

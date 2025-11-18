@@ -8,12 +8,14 @@ import ProfileScreen from "../screens/tabs/ProfileScreen";
 import AddProductoScreen from "../screens/tabs/AddProductoScreen";
 import UserProfileInfo from "../screens/partials/UserProfileInfo";
 
-import { HeaderLogo } from "../components"; 
-
+import { HeaderLogo } from "../components";
+import React from "react";
 
 const Tab = createBottomTabNavigator<TabStackParamList>();
 
 export function TabStackNavigation() {
+  const [showAIModal, setShowAIModal] = React.useState(false);
+
   return (
     <Tab.Navigator>
       <Tab.Screen
