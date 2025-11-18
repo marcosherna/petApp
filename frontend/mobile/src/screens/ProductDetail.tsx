@@ -1,22 +1,17 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { View, ScrollView, StyleSheet, Dimensions, Alert } from "react-native";
-import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
-import { Star, MapPin } from "lucide-react-native";
+import MapView, { Marker } from "react-native-maps";
+import {Star, MapPin } from "lucide-react-native";
 
 import { ProductDetailScreenProps } from "../navigations/params";
 
 import { Divider, ImageCarousel, Layout, Segment } from "../components/ui";
-import {
-  Button,
-  IconButton,
-  Label,
-  FavoriteButton,
-  PressableLayout,
-} from "../components";
+
+import { Button, IconButton, Label, FavoriteButton, Map } from "../components";
 
 import { spacing } from "../resourses/spacing";
 import { iconography } from "../resourses/iconography";
@@ -42,13 +37,45 @@ import {
 
 const { width } = Dimensions.get("window");
 
-// --- Mapa ---
-const SellerMap: React.FC<any> = ({ lat, lng, height = 220, radius = 12 }) => {
+type SellerMapProps = {
+  lat: number;
+  lng: number;
+  height?: number;
+  radius?: number;
+};
+const SellerMap: React.FC<SellerMapProps> = ({
+  lat,
+  lng,
+  height = 220,
+  radius = 12,
+}) => {
+  const mToProduct = useRef<MapView>(null);
+
+  useEffect(() => {
+    if (lat && lng && mToProduct) {
+      mToProduct.current?.animateToRegion(
+        {
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        },
+        800
+      );
+    }
+  }, [lat, lng]);
+
   return (
-    <View style={{ height, borderRadius: radius, overflow: "hidden" }}>
-      <MapView
-        provider={PROVIDER_DEFAULT}
-        style={{ flex: 1 }}
+    <View
+      style={{
+        height,
+        borderRadius: radius,
+        overflow: "hidden",
+        width: "100%",
+      }}
+    >
+      <Map
+        ref={mToProduct}
         initialRegion={{
           latitude: lat ?? 13.68935,
           longitude: lng ?? -89.18718,
@@ -57,7 +84,7 @@ const SellerMap: React.FC<any> = ({ lat, lng, height = 220, radius = 12 }) => {
         }}
       >
         <Marker coordinate={{ latitude: lat, longitude: lng }} />
-      </MapView>
+      </Map>
     </View>
   );
 };
@@ -214,6 +241,7 @@ function ProductDetailContent({ navigation, route }: any) {
                 backgroundColor: isDark ? theme.outline : "#eee",
                 alignItems: "center",
                 justifyContent: "center",
+                width: "100%",
               }}
             >
               <Label color="gray">Ubicación no disponible</Label>
