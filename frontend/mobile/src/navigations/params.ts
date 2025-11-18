@@ -17,7 +17,7 @@ export type RootStackParamList = {
   authLogin: undefined;
   authRegister: undefined;
   productDetail: Product;
-  addProducto: undefined;
+  addProducto: { editId?: string } | undefined; // <--- AÑADIDO
   editProducto: Product;
 };
 
@@ -25,7 +25,7 @@ export type TabStackParamList = {
   home: undefined;
   profile: undefined;
   favorites: undefined;
-  addProducto: undefined;
+  addProducto: { editId?: string } | undefined; // <--- AÑADIDO
 };
 
 export type RootStackNavigation = NativeStackNavigationProp<RootStackParamList>;

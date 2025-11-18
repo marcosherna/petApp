@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -21,20 +21,31 @@ import {
 } from "lucide-react-native";
 
 // hooks y componentes del proyecto
-import { useAuth } from "../../hooks/useAuth"; // obtiene { user } (solo para createdBy/author)
-import { useTheme } from "../../hooks/useTheme"; // obtiene { theme }
-import { useForm } from "../../hooks/useForm"; // maneja formularios
-import { Input } from "../../components/Input"; // input estilizado
+import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../hooks/useTheme";
+import { useForm } from "../../hooks/useForm";
+import { Input } from "../../components/Input";
 
 // Firebase y Cloudinary
-import { db } from "../../network/firebase"; // si 'db' no existe aquí, usa: ../../../firebaseConfig
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../network/firebase";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+
 import {
   uploadToCloudinary,
   CLOUDINARY,
 } from "../../network/services/imageUpload";
 
-// Mapa nativo (tu archivo reemplazado)
+// navegación
+import { useRoute, useNavigation } from "@react-navigation/native";
+
+// mapa
 import MapPicker from "../../components/MapPicker";
 
 const CATEGORIES = ["Comida", "Juguetes", "Higiene", "Salud"];
@@ -42,8 +53,12 @@ const SIZES = ["Pequeño", "Mediano", "Grande"];
 
 export default function AddProductoScreen() {
   const { user } = useAuth();
+  const route = useRoute<any>();
+  const navigation = useNavigation<any>();
 
-  // obtener colores del tema actual
+  // SI VIENE PARA EDITAR —> ESTE ES EL ID
+  const editId = route.params?.editId ?? null;
+
   const { theme } = useTheme();
   const colors = theme;
 
@@ -78,6 +93,33 @@ export default function AddProductoScreen() {
   );
   const [showMap, setShowMap] = useState(false);
 
+  // ----------------------------------------------------------
+  // 1. Cargar datos si se está EDITANDO
+  // ----------------------------------------------------------
+  useEffect(() => {
+    if (!editId) return;
+
+    (async () => {
+      const ref = doc(db, "products", editId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+
+      // rellenar formulario
+      handleChange("name", data.name);
+      handleChange("description", data.description);
+      handleChange("price", String(data.price));
+      handleChange("stock", String(data.stock));
+      handleChange("location", data.location);
+      handleChange("category", data.category);
+      handleChange("size", data.size);
+
+      setImageUri(data.images?.[0] ?? null);
+      setCoords(data.coords ?? null);
+    })();
+  }, [editId]);
+
   // Solicitar permisos para galería
   const solicitarPermisos = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -108,20 +150,27 @@ export default function AddProductoScreen() {
   const subirImagen = async (uri: string) =>
     uploadToCloudinary(uri, CLOUDINARY);
 
-  const handlePublicar = async () => {
+  // ----------------------------------------------------------
+  // 2. FUNCIÓN GUARDAR (CREAR + EDITAR)
+  // ----------------------------------------------------------
+  const handleGuardar = async () => {
     const ok = validateForm();
     if (!ok) return;
 
     try {
       setSubiendo(true);
 
-      let photoURL: string | null = null;
-      if (imageUri) photoURL = await subirImagen(imageUri);
+      let finalImage = imageUri;
+
+      // subir nueva imagen SOLO si es una imagen local
+      if (imageUri && imageUri.startsWith("file://")) {
+        finalImage = await subirImagen(imageUri);
+      }
 
       const priceNum = Number(values.price);
       const stockNum = Number(values.stock);
 
-      const docRef = await addDoc(collection(db, "products"), {
+      const payload = {
         name: values.name.trim(),
         description: values.description.trim(),
         price: priceNum,
@@ -129,9 +178,28 @@ export default function AddProductoScreen() {
         location: values.location.trim(),
         category: values.category,
         size: values.size,
-        images: photoURL ? [photoURL] : [],
-        score: { avg: 0, count: 0 },
+        images: finalImage ? [finalImage] : [],
+        coords: coords ? { lat: coords.lat, lng: coords.lng } : null,
+        updatedAt: serverTimestamp(),
+      };
+
+      // ---------------------------------
+      // 🔵 EDITAR PRODUCTO
+      // ---------------------------------
+      if (editId) {
+        await updateDoc(doc(db, "products", editId), payload);
+        Alert.alert("Éxito", "Producto actualizado correctamente.");
+        navigation.goBack();
+        return;
+      }
+
+      // ---------------------------------
+      // 🟢 CREAR NUEVO PRODUCTO
+      // ---------------------------------
+      await addDoc(collection(db, "products"), {
+        ...payload,
         createdBy: user?.uid ?? null,
+        createdAt: serverTimestamp(),
         author: user
           ? {
               uid: user.uid,
@@ -139,20 +207,17 @@ export default function AddProductoScreen() {
               photoURL: user.photoURL ?? null,
             }
           : null,
-        createdAt: serverTimestamp(),
+        score: { avg: 0, count: 0 },
         status: "active",
-        coords: coords ? { lat: coords.lat, lng: coords.lng } : null, // ← guarda coordenadas del mapa nativo
       });
 
-      // reset
+      Alert.alert("Publicado", "Producto creado exitosamente.");
       resetForm();
       setImageUri(null);
       setCoords(null);
-
-      Alert.alert("✅ Producto publicado", `ID: ${docRef.id}`);
     } catch (e) {
       console.error(e);
-      Alert.alert("Error", "No se pudo publicar el producto.");
+      Alert.alert("Error", "No se pudo guardar el producto.");
     } finally {
       setSubiendo(false);
     }
@@ -338,18 +403,20 @@ export default function AddProductoScreen() {
       <View style={s.footer}>
         <TouchableOpacity
           style={[s.publishButton, subiendo && { opacity: 0.7 }]}
-          onPress={handlePublicar}
+          onPress={handleGuardar}
           disabled={subiendo}
         >
           {subiendo ? (
             <ActivityIndicator color={colors.onPrimary} />
           ) : (
-            <Text style={s.publishText}>Publicar Producto</Text>
+            <Text style={s.publishText}>
+              {editId ? "Guardar Cambios" : "Publicar Producto"}
+            </Text>
           )}
         </TouchableOpacity>
       </View>
 
-      {/* Modal del mapa (usa el MapPicker nativo) */}
+      {/* Modal del mapa */}
       <Modal
         visible={showMap}
         animationType="slide"
@@ -358,7 +425,7 @@ export default function AddProductoScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
           <View style={{ flex: 1 }}>
             <MapPicker
-              initial={coords ?? { lat: 13.68935, lng: -89.18718 }} // San Salvador por defecto
+              initial={coords ?? { lat: 13.7180, lng: -89.7244 }}
               onPick={(p) => setCoords(p)}
               onClose={() => setShowMap(false)}
             />
