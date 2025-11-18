@@ -7,6 +7,7 @@ import { RootStackNavigation } from "../../navigations/params";
 import { useNavigation } from "@react-navigation/native";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../network/firebase";
+import { Pencil, Trash } from "lucide-react-native";
 
 interface Props {
   item: {
@@ -17,9 +18,10 @@ interface Props {
   };
   showActions?: boolean;
   onDelete?: (id: string, name?: string) => void;
+  onEdit?: (id: string) => void;
 }
 
-export function ProductRow({ item, showActions, onDelete }: Props) {
+export function ProductRow({ item, showActions, onDelete, onEdit  }: Props) {
   const { theme } = useTheme();
   const navigation = useNavigation<RootStackNavigation>();
 
@@ -57,15 +59,21 @@ export function ProductRow({ item, showActions, onDelete }: Props) {
         </Label>
       </View>
 
-      {showActions && (
-        <IconButton
-          icon="Trash2"
-          variant="outline"
-          color="#dc2626"
-          colorShape="#dc2626"
-          size={20}
-          onPress={() => onDelete?.(item.id, item.name)}
-        />
+      {showActions && (//aqui modificar
+        <View style={styles.actions}>
+          {/* EDITAR */}
+          <TouchableOpacity onPress={() => onEdit?.(item.id)}>
+            <Pencil size={20} color={theme.primary} />
+          </TouchableOpacity>
+
+          {/* ELIMINAR */}
+          <TouchableOpacity
+            onPress={() => onDelete?.(item.id, item.name)}
+            style={{ marginLeft: spacing.md }}
+          >
+            <Trash size={20} color="#dc2626" />
+          </TouchableOpacity>
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -86,5 +94,14 @@ const styles = StyleSheet.create({
   },
   info: {
     flex: 1,
+  },
+  price: {
+    marginTop: 2,
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

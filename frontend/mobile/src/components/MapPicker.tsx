@@ -14,8 +14,8 @@ export default function MapPicker({ initial, onPick, onClose }: Props) {
     initial ?? null
   );
   const [region, setRegion] = useState<Region>({
-    latitude: initial?.lat ?? 13.69294, // San Salvador por defecto
-    longitude: initial?.lng ?? -89.21819,
+    latitude: initial?.lat ?? 13.7180,   // Sonsonate
+    longitude: initial?.lng ?? -89.7244,
     latitudeDelta: 0.05,
     longitudeDelta: 0.05,
   });
