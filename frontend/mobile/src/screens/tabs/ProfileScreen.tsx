@@ -199,7 +199,11 @@ export default function ProfileScreen() {
 
               {/* LISTAS */}
               {tab === "myProducts" ? (
-                <ProductList data={products} onDelete={deleteProduct} />
+                  <ProductList
+                    data={products}
+                    onDelete={deleteProduct}
+                    onEdit={(id) => navigation.navigate("addProducto", { editId: id })}//aqui
+                  />
               ) : (
                 <FavoritesList data={favorites} />
               )}
