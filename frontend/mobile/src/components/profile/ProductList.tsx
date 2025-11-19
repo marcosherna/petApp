@@ -13,9 +13,10 @@ interface Props {
     imgCover?: string;
   }[];
   onDelete: (id: string, name?: string) => void;
+  onEdit: (id: string) => void; // 👈 AÑADIR
 }
 
-export function ProductList({ data, onDelete }: Props) {
+export function ProductList({ data, onDelete, onEdit /* aqui */}: Props) {
   const { theme } = useTheme();
 
   return (
@@ -23,7 +24,12 @@ export function ProductList({ data, onDelete }: Props) {
       data={data}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <ProductRow item={item} showActions onDelete={onDelete} />
+        <ProductRow
+          item={item}
+          showActions
+          onDelete={onDelete}
+          onEdit={onEdit} // 👈 PASAR
+        />
       )}
       ItemSeparatorComponent={() => (
         <View style={[styles.separator, { backgroundColor: theme.outline }]} />
