@@ -13,7 +13,7 @@ export const HeaderLogo = () => {
   return (
     <View style={styles.container}>
       <PawPrint color={theme.primary} size={iconography.md} />
-      <Label weight="bold">PetApp</Label>
+      <Label weight="bold">PetMark</Label>
     </View>
   );
 };

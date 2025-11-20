@@ -1,5 +1,5 @@
-/*import React from "react";
-import { View, StyleSheet } from "react-native";
+import React from "react";
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { BottomSheet } from "../BottomSheet";
 import { Input, Button, Label } from "../../components";
 
@@ -14,10 +14,18 @@ export function AIModal({ visible, onClose }: any) {
     if (!question.trim()) return;
     setLoading(true);
 
-    const res = await askGroq(
-      `Quiero una recomendación de productos para mi mascota con estas características: ${question}.
-       Responde breve y clara, como recomendación para un usuario de una tienda de mascotas.`
-    );
+    const res = await askGroq(`
+Eres un asistente de productos de mascotas integrado con la app PetApp.
+
+Instrucciones:
+- Resume rápido lo que el usuario necesita.
+- Recomienda 1–3 productos típicos de tiendas de mascotas.
+- Menciona si son adecuados según su descripción.
+- Al final SIEMPRE agrega:
+  "Puedes buscarlos en PetApp como: <palabras clave recomendadas>"
+
+Descripción del usuario: ${question}
+`);
 
     setAnswer(res || "No pude generar una respuesta.");
     setLoading(false);
@@ -29,17 +37,26 @@ export function AIModal({ visible, onClose }: any) {
       visible={visible}
       onClose={onClose}
     >
-      <Label>¿Qué producto buscas? 🐶🐾</Label>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <Label>¿Qué producto buscas? 🐶🐾</Label>
 
-      <Input
-        placeholder="Ej: comida para perro grande, juguetes fuertes, etc."
-        value={question}
-        onChangeText={setQuestion}
-      />
+        <Input
+          placeholder="Ej: comida para perro grande, juguetes resistentes…"
+          value={question}
+          onChangeText={setQuestion}
+        />
 
-      <Button title="Preguntar a la IA" onPress={handleAsk} loading={loading} />
+        <Button
+          title="Preguntar a la IA"
+          onPress={handleAsk}
+          loading={loading}
+          style={{ marginTop: 10 }}
+        />
 
-      {answer !== "" && <Label style={{ marginTop: 12 }}>{answer}</Label>}
+        {answer !== "" && <Label style={{ marginTop: 12 }}>{answer}</Label>}
+      </KeyboardAvoidingView>
     </BottomSheet>
   );
-}*/
+}

@@ -21,7 +21,7 @@ export function FavoritesList({ data }: Props) {
     <FlatList
       data={data}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <ProductRow item={item} />}
+      renderItem={({ item }) => <ProductRow item={item} showActions={false} />}
       ItemSeparatorComponent={() => (
         <View style={[styles.separator, { backgroundColor: theme.outline }]} />
       )}
