@@ -69,6 +69,7 @@ export default function AddProductoScreen() {
       description: "",
       price: "",
       stock: "",
+      storeName: "",
       location: "",
       category: CATEGORIES[0],
       size: SIZES[0],
@@ -111,6 +112,7 @@ export default function AddProductoScreen() {
       handleChange("description", data.description);
       handleChange("price", String(data.price));
       handleChange("stock", String(data.stock));
+      handleChange("storeName", data.storeName);
       handleChange("location", data.location);
       handleChange("category", data.category);
       handleChange("size", data.size);
@@ -175,6 +177,7 @@ export default function AddProductoScreen() {
         description: values.description.trim(),
         price: priceNum,
         stock: stockNum,
+        storeName: values.storeName.trim(),
         location: values.location.trim(),
         category: values.category,
         size: values.size,
@@ -340,6 +343,14 @@ export default function AddProductoScreen() {
           value={values.stock}
           onChangeText={(t: string) => handleChange("stock", t)}
           error={errors.stock}
+        />
+
+        <Input
+          label="Nombre de la Tienda"
+          placeholder="Ej: Vidri, DollarCity, Freund..."
+          value={values.storeName}
+          onChangeText={(t: string) => handleChange("storeName", t)}
+          error={errors.storeName}
         />
 
         {/* Tamaño */}
