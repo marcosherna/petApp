@@ -5,7 +5,7 @@ import {
 } from "react-native-safe-area-context";
 import { View, ScrollView, StyleSheet, Dimensions, Alert } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import {Star, MapPin } from "lucide-react-native";
+import { Star, MapPin } from "lucide-react-native";
 
 import { ProductDetailScreenProps } from "../navigations/params";
 
@@ -52,7 +52,9 @@ const SellerMap: React.FC<SellerMapProps> = ({
   const mToProduct = useRef<MapView>(null);
 
   useEffect(() => {
-    if (lat && lng && mToProduct) {
+    if (!lat || !lng) return;
+
+    setTimeout(() => {
       mToProduct.current?.animateToRegion(
         {
           latitude: lat,
@@ -62,7 +64,7 @@ const SellerMap: React.FC<SellerMapProps> = ({
         },
         800
       );
-    }
+    }, 300);
   }, [lat, lng]);
 
   return (
@@ -74,17 +76,20 @@ const SellerMap: React.FC<SellerMapProps> = ({
         width: "100%",
       }}
     >
-      <Map
-        ref={mToProduct}
-        initialRegion={{
-          latitude: lat ?? 13.68935,
-          longitude: lng ?? -89.18718,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-      >
-        <Marker coordinate={{ latitude: lat, longitude: lng }} />
-      </Map>
+      {lat != null && lng != null && (
+        <Map
+          ref={mToProduct}
+          loadingEnabled={true} 
+          initialRegion={{
+            latitude: lat,
+            longitude: lng,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+        >
+          <Marker coordinate={{ latitude: lat, longitude: lng }} />
+        </Map>
+      )}
     </View>
   );
 };
@@ -290,35 +295,7 @@ function ProductDetailContent({ navigation, route }: any) {
             <ViewAllButton />
           </Layout>
 
-          {/* TU CARD DE RATING + los comentarios de tu compañero */}
-          <Layout>
-            <View
-              style={[
-                styles.reviewCard,
-                {
-                  backgroundColor: isDark ? theme.outline : theme.background,
-                  gap: 8,
-                },
-              ]}
-            >
-              <Layout
-                direction="row"
-                alignVertical="space-between"
-                alignHorizontal="center"
-              >
-                <Label weight="semibold">Laura G.</Label>
-                <Layout direction="row" gap={2}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} fill="#F5A623" stroke="#F5A623" />
-                  ))}
-                </Layout>
-              </Layout>
-              <Label size="md" weight="extralight">
-                ¡A mi perro le encanta!
-              </Label>
-            </View>
-
-            {/* Comentarios de tu compañero */}
+          <Layout fullWidth>
             <CommentList maxFields={1} />
           </Layout>
         </Layout>
@@ -372,18 +349,6 @@ export default function ProductDetailScreen({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  reviewCard: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-    alignSelf: "auto",
-  },
   bottomBar: {
     position: "absolute",
     bottom: 0,
