@@ -71,7 +71,7 @@ frontend/mobile/*.tsbuildinfo
 # generated native folders
 frontend/mobile/ios
 frontend/mobile/android
-
+frontend/mobile/firebaseConfig.ts
 
 # Logs
 frontend/web/logs    

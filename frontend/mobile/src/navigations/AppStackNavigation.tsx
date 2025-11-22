@@ -1,3 +1,4 @@
+import React from "react";
 import { StatusBar } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
@@ -7,14 +8,16 @@ import {
   Theme as NavigationTheme,
 } from "@react-navigation/native";
 
-import WellcomeScreen from "../screens/WellcomeScreen";
-
 import { RootStackParamList } from "./params";
-import { AuthStackNavigation } from "./AuthStackNavigation";
+
 import { TabStackNavigation } from "./TabStackNavigation";
-import { useTheme } from "../hooks/useTheme";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
+import ProductDetail from "../screens/ProductDetail";
+
+import { useTheme } from "../hooks/useTheme";
+import { BottomSheetModalProvider } from "../providers/BottomSheetModalProvider";
+import AddProductoScreen from "../screens/tabs/AddProductoScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -43,31 +46,30 @@ export function AppStackNavigation() {
       />
 
       <NavigationContainer theme={navTheme}>
-        <Stack.Navigator
-          screenOptions={() => ({
-            title: "",
-            headerShown: true,
-            headerTransparent: true,
-            headerShadowVisible: false,
-            headerStyle: {
-              backgroundColor: "transparent",
-            },
-          })}
-        >
-          {/* <Stack.Screen
-            name="wellcome"
-            component={WellcomeScreen}
-            options={{ headerShown: false }}
-          /> */}
-          {/* <Stack.Screen name="auth" component={AuthStackNavigation} /> */}
-          <Stack.Screen
-            name="mainApp"
-            component={TabStackNavigation}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="authLogin" component={LoginScreen} />
-          <Stack.Screen name="authRegister" component={RegisterScreen} />
-        </Stack.Navigator>
+        <BottomSheetModalProvider>
+          <Stack.Navigator
+            screenOptions={() => ({
+              title: "",
+              headerShown: true,
+              headerTransparent: true,
+              headerShadowVisible: false,
+              headerStyle: {
+                backgroundColor: "transparent",
+              },
+            })}
+          >
+            <Stack.Screen
+              name="mainApp"
+              component={TabStackNavigation}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="authLogin" component={LoginScreen} />
+            <Stack.Screen name="authRegister" component={RegisterScreen} />
+            <Stack.Screen name="productDetail" component={ProductDetail} />
+            <Stack.Screen name="addProducto" component={AddProductoScreen} />
+            <Stack.Screen name="editProducto" component={AddProductoScreen} />
+          </Stack.Navigator>
+        </BottomSheetModalProvider>
       </NavigationContainer>
     </>
   );
