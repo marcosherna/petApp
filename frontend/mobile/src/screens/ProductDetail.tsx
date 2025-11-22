@@ -188,9 +188,23 @@ function ProductDetailContent({ navigation, route }: any) {
             fullWidth
           >
             <RateProduct />
-            <Label size="3xl" weight="bold">
-              ${prod?.price}
-            </Label>
+            {/* Vista del nombre de tienda */}
+            <View style={{ alignItems: 'flex-end' }}>
+              <Label size="3xl" weight="bold">
+                ${prod?.price}
+              </Label>
+              
+              {prod?.storeName && (
+                <Label 
+                    size="2xl"         // <--- Aumentado a XL (antes era sm)
+                    weight="bold"     // <--- Letra más gruesa
+                    color="gray" 
+                    style={{ marginTop: 4 }}
+                >
+                   {prod.storeName}
+                </Label>
+              )}
+            </View>
           </Layout>
         </Layout>
 

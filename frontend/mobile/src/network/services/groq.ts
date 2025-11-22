@@ -1,18 +1,15 @@
-/*import { Groq } from "groq-sdk";
+import { Groq } from "groq-sdk";
 
-const API_KEY = "aquí vamos a colocar la API KEY de Groq";
-
-if (!API_KEY) {
-  console.warn("No se encontró la API KEY de Groq.");
-}
+const API_KEY = "";
 
 export const groq = new Groq({
   apiKey: API_KEY,
 });
+
 export async function askGroq(prompt: string) {
   try {
     const response = await groq.chat.completions.create({
-      model: "llama3-70b-8192",
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "user",
@@ -24,6 +21,6 @@ export async function askGroq(prompt: string) {
     return response.choices?.[0]?.message?.content ?? "";
   } catch (error) {
     console.error("Error al consultar Groq:", error);
-    return null;
+    return "La IA no pudo procesar tu solicitud 🐾";
   }
-}*/
+}
