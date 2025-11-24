@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { View, StyleSheet } from "react-native";
 import { Star } from "lucide-react-native";
 
-import { Button, Label, PressableLayout } from "../../components";
-import { Layout, Score } from "../../components/ui";
+import { Button, Label } from "../../components";
+import { Layout, Score, GestureLayout } from "../../components/ui";
 import { spacing } from "../../resourses/spacing";
 import { iconography } from "../../resourses/iconography";
 
@@ -51,6 +51,15 @@ const Rate = ({ defaultValue = 0, onChangeScore, onScore }: RateProps) => {
   );
 };
 
+const StarIcon = ({ rate = 0 }: { rate?: number }) => {
+  const fillRate = useMemo(
+    () => (rate === 0 ? undefined : { fill: "#F5A623" }),
+    [rate]
+  );
+
+  return <Star size={iconography.sm} {...fillRate} stroke="#F5A623" />;
+};
+
 export default function RateProduct() {
   const { openModal, closeModal } = useGlobalBottomSheetModal();
   const { user } = useAuth();
@@ -62,10 +71,9 @@ export default function RateProduct() {
   const handleScore = React.useCallback(
     async (score: number) => {
       try {
-        closeModal()
+        closeModal();
         await rateProduct(user?.uid!, product?.id!, score);
         setUserRate(score);
-        
       } catch (error) {
         console.log(error);
       }
@@ -104,16 +112,17 @@ export default function RateProduct() {
   }, [user, userRate, handleScore, openModal, closeModal]);
 
   return (
-    <PressableLayout
+    <GestureLayout
       onPress={handleRateProduct}
       style={styles.pressable_container}
+      disabled={loading}
     >
       <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-        <Star size={iconography.sm} fill="#F5A623" stroke="#F5A623" />
+        <StarIcon rate={userRate ?? 0} />
         <Label weight="semibold">{product?.score?.avg}</Label>
         <Label size="sm">{`(${product?.score?.count} valoraciones)`}</Label>
       </Layout>
-    </PressableLayout>
+    </GestureLayout>
   );
 }
 
