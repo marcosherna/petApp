@@ -157,6 +157,7 @@ export function BottomSheetComment() {
   const { user } = useAuth();
 
   const [comments, setComments] = useState<Comment[]>([]);
+  const [isOpened, setIsOpened] = useState(false);
 
   const backgroundColor = useMemo(
     () => (isDark ? theme.surface : theme.background),
@@ -218,17 +219,16 @@ export function BottomSheetComment() {
   );
 
   useEffect(() => {
-    if (!product?.id) return;
+    if (!isOpened || !product?.id) return;
+
     const unsubscribe = subscribeToComentsByProductId(
-      product?.id!,
-      (comments: Comment[]) => {
-        setComments(comments);
-      },
+      product.id,
+      (comments) => setComments(comments),
       (err) => {}
     );
 
     return () => unsubscribe();
-  }, [product]);
+  }, [isOpened, product?.id]);
 
   return (
     <BottomSheetModal
@@ -254,6 +254,9 @@ export function BottomSheetComment() {
         </View>
       )}
       footerComponent={footerComponent}
+      onChange={(index) => {
+        if (index >= 0) setIsOpened(true);
+      }}
     >
       <BottomSheetFlatList
         data={comments}
