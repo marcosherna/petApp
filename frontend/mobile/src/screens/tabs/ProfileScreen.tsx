@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
+import { Plus } from "lucide-react-native";
 
 import { useAuth } from "../../hooks/useAuth";
 import { useTheme } from "../../hooks/useTheme";
@@ -18,6 +19,8 @@ import { usePhotoPicker } from "../../components/profile/PhotoPicker";
 
 import { spacing } from "../../resourses/spacing";
 import { Label, IconButton, Button } from "../../components";
+import { GestureLayout, Layout } from "../../components/ui";
+import { iconography } from "../../resourses/iconography";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<RootStackNavigation>();
@@ -171,39 +174,32 @@ export default function ProfileScreen() {
                     Mis productos
                   </Label>
 
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      backgroundColor: theme.primary,
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                      borderRadius: 14,
-                      alignItems: "center",
-                      gap: 4,
-                    }}
+                  <GestureLayout
+                    variant="contained"
+                    onPress={() => navigation.navigate("addProducto")}
                   >
-                    <IconButton
-                      icon="Plus"
-                      size={14}
-                      color="#fff"
-                      colorShape="transparent"
-                      variant="ghost"
-                      onPress={() => navigation.navigate("addProducto")}
-                    />
-                    <Label color="#fff" weight="bold" size="sm">
-                      Nuevo
-                    </Label>
-                  </View>
+                    <Layout
+                      direction="row"
+                      gap={spacing.sm}
+                      alignVertical="center"
+                      alignHorizontal="center"
+                    >
+                      <Plus color={"#fff"} size={iconography.sm} />
+                      <Label color="#fff">Nuevo</Label>
+                    </Layout>
+                  </GestureLayout> 
                 </View>
               )}
 
               {/* LISTAS */}
               {tab === "myProducts" ? (
-                  <ProductList
-                    data={products}
-                    onDelete={deleteProduct}
-                    onEdit={(id) => navigation.navigate("addProducto", { editId: id })}//aqui
-                  />
+                <ProductList
+                  data={products}
+                  onDelete={deleteProduct}
+                  onEdit={(id) =>
+                    navigation.navigate("addProducto", { editId: id })
+                  } //aqui
+                />
               ) : (
                 <FavoritesList data={favorites} />
               )}
