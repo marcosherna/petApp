@@ -18,4 +18,5 @@ export interface Product {
   location?: string;               
   coords?: { lat: number; lng: number } | null;  
   score?: { avg: number; count: number } | null;
+  storeName?: string | null;
 }

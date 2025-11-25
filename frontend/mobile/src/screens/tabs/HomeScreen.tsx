@@ -18,49 +18,57 @@ import { Product, CategoryOptions } from "../../network/models";
 import { iconography } from "../../resourses/iconography";
 import { RootStackNavigation } from "../../navigations/params";
 
-// IMPORTAMOS EL MODAL DE IA
-/*import { AIModal } from "../../components/ia/AIModal";*/
-
 export default function HomeScreen() {
   const [category, setCategory] = React.useState("");
   const [products, setProducts] = React.useState<Product[]>([]);
-  const [error, setError] = React.useState(null);
-
-  // CONTROL DEL MODAL IA
-  const [showAIModal, setShowAIModal] = React.useState(false);
+  const [search, setSearch] = React.useState("");
 
   const navigation = useNavigation<RootStackNavigation>();
 
+  // ================== LOAD PRODUCTS ===================
   React.useEffect(() => {
-    let unsubscribe: () => void;
-    if (category && category !== "") {
+    let unsubscribe;
+
+    if (category) {
       unsubscribe = subscribeToProductsWithFilter(
-        [["category", "==", `${category}`]],
-        (products) => setProducts(products),
-        setError
+        [["category", "==", category]],
+        setProducts,
+        console.error
       );
     } else {
-      unsubscribe = subscribeToProducts(setProducts, setError);
+      unsubscribe = subscribeToProducts(setProducts, console.error);
     }
-    return () => unsubscribe();
+
+    return () => unsubscribe?.();
   }, [category]);
 
-  const handleSelectCategory = (category: CategoryOptions | null) => {
-    if (category) setCategory(category.name);
-    else setCategory("");
-  };
+  // ================== FILTER ===================
+  const filteredProducts = products.filter((p) => {
+    if (!search.trim()) return true;
+    const text = search.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(text) ||
+      (p.storeName?.toLowerCase?.() ?? "").includes(text)
+    );
+  });
 
+  // ================== NAVIGATE ===================
   const handleSelectedProduct = (product: Product) => {
     navigation.navigate("productDetail", product);
   };
 
-  const renderHeader = () => (
-    <View style={styles.header_container}>
-      {/* --- BUSCADOR CON BOTÓN DE IA ARRIBA --- */}
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-        <SearchBar placeholder="Buscar comida, juguetes y más..." />
+  // ================== HEADER ===================
+  const renderHeader = React.useCallback(() => (
+    <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.md }}>
 
-        {/* BOTÓN DE IA */}
+      {/* SEARCH BAR */}
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <SearchBar
+          placeholder="Buscar productos o tiendas..."
+          value={search}
+          onChangeText={setSearch}
+        />
+
         <IconButton
           icon="Sparkles"
           size={28}
@@ -68,11 +76,13 @@ export default function HomeScreen() {
           shape="circle"
           color="#4a90e2"
           colorShape="#4a90e2"
-          onPress={() => setShowAIModal(true)}
         />
       </View>
 
-      <Label weight="bold">Explora por Categoría</Label>
+      {/* CATEGORIES */}
+      <Label weight="bold" style={{ marginTop: spacing.lg }}>
+        Explora por Categoría
+      </Label>
 
       <View style={styles.categories_container}>
         {categoriesOptions.map((category, index) => (
@@ -83,13 +93,14 @@ export default function HomeScreen() {
               color={category.color}
               colorShape={category.color}
               shape="circle"
-              onPress={() => handleSelectCategory(category)}
+              onPress={() => setCategory(category.name)}
             />
             <Label align="center">{category.name}</Label>
           </View>
         ))}
       </View>
 
+      {/* FILTER TITLE */}
       <Layout
         direction="row"
         alignHorizontal="center"
@@ -99,9 +110,7 @@ export default function HomeScreen() {
           weight="bold"
           style={{ marginTop: spacing.lg, marginBottom: spacing.md }}
         >
-          {category === ""
-            ? "Recomendado para ti"
-            : `Filtrados por ${category}`}
+          {category === "" ? "Recomendado para ti" : `Filtrados por ${category}`}
         </Label>
 
         {category !== "" && (
@@ -110,56 +119,50 @@ export default function HomeScreen() {
             size={iconography.xs}
             variant="ghost"
             shape="circle"
-            onPress={() => handleSelectCategory(null)}
+            onPress={() => setCategory("")}
           />
         )}
       </Layout>
     </View>
-  );
+  ), [search, category]);
 
+  // ================== RENDER ===================
   return (
-    <>
-      <FlatList
-        data={products}
-        numColumns={2}
-        keyExtractor={(item) => item.name}
-        renderItem={({ item }) => (
-          <ProductCard
-            id={item.id}
-            name={item.name}
-            img={item.imgCover ?? item.imgs?.[0] ?? undefined}
-            price={item.price}
-            score={item.score?.avg ?? 0}
-            style={{ flex: 1, marginBottom: spacing.md }}
-            onSelected={() => handleSelectedProduct(item)}
-          />
-        )}
-        ListHeaderComponent={renderHeader}
-        columnWrapperStyle={{ gap: spacing.md }}
-        contentContainerStyle={{ padding: spacing.md }}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <EmptyTemplate
-            message="No hay productos disponibles"
-            subMessage="Intenta con otros filtros o regresa más tarde"
-            icon="package"
-          />
-        }
-      />
-
-      {/* MODAL DE IA */}
-      {/* <AIModal visible={showAIModal} onClose={() => setShowAIModal(false)} /> */}
-    </>
+    <FlatList
+      data={filteredProducts}
+      numColumns={2}
+      keyExtractor={(item) => item.id}
+      keyboardShouldPersistTaps="always"
+      ListHeaderComponent={renderHeader}
+      renderItem={({ item }) => (
+        <ProductCard
+          id={item.id}
+          name={item.name}
+          img={item.imgCover ?? item.imgs?.[0] ?? undefined}
+          price={item.price}
+          score={item.score?.avg ?? 0}
+          style={{ flex: 1, marginBottom: spacing.md }}
+          onSelected={() => handleSelectedProduct(item)}
+        />
+      )}
+      columnWrapperStyle={{ gap: spacing.md }}
+      contentContainerStyle={{ paddingBottom: spacing.md }}
+      showsVerticalScrollIndicator={false}
+      ListEmptyComponent={
+        <EmptyTemplate
+          message="No hay productos disponibles"
+          subMessage="Intenta con otros filtros o regresa más tarde"
+          icon="package"
+        />
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  header_container: {
-    marginTop: spacing.md,
-    gap: spacing.md,
-  },
   categories_container: {
     flexDirection: "row",
+    marginTop: spacing.md,
   },
   category: {
     gap: spacing.sm,
