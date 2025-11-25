@@ -83,10 +83,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
           placeholder={placeholder}
           placeholderTextColor={colors.placeholder}
           value={value}
-          onChangeText={onChangeText}
+          onChangeText={(text) => onChangeText?.(text)}
           autoCorrect={false}
           autoCapitalize="none"
           returnKeyType="search"
+          blurOnSubmit={false} 
           accessible
           accessibilityLabel="Buscar"
           accessibilityHint="Campo de búsqueda"
