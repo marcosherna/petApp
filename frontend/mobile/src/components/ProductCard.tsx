@@ -42,7 +42,7 @@ export function ProductCard({
             resizeMode="cover"
           />
 
-          <View style={styles.heartButton}>
+          {/* <View style={styles.heartButton}>
             <Shape
               variant="ghost"
               colorShape="#E4080A"
@@ -52,7 +52,7 @@ export function ProductCard({
             >
               <Heart color="#E4080A" size={iconography.sm} />
             </Shape>
-          </View>
+          </View> */}
         </View>
 
         <View style={styles.content}>
