@@ -329,7 +329,7 @@ function ProductDetailContent({ navigation, route }: any) {
             onPress={(value) => handleFavorite(value)}
           />
 
-          <IconButton icon="MapPin" variant="outline" shape="rounded" />
+          {/* <IconButton icon="MapPin" variant="outline" shape="rounded" /> */}
 
           <CommentButton />
 
