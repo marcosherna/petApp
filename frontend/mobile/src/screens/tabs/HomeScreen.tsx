@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, FlatList, Keyboard } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import { SearchBar, Layout } from "../../components/ui";
@@ -22,6 +22,8 @@ export default function HomeScreen() {
   const [category, setCategory] = React.useState("");
   const [products, setProducts] = React.useState<Product[]>([]);
   const [search, setSearch] = React.useState("");
+  const [filteredProducts, setFilteredProducts] =
+    React.useState<Product[]>(products);
 
   const navigation = useNavigation<RootStackNavigation>();
 
@@ -32,99 +34,123 @@ export default function HomeScreen() {
     if (category) {
       unsubscribe = subscribeToProductsWithFilter(
         [["category", "==", category]],
-        setProducts,
+        (p) => {
+          setProducts(p);
+          setFilteredProducts(p);
+        },
         console.error
       );
     } else {
-      unsubscribe = subscribeToProducts(setProducts, console.error);
+      unsubscribe = subscribeToProducts((p) => {
+        setProducts(p);
+        setFilteredProducts(p);
+      }, console.error);
     }
 
     return () => unsubscribe?.();
   }, [category]);
+ 
+  // ================== SEARCH ===================
+  const handleSubmitSearch = (query: string) => {
+    const filltered = products.filter((p) => {
+      if (!query.trim()) return true;
+      const text = query.toLowerCase();
+      return (
+        p.name.toLowerCase().includes(text) ||
+        (p.storeName?.toLowerCase?.() ?? "").includes(text)
+      );
+    });
+    setFilteredProducts(filltered);
+    Keyboard.dismiss();
+  };
 
-  // ================== FILTER ===================
-  const filteredProducts = products.filter((p) => {
-    if (!search.trim()) return true;
-    const text = search.toLowerCase();
-    return (
-      p.name.toLowerCase().includes(text) ||
-      (p.storeName?.toLowerCase?.() ?? "").includes(text)
-    );
-  });
+  const handleClearSearch = () => {
+    setSearch("");
+    setFilteredProducts(products);
+    Keyboard.dismiss();
+  };
+
+  // ================== HEADER ===================
+  const renderHeader = React.useMemo(
+    () => (
+      <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.md }}>
+        {/* SEARCH BAR */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <SearchBar
+            value={search}
+            onChangeText={(text) => setSearch(text)}
+            placeholder="Buscar productos o tiendas..."
+            onSubmitEditing={(e) => handleSubmitSearch(e.nativeEvent.text)}
+            onClear={() => handleClearSearch()}
+          />
+
+          <IconButton
+            icon="Sparkles"
+            size={28}
+            variant="ghost"
+            shape="circle"
+            color="#4a90e2"
+            colorShape="#4a90e2"
+          />
+        </View>
+
+        {/* CATEGORIES */}
+        <Label weight="bold" style={{ marginTop: spacing.lg }}>
+          Explora por Categoría
+        </Label>
+
+        <View style={styles.categories_container}>
+          {categoriesOptions.map((category, index) => (
+            <View key={index} style={styles.category}>
+              <IconButton
+                icon={category.icon as any}
+                variant="ghost"
+                color={category.color}
+                colorShape={category.color}
+                shape="circle"
+                onPress={() => {
+                  setCategory(category.name);
+                }}
+              />
+              <Label align="center">{category.name}</Label>
+            </View>
+          ))}
+        </View>
+
+        {/* FILTER TITLE */}
+        <Layout
+          direction="row"
+          alignHorizontal="center"
+          alignVertical="space-between"
+        >
+          <Label
+            weight="bold"
+            style={{ marginTop: spacing.lg, marginBottom: spacing.md }}
+          >
+            {category === ""
+              ? "Recomendado para ti"
+              : `Filtrados por ${category}`}
+          </Label>
+
+          {category !== "" && (
+            <IconButton
+              icon="X"
+              size={iconography.xs}
+              variant="ghost"
+              shape="circle"
+              onPress={() => setCategory("")}
+            />
+          )}
+        </Layout>
+      </View>
+    ),
+    [category, search, products]
+  );
 
   // ================== NAVIGATE ===================
   const handleSelectedProduct = (product: Product) => {
     navigation.navigate("productDetail", product);
   };
-
-  // ================== HEADER ===================
-  const renderHeader = React.useCallback(() => (
-    <View style={{ paddingHorizontal: spacing.md, paddingTop: spacing.md }}>
-
-      {/* SEARCH BAR */}
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-        <SearchBar
-          placeholder="Buscar productos o tiendas..."
-          value={search}
-          onChangeText={setSearch}
-        />
-
-        <IconButton
-          icon="Sparkles"
-          size={28}
-          variant="ghost"
-          shape="circle"
-          color="#4a90e2"
-          colorShape="#4a90e2"
-        />
-      </View>
-
-      {/* CATEGORIES */}
-      <Label weight="bold" style={{ marginTop: spacing.lg }}>
-        Explora por Categoría
-      </Label>
-
-      <View style={styles.categories_container}>
-        {categoriesOptions.map((category, index) => (
-          <View key={index} style={styles.category}>
-            <IconButton
-              icon={category.icon as any}
-              variant="ghost"
-              color={category.color}
-              colorShape={category.color}
-              shape="circle"
-              onPress={() => setCategory(category.name)}
-            />
-            <Label align="center">{category.name}</Label>
-          </View>
-        ))}
-      </View>
-
-      {/* FILTER TITLE */}
-      <Layout
-        direction="row"
-        alignHorizontal="center"
-        alignVertical="space-between"
-      >
-        <Label
-          weight="bold"
-          style={{ marginTop: spacing.lg, marginBottom: spacing.md }}
-        >
-          {category === "" ? "Recomendado para ti" : `Filtrados por ${category}`}
-        </Label>
-
-        {category !== "" && (
-          <IconButton
-            icon="X"
-            size={iconography.xs}
-            variant="ghost"
-            shape="circle"
-            onPress={() => setCategory("")}
-          />
-        )}
-      </Layout>
-    </View>
-  ), [search, category]);
 
   // ================== RENDER ===================
   return (
@@ -133,6 +159,7 @@ export default function HomeScreen() {
       numColumns={2}
       keyExtractor={(item) => item.id}
       keyboardShouldPersistTaps="always"
+      keyboardDismissMode="none"
       ListHeaderComponent={renderHeader}
       renderItem={({ item }) => (
         <ProductCard
