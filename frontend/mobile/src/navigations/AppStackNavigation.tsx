@@ -18,6 +18,7 @@ import ProductDetail from "../screens/ProductDetail";
 import { useTheme } from "../hooks/useTheme";
 import { BottomSheetModalProvider } from "../providers/BottomSheetModalProvider";
 import AddProductoScreen from "../screens/tabs/AddProductoScreen";
+import SettingScreen from "../screens/SettingScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -68,6 +69,7 @@ export function AppStackNavigation() {
             <Stack.Screen name="productDetail" component={ProductDetail} />
             <Stack.Screen name="addProducto" component={AddProductoScreen} />
             <Stack.Screen name="editProducto" component={AddProductoScreen} />
+            <Stack.Screen name="settingScreen" component={SettingScreen} />
           </Stack.Navigator>
         </BottomSheetModalProvider>
       </NavigationContainer>
