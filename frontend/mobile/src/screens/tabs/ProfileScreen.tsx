@@ -144,7 +144,7 @@ export default function ProfileScreen() {
               email={user.email || ""}
               productCount={productCount}
               onChangePhoto={openOptions}
-              onEditProfile={() => {}}
+              onEditProfile={() => navigation.navigate("settingScreen")}
               onLogout={signOut}
             />
 
@@ -187,7 +187,7 @@ export default function ProfileScreen() {
                       <Plus color={"#fff"} size={iconography.sm} />
                       <Label color="#fff">Nuevo</Label>
                     </Layout>
-                  </GestureLayout> 
+                  </GestureLayout>
                 </View>
               )}
 

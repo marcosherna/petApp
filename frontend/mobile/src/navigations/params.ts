@@ -19,6 +19,7 @@ export type RootStackParamList = {
   productDetail: Product;
   addProducto: { editId?: string } | undefined; // <--- AÑADIDO
   editProducto: Product;
+  settingScreen: undefined;
 };
 
 export type TabStackParamList = {
