@@ -218,6 +218,7 @@ export default function AddProductoScreen() {
       resetForm();
       setImageUri(null);
       setCoords(null);
+      navigation.goBack();
     } catch (e) {
       console.error(e);
       Alert.alert("Error", "No se pudo guardar el producto.");
