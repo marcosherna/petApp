@@ -2,7 +2,7 @@ import React from "react";
 import { View, StyleSheet, FlatList, Keyboard } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { SearchBar, Layout } from "../../components/ui";
+import { SearchBar, Layout, LoadingTemplate } from "../../components/ui";
 import { IconButton, Label, ProductCard } from "../../components";
 import { EmptyTemplate } from "../../components/ui";
 
@@ -24,11 +24,13 @@ export default function HomeScreen() {
   const [search, setSearch] = React.useState("");
   const [filteredProducts, setFilteredProducts] =
     React.useState<Product[]>(products);
+  const [loading, setLoading] = React.useState(true);
 
   const navigation = useNavigation<RootStackNavigation>();
 
   // ================== LOAD PRODUCTS ===================
   React.useEffect(() => {
+    setLoading(true);
     let unsubscribe;
 
     if (category) {
@@ -37,19 +39,30 @@ export default function HomeScreen() {
         (p) => {
           setProducts(p);
           setFilteredProducts(p);
+          setLoading(false);
         },
-        console.error
+        (err) => {
+          console.error(err);
+          setLoading(false);
+        }
       );
     } else {
-      unsubscribe = subscribeToProducts((p) => {
-        setProducts(p);
-        setFilteredProducts(p);
-      }, console.error);
+      unsubscribe = subscribeToProducts(
+        (p) => {
+          setProducts(p);
+          setFilteredProducts(p);
+          setLoading(false);
+        },
+        (err) => {
+          console.error(err);
+          setLoading(false);
+        }
+      );
     }
 
     return () => unsubscribe?.();
   }, [category]);
- 
+
   // ================== SEARCH ===================
   const handleSubmitSearch = (query: string) => {
     const filltered = products.filter((p) => {
@@ -176,11 +189,17 @@ export default function HomeScreen() {
       contentContainerStyle={{ paddingBottom: spacing.md }}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
-        <EmptyTemplate
-          message="No hay productos disponibles"
-          subMessage="Intenta con otros filtros o regresa más tarde"
-          icon="package"
-        />
+        <>
+          {loading ? (
+            <LoadingTemplate />
+          ) : (
+            <EmptyTemplate
+              message="No hay productos disponibles"
+              subMessage="Intenta con otros filtros o regresa más tarde"
+              icon="package"
+            />
+          )}
+        </>
       }
     />
   );
