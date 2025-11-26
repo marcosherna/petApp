@@ -79,7 +79,7 @@ const SellerMap: React.FC<SellerMapProps> = ({
       {lat != null && lng != null && (
         <Map
           ref={mToProduct}
-          loadingEnabled={true} 
+          loadingEnabled={true}
           initialRegion={{
             latitude: lat,
             longitude: lng,
@@ -140,11 +140,11 @@ function ProductDetailContent({ navigation, route }: any) {
   };
 
   // ---- SELECTOR ----
-  const options = [
-    { label: " 2kg", value: "2" },
-    { label: " 5kg", value: "5" },
-    { label: " 10kg", value: "10" },
-  ];
+  // const options = [
+  //   { label: " 2kg", value: "2" },
+  //   { label: " 5kg", value: "5" },
+  //   { label: " 10kg", value: "10" },
+  // ];
 
   const images =
     prod?.imgs && prod.imgs.length > 0
@@ -189,19 +189,19 @@ function ProductDetailContent({ navigation, route }: any) {
           >
             <RateProduct />
             {/* Vista del nombre de tienda */}
-            <View style={{ alignItems: 'flex-end' }}>
+            <View style={{ alignItems: "flex-end" }}>
               <Label size="3xl" weight="bold">
                 ${prod?.price}
               </Label>
-              
+
               {prod?.storeName && (
-                <Label 
-                    size="2xl"         // <--- Aumentado a XL (antes era sm)
-                    weight="bold"     // <--- Letra más gruesa
-                    color="gray" 
-                    style={{ marginTop: 4 }}
+                <Label
+                  size="2xl" // <--- Aumentado a XL (antes era sm)
+                  weight="bold" // <--- Letra más gruesa
+                  color="gray"
+                  style={{ marginTop: 4 }}
                 >
-                   {prod.storeName}
+                  {prod.storeName}
                 </Label>
               )}
             </View>
@@ -214,7 +214,7 @@ function ProductDetailContent({ navigation, route }: any) {
         />
 
         {/* Selector */}
-        <Layout paddingHorizontal={spacing.md} gap={spacing.sm}>
+        {/* <Layout paddingHorizontal={spacing.md} gap={spacing.sm}>
           <Label weight="semibold"> Tamaño disponible</Label>
           <Segment
             options={options}
@@ -223,14 +223,10 @@ function ProductDetailContent({ navigation, route }: any) {
             borderRadius={8}
             containerStyle={{ width: "100%" }}
           />
-        </Layout>
+        </Layout> */}
 
         {/* Descripción */}
-        <Layout
-          paddingHorizontal={spacing.md}
-          gap={spacing.sm}
-          style={{ marginTop: spacing.md }}
-        >
+        <Layout paddingHorizontal={spacing.md} gap={spacing.sm}>
           <Label weight="semibold">Descripción</Label>
           <Label align="justify" color="gray" paragraph>
             {prod?.description}
