@@ -6,7 +6,7 @@ export default function SplashScreen() {
     <View style={styles.container}>
       <Image
         source={require("../../assets/splash.png")}
-        style={{ width: 140, height: 140, marginBottom: 20 }}
+        style={{ width: 300, height: 300, marginBottom: 20 }}
         resizeMode="contain"
       />
       <ActivityIndicator size="large" color="#4a90e2" />
