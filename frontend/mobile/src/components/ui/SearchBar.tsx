@@ -8,18 +8,21 @@ import {
   TextInput,
   StyleSheet,
 } from "react-native";
-import { Search } from "lucide-react-native";
+import { Search, X } from "lucide-react-native";
 
 import { FontSizeKey, FontWeightKey } from "../../resourses/typography";
 import { useTheme } from "../../hooks/useTheme";
 import { getTextStyle } from "../../helpers/TextStyles";
 import { iconography } from "../../resourses/iconography";
 
+import { GestureIconButton } from "./GestureIconButton";
+
 interface SearchBarProps
   extends Omit<TextInputProps, "style" | "keyboardType" | "multiline"> {
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
   inputContainerStyle?: StyleProp<ViewStyle>;
+  onClear?: () => void;
 
   labelSize?: FontSizeKey;
   labelWeight?: FontWeightKey;
@@ -34,6 +37,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   containerStyle,
   inputStyle,
   inputContainerStyle,
+  onClear,
 
   labelSize = "md",
   labelWeight = "semibold",
@@ -73,7 +77,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       >
         <Search
           color={colors.icon}
-          size={iconography.md}
+          size={iconography.sm}
           strokeWidth={2}
           style={styles.icon}
         />
@@ -87,11 +91,18 @@ const SearchBar: React.FC<SearchBarProps> = ({
           autoCorrect={false}
           autoCapitalize="none"
           returnKeyType="search"
-          blurOnSubmit={false} 
+          blurOnSubmit={false}
           accessible
           accessibilityLabel="Buscar"
           accessibilityHint="Campo de búsqueda"
           {...props}
+        />
+
+        <GestureIconButton
+          icon="X"
+          size={iconography.sm}
+          style={styles.icon}
+          onPress={onClear}
         />
       </View>
     </View>
@@ -107,12 +118,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderRadius: 10,
-    paddingHorizontal: 12,
+    paddingRight: 0,
+    paddingLeft: 12,
     height: 48,
     gap: 8,
   },
   icon: {
-    opacity: 0.8,
+    paddingHorizontal: 12,
   },
   input: {
     flex: 1,
