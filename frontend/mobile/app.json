@@ -35,6 +35,11 @@
     },
     "android": {
       "permissions": ["READ_MEDIA_IMAGES", "CAMERA"],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDa9KK0tpX4xXD2yMPtIPIuHI7DdiwCZds"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/splash.png",
         "backgroundColor": "#ffffff"
