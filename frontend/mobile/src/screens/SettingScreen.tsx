@@ -1,25 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { ScrollView, Alert } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import {
-  AlertTriangle,
-  ChevronRight,
-  Code2,
-  FileText,
-  Github,
-  Globe,
-  Info,
-  LogOut,
-  Rocket,
-  ShieldCheck,
-  Smartphone,
-  Trash2,
-  Lock,
-  ShieldAlert,
-} from "lucide-react-native";
+import { FileText, Info, LogOut, Trash2, KeyRound } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import BottomSheet, {
   BottomSheetModal,
@@ -32,12 +17,11 @@ import {
   Avatar,
   Card,
   Divider,
-  GestureIconButton,
   Layout,
   Loading,
   Shape,
 } from "../components/ui";
-import { Button, Input, Label } from "../components";
+import { Button, Input, Label, ItemSetting } from "../components";
 
 import { iconography } from "../resourses/iconography";
 import { RootStackNavigation } from "../navigations/params";
@@ -45,299 +29,20 @@ import {
   getUserData,
   updateUserProfile,
 } from "../network/services/authService";
+import { AboutComponent } from "./partials/AboutComponent";
+import { TermAndConditionsComponent } from "./partials/TermAndConditionsComponent";
+import { AlertDeleteSessionComponent } from "./partials/AlertDeleteSessionComponent";
+import { ChangePasswordComponent } from "./partials/ChangePasswordComponent";
 
 import { useTheme } from "../hooks/useTheme";
 import { useForm } from "../hooks/useForm";
 import { useAuth } from "../hooks/useAuth";
-import { type UserInfo } from "../network/models/User";
 
-const ItemSetting = ({
-  children,
-  onPress,
-}: {
-  children?: React.ReactNode;
-  onPress?: () => void;
-}) => {
-  const { theme } = useTheme();
-
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <Layout
-        direction="row"
-        alignHorizontal="center"
-        alignVertical="space-between"
-        fullWidth
-      >
-        <Layout
-          direction="row"
-          gap={spacing.md}
-          alignHorizontal="center"
-          alignVertical="center"
-        >
-          {children}
-        </Layout>
-
-        <ChevronRight color={theme.secondaryText} />
-      </Layout>
-    </TouchableOpacity>
-  );
-};
-
-const AboutComponent = () => {
-  const { theme } = useTheme();
-
-  return (
-    <Layout
-      paddingHorizontal={spacing.md}
-      paddingVertical={spacing.md}
-      gap={spacing.md}
-    >
-      <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-        <Info size={iconography.md} color={theme.secondaryText} />
-        <Label size="lg" weight="bold">
-          Acerca de esta aplicación
-        </Label>
-      </Layout>
-
-      <Label paragraph>
-        Esta aplicación fue creada para ofrecer una experiencia rápida, moderna
-        y segura. Nuestro objetivo es que puedas gestionar tu cuenta, tus
-        preferencias y el acceso a nuestros servicios de la forma más simple
-        posible.
-      </Label>
-
-      <Divider margin={spacing.md} />
-
-      {/* Características */}
-      <Layout gap={spacing.sm}>
-        <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-          <Rocket color={theme.secondaryText} size={iconography.sm} />
-          <Label weight="semibold">Rendimiento optimizado</Label>
-        </Layout>
-        <Label paragraph>
-          Construida con tecnologías modernas para brindar transiciones fluidas
-          y un tiempo de respuesta rápido.
-        </Label>
-
-        <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-          <ShieldCheck color={theme.secondaryText} size={iconography.sm} />
-          <Label weight="semibold">Seguridad primero</Label>
-        </Layout>
-        <Label paragraph>
-          Tu información se maneja con estrictos estándares de seguridad,
-          garantizando privacidad y protección.
-        </Label>
-
-        <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-          <Smartphone color={theme.secondaryText} size={iconography.sm} />
-          <Label weight="semibold">Diseño responsivo</Label>
-        </Layout>
-        <Label paragraph>
-          Adaptado para verse perfectamente en cualquier dispositivo móvil.
-        </Label>
-      </Layout>
-
-      <Divider margin={spacing.md} />
-
-      {/* Información técnica */}
-      <Label size="lg" weight="semibold">
-        Información técnica
-      </Label>
-
-      <Layout gap={spacing.xs}>
-        <Label weight="semibold">Versión de la aplicación</Label>
-        <Label>1.0.0</Label>
-      </Layout>
-
-      <Layout gap={spacing.xs}>
-        <Label weight="semibold">Framework</Label>
-        <Layout direction="row" gap={spacing.xs} alignHorizontal="center">
-          <Code2 color={theme.secondaryText} size={iconography.xs} />
-          <Label>React Native + Expo</Label>
-        </Layout>
-      </Layout>
-
-      <Layout gap={spacing.xs}>
-        <Label weight="semibold">Desarrollado por</Label>
-
-        <Label>Jennifer Tatiana Guerra Figueroa</Label>
-        <Label>Milton Azareel Cuadra Mezquita</Label>
-        <Label>Gilberto José Menéndez Pérez</Label>
-        <Label>Daniel Alexander Reyes Pérez</Label>
-        <Label>Marcos Enrique Ramos Hernández</Label>
-      </Layout>
-
-      {/* Repositorio */}
-      <Layout
-        direction="row"
-        gap={spacing.sm}
-        alignHorizontal="center"
-        style={{ marginTop: spacing.sm }}
-      >
-        <Github color={theme.secondaryText} size={iconography.md} />
-        <Label>github.com/marcosherna</Label>
-      </Layout>
-    </Layout>
-  );
-};
-
-const TermAndConditionsComponent = () => {
-  const { theme } = useTheme();
-
-  return (
-    <Layout
-      paddingHorizontal={spacing.md}
-      paddingVertical={spacing.md}
-      gap={spacing.md}
-    >
-      {/* Header */}
-      <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-        <FileText size={iconography.md} color={theme.secondaryText} />
-        <Label size="lg" weight="bold">
-          Términos y Condiciones
-        </Label>
-      </Layout>
-
-      {/* Intro */}
-      <Label paragraph>
-        Al utilizar esta aplicación, aceptas cumplir con las políticas y reglas
-        que se describen a continuación. Estos términos están diseñados para
-        proteger tu seguridad, privacidad y garantizar un uso adecuado de la
-        plataforma.
-      </Label>
-
-      <Divider margin={spacing.md} />
-
-      {/* Sección 1: Uso de la aplicación */}
-      <Layout gap={spacing.xs}>
-        <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-          <Globe color={theme.secondaryText} size={iconography.sm} />
-          <Label weight="semibold">1. Uso de la aplicación</Label>
-        </Layout>
-
-        <Label paragraph>
-          El usuario se compromete a utilizar la aplicación únicamente con fines
-          legítimos y de acuerdo a la legislación vigente. No se permite usar la
-          plataforma para actividades que dañen su funcionamiento o afecten a
-          otros usuarios.
-        </Label>
-      </Layout>
-
-      {/* Sección 2: Privacidad */}
-      <Layout gap={spacing.xs}>
-        <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-          <ShieldCheck color={theme.secondaryText} size={iconography.sm} />
-          <Label weight="semibold">2. Privacidad y manejo de datos</Label>
-        </Layout>
-
-        <Label paragraph>
-          La aplicación recopila información mínima necesaria para brindarte un
-          mejor servicio. Todos los datos son tratados bajo estrictas medidas de
-          seguridad y nunca serán compartidos sin tu consentimiento.
-        </Label>
-      </Layout>
-
-      {/* Sección 3: Seguridad */}
-      <Layout gap={spacing.xs}>
-        <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-          <Lock color={theme.secondaryText} size={iconography.sm} />
-          <Label weight="semibold">3. Seguridad de la cuenta</Label>
-        </Layout>
-
-        <Label paragraph>
-          Eres responsable de mantener la confidencialidad de tu cuenta y tus
-          credenciales. Notifícanos inmediatamente si detectas actividad
-          sospechosa o acceso no autorizado.
-        </Label>
-      </Layout>
-
-      {/* Sección 4: Cambios en los términos */}
-      <Layout gap={spacing.xs}>
-        <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
-          <AlertTriangle color={theme.secondaryText} size={iconography.sm} />
-          <Label weight="semibold">4. Actualización de los términos</Label>
-        </Layout>
-
-        <Label paragraph>
-          Nos reservamos el derecho de actualizar o modificar estos términos en
-          cualquier momento. Te recomendamos revisar esta sección periódicamente
-          para mantenerte informado.
-        </Label>
-      </Layout>
-
-      <Divider margin={spacing.md} />
-
-      {/* Nota final */}
-      <Label color="gray" paragraph>
-        Al continuar utilizando la aplicación, confirmas que has leído y
-        aceptado estos Términos y Condiciones.
-      </Label>
-    </Layout>
-  );
-};
-
-const AlertDeleteSessionComponent = () => {
-  return (
-    <Layout
-      paddingHorizontal={spacing.md}
-      paddingVertical={spacing.lg}
-      gap={spacing.lg}
-    >
-      {/* Encabezado con ícono */}
-      <Layout
-        direction="row"
-        alignHorizontal="center"
-        alignVertical="center"
-        gap={spacing.sm}
-      >
-        <AlertTriangle size={28} color="red" />
-        <Label size="lg" weight="bold" color="red">
-          ¿Eliminar cuenta?
-        </Label>
-      </Layout>
-
-      {/* Descripción */}
-      <Layout gap={spacing.sm}>
-        <Label>Esta acción es permanente y no se puede deshacer.</Label>
-
-        <Layout
-          direction="row"
-          alignHorizontal="center"
-          alignVertical="center"
-          gap={spacing.xs}
-        >
-          <ShieldAlert size={18} color="red" />
-          <Label>
-            Se eliminarán tus datos de forma segura, pero perderás acceso a la
-            aplicación.
-          </Label>
-        </Layout>
-      </Layout>
-
-      <Divider margin={spacing.md} />
-
-      {/* Botones de acción */}
-      <Layout direction="row" gap={spacing.md}>
-        <Button
-          title="Cancelar"
-          variant="outline"
-          style={{ flex: 1 }}
-          onPress={() => {}}
-        />
-
-        <Button
-          title="Eliminar"
-          style={{ flex: 1 }}
-          onPress={() => {
-            console.log("Cuenta eliminada");
-          }}
-        />
-      </Layout>
-    </Layout>
-  );
-};
-
-type OptionBttSheet = "about" | "terms" | "alertDeleteSession";
+type OptionBttSheet =
+  | "about"
+  | "terms"
+  | "alertDeleteSession"
+  | "changePassword";
 
 export default function SettingScreen() {
   const bttSheet = useRef<BottomSheetModal>(null);
@@ -368,10 +73,19 @@ export default function SettingScreen() {
     },
   });
 
+  const handleOpenBttSheet = (option: OptionBttSheet) => {
+    setOption(option);
+    bttSheet.current?.present();
+  };
+
   const renderContent = useMemo(() => {
     if (option === "about") return <AboutComponent />;
     if (option === "terms") return <TermAndConditionsComponent />;
     if (option === "alertDeleteSession") return <AlertDeleteSessionComponent />;
+    if (option === "changePassword")
+      return (
+        <ChangePasswordComponent onClose={() => bttSheet.current?.dismiss()} />
+      );
   }, [option]);
 
   const handleLogout = async () => {
@@ -383,11 +97,6 @@ export default function SettingScreen() {
     } catch (error) {
       Alert.alert("Error", "No se pudo cerrar sesión");
     }
-  };
-
-  const handleOpenBttSheet = (option: OptionBttSheet) => {
-    setOption(option);
-    bttSheet.current?.present();
   };
 
   const updateUserData = async () => {
@@ -477,21 +186,19 @@ export default function SettingScreen() {
                 onChangeText={(text) => handleChange("phoneNumber", text)}
                 error={errors.phoneNumber}
               />
-              <Divider margin={spacing.xs} />
+              <Divider margin={spacing.md} />
 
-              <Layout
-                direction="row"
-                gap={spacing.md}
-                marginTop={spacing.xs}
-                alignHorizontal="center"
-              >
-                <GestureIconButton
-                  icon="KeyRound"
-                  size={iconography.xs}
+              <ItemSetting onPress={() => handleOpenBttSheet("changePassword")}>
+                <Shape
                   variant="contained"
-                />
-                <Label>Cambiar Contrasenia</Label>
-              </Layout>
+                  shape="rounded"
+                  size={iconography.sm}
+                >
+                  <KeyRound color="#fff" size={iconography.sm} />
+                </Shape>
+
+                <Label size="lg">Cambiar Contrasenia</Label>
+              </ItemSetting>
             </Layout>
           </Card>
         </Layout>

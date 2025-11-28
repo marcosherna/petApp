@@ -4,6 +4,9 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   User,
+  EmailAuthProvider,
+  updatePassword,
+  reauthenticateWithCredential,
 } from "firebase/auth";
 
 import { auth as authenticate, database } from "../firebase";
@@ -84,13 +87,11 @@ export async function updateUserProfile(
       phoneNumber: phoneNumber || null,
       updatedAt: new Date(),
     },
-    { merge: true }  
+    { merge: true }
   );
 }
 
-export async function getUserData(
-  uid: string
-): Promise<null | UserInfo> {
+export async function getUserData(uid: string): Promise<null | UserInfo> {
   const userRef = doc(database, "users", uid);
   const snapshot = await getDoc(userRef);
 
@@ -102,4 +103,17 @@ export async function getUserData(
     uid,
     ...snapshot.data(),
   } as UserInfo;
+}
+
+export async function changeUserPassword(
+  currentUser: User,
+  currentPassword: string,
+  newPassword: string
+) { 
+  const credential = EmailAuthProvider.credential(
+    currentUser.email!,
+    currentPassword
+  );
+  await reauthenticateWithCredential(currentUser, credential);
+  await updatePassword(currentUser, newPassword);
 }
