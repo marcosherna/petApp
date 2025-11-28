@@ -13,6 +13,8 @@ import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
 import { RootStackNavigation } from "../navigations/params";
 
+import { TermsModal } from "../components/terminosCondiciones/TermsModal"; // 👈 IMPORTA TU MODAL
+
 export default function RegisterScreen() {
   const navigation = useNavigation<RootStackNavigation>();
   const { register } = useAuth();
@@ -20,6 +22,7 @@ export default function RegisterScreen() {
 
   const [loading, setLoading] = React.useState(false);
   const [acceptedTerms, setAcceptedTerms] = React.useState(false);
+  const [showTerms, setShowTerms] = React.useState(false); // 👈 CONTROL DEL MODAL
 
   const { values, errors, handleChange, validateForm, isFormValid } = useForm({
     initialValues: {
@@ -51,6 +54,9 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+      {/* MODAL DE TÉRMINOS */}
+      <TermsModal visible={showTerms} onClose={() => setShowTerms(false)} />
+
       <KeyboardAwareScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
@@ -124,12 +130,9 @@ export default function RegisterScreen() {
         </View>
 
         {/* ACEPTAR TERMINOS */}
-        <TouchableOpacity
-          style={styles.checkboxRow}
-          onPress={() => setAcceptedTerms(!acceptedTerms)}
-          activeOpacity={0.7}
-        >
-          <View
+        <View style={styles.checkboxRow}>
+          {/* Checkbox */}
+          <TouchableOpacity
             style={[
               styles.checkbox,
               {
@@ -137,14 +140,29 @@ export default function RegisterScreen() {
                 backgroundColor: acceptedTerms ? theme.primary : "transparent",
               },
             ]}
-          />
-          <Label size="sm" color={theme.text}>
-            Acepto los{" "}
-            <Label size="sm" color={theme.primary} weight="bold">
-              Términos y Condiciones
+            onPress={() => setAcceptedTerms(!acceptedTerms)}
+            activeOpacity={0.8}
+          >
+            {acceptedTerms && (
+              <Label weight="bold" color="#fff" align="center">
+                ✓
+              </Label>
+            )}
+          </TouchableOpacity>
+
+          {/* Texto */}
+          <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+            <Label size="sm" color={theme.text}>
+              Acepto los{" "}
             </Label>
-          </Label>
-        </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setShowTerms(true)}>
+              <Label size="sm" color={theme.primary} weight="bold">
+                Términos y Condiciones
+              </Label>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* BOTÓN */}
         <Button
@@ -183,6 +201,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: spacing.sm,
   },
+
   logoCircle: {
     width: 80,
     height: 80,
@@ -205,21 +224,18 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginTop: spacing.sm,
   },
+
   checkbox: {
     width: 22,
     height: 22,
     borderRadius: 6,
     borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   loginLink: {
     marginTop: spacing.sm,
     alignSelf: "center",
-  },
-  eyeButton: {
-    position: "absolute",
-    right: 12,
-    top: 42,
-    padding: 4,
   },
 });

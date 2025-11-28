@@ -72,6 +72,7 @@ frontend/mobile/*.tsbuildinfo
 frontend/mobile/ios
 frontend/mobile/android
 frontend/mobile/firebaseConfig.ts
+frontend/mobile/src/network/services/groq.ts
 
 # Logs
 frontend/web/logs    
