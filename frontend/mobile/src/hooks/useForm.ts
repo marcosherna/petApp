@@ -52,6 +52,7 @@ export function useForm<T extends Record<string, any>>({
   return {
     values,
     errors,
+    setValues,
     handleChange,
     validateForm,
     isFormValid,
