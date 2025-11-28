@@ -169,7 +169,7 @@ export default function SettingScreen() {
         paddingBottom: insets.bottom + spacing.md,
       }}
     >
-      <ScrollView style={{ flex: 1, padding: spacing.md }}>
+      <ScrollView style={{ flex: 1, padding:  spacing.md, marginTop: 0 }}>
         <Card pressable={false}>
           <Layout
             direction="row"
@@ -195,7 +195,7 @@ export default function SettingScreen() {
 
         <Layout marginTop={spacing.lg} gap={spacing.sm}>
           <Label color="gray" weight="semibold">
-            Informacion Personal
+            Información Personal
           </Label>
 
           <Card pressable={false}>

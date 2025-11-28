@@ -39,9 +39,10 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
     >
       <View style={[style.container, style.container_user]}>
         <Avatar
-          name={user?.displayName ?? "D. E"}
-          size="small"
-          online={false}
+          name={user?.displayName ?? "User"}
+          source={{ uri: user?.photoURL ?? "" }}
+          size={iconography.xl}
+          online
         />
         <View>
           <Label size="xl">{user?.displayName ?? " "}</Label>
