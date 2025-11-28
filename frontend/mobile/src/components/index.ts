@@ -10,3 +10,4 @@ export * from "./ProductCard";
 export * from "./FavoriteButton"
 export * from "./PressableLayout" 
 export * from "./Map" 
+export * from "./ItemSetting"
