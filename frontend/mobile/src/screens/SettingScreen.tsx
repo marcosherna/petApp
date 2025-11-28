@@ -1,23 +1,9 @@
-import React, { useMemo, useRef, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-
-import { spacing } from "../resourses/spacing";
-
-import {
-  Avatar,
-  Card,
-  Divider,
-  GestureIconButton,
-  Layout,
-  Shape,
-} from "../components/ui";
-import { useAuth } from "../hooks/useAuth";
-import { Button, Input, Label } from "../components";
-import { iconography } from "../resourses/iconography";
 import {
   AlertTriangle,
   ChevronRight,
@@ -35,12 +21,35 @@ import {
   ShieldAlert,
 } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
-import { RootStackNavigation } from "../navigations/params";
-import { useTheme } from "../hooks/useTheme";
 import BottomSheet, {
   BottomSheetModal,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
+
+import { spacing } from "../resourses/spacing";
+
+import {
+  Avatar,
+  Card,
+  Divider,
+  GestureIconButton,
+  Layout,
+  Loading,
+  Shape,
+} from "../components/ui";
+import { Button, Input, Label } from "../components";
+
+import { iconography } from "../resourses/iconography";
+import { RootStackNavigation } from "../navigations/params";
+import {
+  getUserData,
+  updateUserProfile,
+} from "../network/services/authService";
+
+import { useTheme } from "../hooks/useTheme";
+import { useForm } from "../hooks/useForm";
+import { useAuth } from "../hooks/useAuth";
+import { type UserInfo } from "../network/models/User";
 
 const ItemSetting = ({
   children,
@@ -154,7 +163,7 @@ const AboutComponent = () => {
         <Label>Jennifer Tatiana Guerra Figueroa</Label>
         <Label>Milton Azareel Cuadra Mezquita</Label>
         <Label>Gilberto José Menéndez Pérez</Label>
-        <Label>Daniel Alexander Reyes Pérez</Label> 
+        <Label>Daniel Alexander Reyes Pérez</Label>
         <Label>Marcos Enrique Ramos Hernández</Label>
       </Layout>
 
@@ -329,14 +338,35 @@ const AlertDeleteSessionComponent = () => {
 };
 
 type OptionBttSheet = "about" | "terms" | "alertDeleteSession";
+
 export default function SettingScreen() {
   const bttSheet = useRef<BottomSheetModal>(null);
   const [option, setOption] = useState<OptionBttSheet>("about");
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation<RootStackNavigation>();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const { theme, isDark } = useTheme();
+
+  const { values, errors, handleChange, validateForm, setValues } = useForm({
+    initialValues: {
+      displayName: user?.displayName ?? "",
+      phoneNumber: user?.phoneNumber ?? "",
+    },
+    validations: {
+      displayName: (value) => {
+        if (!value) return "El nombre no puede estar vacío";
+        if (value.length < 3) return "Debe tener al menos 3 caracteres";
+        return null;
+      },
+      phoneNumber: (value) => {
+        if (!value) return null;
+        if (!/^[0-9]{8,15}$/.test(value)) return "Número inválido";
+        return null;
+      },
+    },
+  });
 
   const renderContent = useMemo(() => {
     if (option === "about") return <AboutComponent />;
@@ -351,7 +381,7 @@ export default function SettingScreen() {
         navigation.goBack();
       }
     } catch (error) {
-      console.log("Error al cerrar sesion:", error);
+      Alert.alert("Error", "No se pudo cerrar sesión");
     }
   };
 
@@ -359,6 +389,40 @@ export default function SettingScreen() {
     setOption(option);
     bttSheet.current?.present();
   };
+
+  const updateUserData = async () => {
+    const formIsValid = validateForm();
+    if (!formIsValid) return;
+
+    try {
+      const currentUser = user;
+      if (!currentUser) return;
+      setLoading(true);
+
+      await updateUserProfile(
+        currentUser,
+        values.displayName,
+        values.phoneNumber
+      );
+
+      Alert.alert("Éxito", "Información actualizada");
+    } catch (error) {
+      Alert.alert("Error", "No se pudo actualizar la información");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const data = await getUserData(user.uid);
+      setValues((prev) => ({
+        ...prev,
+        phoneNumber: data?.phoneNumber ?? "",
+      }));
+    })();
+  }, [user]);
 
   return (
     <SafeAreaView
@@ -399,11 +463,19 @@ export default function SettingScreen() {
 
           <Card pressable={false}>
             <Layout paddingHorizontal={spacing.md} paddingVertical={spacing.md}>
-              <Input value={user?.displayName ?? ""} />
+              <Input
+                label="Nombre"
+                value={values.displayName}
+                onChangeText={(text) => handleChange("displayName", text)}
+                error={errors.displayName}
+              />
               <Divider margin={spacing.xs} />
               <Input
-                value={user?.phoneNumber ?? ""}
-                placeholder="No tienes un numero de telefono"
+                label="Teléfono"
+                keyboardType="phone-pad"
+                value={values.phoneNumber}
+                onChangeText={(text) => handleChange("phoneNumber", text)}
+                error={errors.phoneNumber}
               />
               <Divider margin={spacing.xs} />
 
@@ -480,15 +552,15 @@ export default function SettingScreen() {
               </ItemSetting>
             </Layout>
           </Card>
-        </Layout>
 
-        <Layout marginTop={spacing.lg} gap={spacing.sm} fullWidth>
-          <Button
-            title="Guardar"
-            onPress={() => {}}
-            variant="outline"
-            style={{ width: "100%" }}
-          />
+          <Layout marginTop={spacing.lg} gap={spacing.sm} fullWidth>
+            <Button
+              title="Guardar"
+              onPress={() => updateUserData()}
+              variant="outline"
+              style={{ width: "100%" }}
+            />
+          </Layout>
         </Layout>
       </ScrollView>
 
@@ -511,6 +583,8 @@ export default function SettingScreen() {
       >
         <BottomSheetScrollView>{renderContent}</BottomSheetScrollView>
       </BottomSheetModal>
+
+      <Loading visible={loading} />
     </SafeAreaView>
   );
 }
