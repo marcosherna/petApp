@@ -34,7 +34,11 @@
       }
     },
     "android": {
-      "permissions": ["READ_MEDIA_IMAGES", "CAMERA"],
+      "permissions": [
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDa9KK0tpX4xXD2yMPtIPIuHI7DdiwCZds"
@@ -45,10 +49,16 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.jguerraf.petapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d17a9f01-78cb-405b-8faf-d0b745de7025"
+      }
     }
   }
 }

@@ -17,10 +17,13 @@ import { ProductList } from "../../components/profile/ProductList";
 import { FavoritesList } from "../../components/profile/FavoritesList";
 import { usePhotoPicker } from "../../components/profile/PhotoPicker";
 
+import useFavorites from "../../hooks/useFavorites"; // 👈 IMPORTANTE
+
 import { spacing } from "../../resourses/spacing";
 import { Label, IconButton, Button } from "../../components";
 import { GestureLayout, Layout } from "../../components/ui";
 import { iconography } from "../../resourses/iconography";
+import { EditProfileModal } from "../../components/profile/EditProfileModal";
 
 export default function ProfileScreen() {
   const navigation = useNavigation<RootStackNavigation>();
@@ -29,8 +32,9 @@ export default function ProfileScreen() {
 
   const [tab, setTab] = useState<"myProducts" | "favorites">("myProducts");
   const [products, setProducts] = useState<any[]>([]);
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const { favorites, loading: loadingFavorites } = useFavorites(user?.uid); // 👈 AHORA SE USA EL HOOK
   const [productCount, setProductCount] = useState(0);
+  const [showEdit, setShowEdit] = useState(false);
 
   /* FOTO */
   const {
@@ -64,30 +68,6 @@ export default function ProfileScreen() {
     });
   }, [user?.uid]);
 
-  /* FAVORITOS */
-  useEffect(() => {
-    if (!user?.uid) return;
-
-    const q = query(
-      collection(db, "favorites"),
-      where("userId", "==", user.uid)
-    );
-
-    return onSnapshot(q, (snap) => {
-      const list: any[] = [];
-      snap.forEach((d) => {
-        const data = d.data();
-        list.push({
-          id: data.productId,
-          name: data.name,
-          price: data.price,
-          imgCover: data.imgCover,
-        });
-      });
-      setFavorites(list);
-    });
-  }, [user?.uid]);
-
   /* EDITAR / ELIMINAR PRODUCTO */
   const deleteProduct = (id: string, name?: string) => {
     navigation.navigate("editProducto", { id, name: name || "" } as any);
@@ -110,7 +90,7 @@ export default function ProfileScreen() {
           gap: spacing.lg,
         }}
       >
-        {/* CUANDO NO HAY USUARIO */}
+        {/* SIN USUARIO */}
         {!user ? (
           <View
             style={[
@@ -136,7 +116,6 @@ export default function ProfileScreen() {
           </View>
         ) : (
           <>
-            {/* HEADER */}
             <ProfileHeader
               photo={photo}
               updatingPhoto={updatingPhoto}
@@ -148,7 +127,6 @@ export default function ProfileScreen() {
               onLogout={signOut}
             />
 
-            {/* TABS + LISTA */}
             <View
               style={[
                 styles.card,
@@ -160,7 +138,6 @@ export default function ProfileScreen() {
             >
               <ProfileTabs active={tab} onChange={setTab} />
 
-              {/* BOTÓN NUEVO (SOLO SI TAB = MIS PRODUCTOS) */}
               {tab === "myProducts" && (
                 <View
                   style={{
@@ -198,8 +175,10 @@ export default function ProfileScreen() {
                   onDelete={deleteProduct}
                   onEdit={(id) =>
                     navigation.navigate("addProducto", { editId: id })
-                  } //aqui
+                  }
                 />
+              ) : loadingFavorites ? (
+                <Label>Cargando favoritos...</Label>
               ) : (
                 <FavoritesList data={favorites} />
               )}
@@ -207,6 +186,11 @@ export default function ProfileScreen() {
           </>
         )}
       </ScrollView>
+      <EditProfileModal
+        visible={showEdit}
+        onClose={() => setShowEdit(false)}
+        user={user}
+      />
     </SafeAreaView>
   );
 }
