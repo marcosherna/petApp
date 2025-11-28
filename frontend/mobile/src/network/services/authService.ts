@@ -7,6 +7,7 @@ import {
   EmailAuthProvider,
   updatePassword,
   reauthenticateWithCredential,
+  deleteUser,
 } from "firebase/auth";
 
 import { auth as authenticate, database } from "../firebase";
@@ -116,4 +117,17 @@ export async function changeUserPassword(
   );
   await reauthenticateWithCredential(currentUser, credential);
   await updatePassword(currentUser, newPassword);
+}
+
+
+export const deleteUserAccount = async (user: any) => {
+  await deleteUser(user);
+};
+
+export async function reauthenticateUser(currentUser: User, password: string) {
+  const credential = EmailAuthProvider.credential(
+    currentUser.email!,
+    password
+  );
+  await reauthenticateWithCredential(currentUser, credential);
 }

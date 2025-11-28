@@ -27,6 +27,7 @@ import { iconography } from "../resourses/iconography";
 import { RootStackNavigation } from "../navigations/params";
 import {
   getUserData,
+  reauthenticateUser,
   updateUserProfile,
 } from "../network/services/authService";
 import { AboutComponent } from "./partials/AboutComponent";
@@ -37,6 +38,7 @@ import { ChangePasswordComponent } from "./partials/ChangePasswordComponent";
 import { useTheme } from "../hooks/useTheme";
 import { useForm } from "../hooks/useForm";
 import { useAuth } from "../hooks/useAuth";
+import { deleteUser } from "firebase/auth";
 
 type OptionBttSheet =
   | "about"
@@ -78,10 +80,36 @@ export default function SettingScreen() {
     bttSheet.current?.present();
   };
 
+  const handleDeleteAccount = async (password: string) => {
+    try {
+      if (!user) return;
+      setLoading(true);
+      
+      await reauthenticateUser(user, password);
+      await deleteUser(user);
+      bttSheet.current?.dismiss();
+
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", "No se pudo eliminar la cuenta");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderContent = useMemo(() => {
     if (option === "about") return <AboutComponent />;
     if (option === "terms") return <TermAndConditionsComponent />;
-    if (option === "alertDeleteSession") return <AlertDeleteSessionComponent />;
+    if (option === "alertDeleteSession")
+      return (
+        <AlertDeleteSessionComponent
+          onCancel={() => bttSheet.current?.dismiss()}
+          onConfirm={(password) => handleDeleteAccount(password)}
+        />
+      );
     if (option === "changePassword")
       return (
         <ChangePasswordComponent onClose={() => bttSheet.current?.dismiss()} />
