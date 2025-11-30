@@ -89,11 +89,12 @@ export function usePhotoPicker(initialPhoto: string | null) {
         }
       );
     } else {
+      // ESTA ES LA SECCIÓN PARA ANDROID (con el botón "Cancelar" ya incluido)
       Alert.alert("Foto de perfil", "Selecciona una opción", [
         { text: "Galería", onPress: pickFromGallery },
         { text: "Cámara", onPress: takePhoto },
         { text: "Quitar foto", style: "destructive", onPress: removePhoto },
-        { text: "Cancelar", style: "cancel" },
+        { text: "Cancelar", style: "cancel" }, // <- Permite cerrar sin seleccionar
       ]);
     }
   };

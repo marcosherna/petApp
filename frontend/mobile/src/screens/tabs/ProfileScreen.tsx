@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Plus } from "lucide-react-native";
@@ -69,8 +69,31 @@ export default function ProfileScreen() {
   }, [user?.uid]);
 
   /* EDITAR / ELIMINAR PRODUCTO */
-  const deleteProduct = (id: string, name?: string) => {
-    navigation.navigate("editProducto", { id, name: name || "" } as any);
+  const deleteProduct = async (id: string, name?: string) => {
+    Alert.alert(
+      "Eliminar producto",
+      `¿Seguro que deseas eliminar "${
+        name ?? "este producto"
+      }"? Esta acción no se puede deshacer.`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const { doc, deleteDoc } = await import("firebase/firestore");
+              const { db } = await import("../../network/firebase");
+              await deleteDoc(doc(db, "products", id));
+              setProducts((prev) => prev.filter((p) => p.id !== id));
+              Alert.alert("Eliminado", "El producto ha sido eliminado.");
+            } catch (e) {
+              Alert.alert("Error", "No se pudo eliminar el producto.");
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (loading)
