@@ -6,7 +6,7 @@ import { Shape, Card, Score } from "./ui";
 import { Label } from "./Label";
 
 import { iconography } from "../resourses/iconography";
-import { Heart, ShoppingCart } from "lucide-react-native";
+import { Heart, TrendingUp  } from "lucide-react-native";
 
 interface ProductCardProps {
   id: number | string;
@@ -42,7 +42,7 @@ export function ProductCard({
             resizeMode="cover"
           />
 
-          <View style={styles.heartButton}>
+          {/* <View style={styles.heartButton}>
             <Shape
               variant="ghost"
               colorShape="#E4080A"
@@ -52,7 +52,7 @@ export function ProductCard({
             >
               <Heart color="#E4080A" size={iconography.sm} />
             </Shape>
-          </View>
+          </View> */}
         </View>
 
         <View style={styles.content}>
@@ -68,7 +68,7 @@ export function ProductCard({
             </Label>
 
             <Shape variant="ghost" shape="circle" size={iconography.sm}>
-              <ShoppingCart color="#6f6fe0ff" size={iconography.sm} />
+              <TrendingUp  color="#6f6fe0ff" size={iconography.sm} />
             </Shape>
           </View>
         </View>

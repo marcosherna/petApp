@@ -15,6 +15,7 @@ import {
   EmptyTemplate,
   GestureIconButton,
   Layout,
+  LoadingTemplate,
 } from "../../components/ui";
 
 import { spacing } from "../../resourses/spacing";
@@ -151,6 +152,17 @@ export function ViewAllButton() {
   );
 }
 
+const EmptyOrLoading = ({ loading }: { loading: boolean }) => {
+  return loading ? (
+    <LoadingTemplate />
+  ) : (
+    <EmptyTemplate
+      icon="MessageCircleQuestionMark"
+      message="No hay comentarios aún."
+    />
+  );
+};
+
 export function BottomSheetComment() {
   const { theme, isDark } = useTheme();
   const { product, commentSheetRef } = useProduct();
@@ -158,7 +170,7 @@ export function BottomSheetComment() {
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [isOpened, setIsOpened] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   const backgroundColor = useMemo(
     () => (isDark ? theme.surface : theme.background),
     [theme, isDark]
@@ -223,8 +235,13 @@ export function BottomSheetComment() {
 
     const unsubscribe = subscribeToComentsByProductId(
       product.id,
-      (comments) => setComments(comments),
-      (err) => {}
+      (comments) => {
+        setComments(comments);
+        setLoading(false);
+      },
+      (err) => {
+        setLoading(false);
+      }
     );
 
     return () => unsubscribe();
@@ -264,12 +281,7 @@ export function BottomSheetComment() {
         renderItem={commentItem}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list_container}
-        ListEmptyComponent={() => (
-          <EmptyTemplate
-            icon={<MessageCircleQuestionMark size={40} color={theme.text} />}
-            backgroundColor={backgroundColor}
-          />
-        )}
+        ListEmptyComponent={() => <EmptyOrLoading loading={loading} />}
         keyboardShouldPersistTaps="handled"
       />
     </BottomSheetModal>

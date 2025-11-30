@@ -22,7 +22,8 @@ Instrucciones:
 - Recomienda 1–3 productos típicos de tiendas de mascotas.
 - Menciona si son adecuados según su descripción.
 - Al final SIEMPRE agrega:
-  "Puedes buscarlos en PetApp como: <palabras clave recomendadas>"
+  "Puedes buscarlos en PetMark como: <palabras clave recomendadas>"
+
 
 Descripción del usuario: ${question}
 `);

@@ -9,10 +9,13 @@ import { spacing } from "../../resourses/spacing";
 import { iconography } from "../../resourses/iconography";
 
 import { useAuth } from "../../hooks/useAuth";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackNavigation } from "../../navigations/params";
 
 export default function UserSignIn({ onClose }: { onClose?: () => void }) {
   const { user, signOut } = useAuth();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<RootStackNavigation>();
 
   const handleOnSignOut = async () => {
     try {
@@ -21,6 +24,11 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSettion = () => {
+    onClose?.();
+    navigation.navigate("settingScreen");
   };
   return (
     <View
@@ -31,9 +39,10 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
     >
       <View style={[style.container, style.container_user]}>
         <Avatar
-          name={user?.displayName ?? "D. E"}
-          size="small"
-          online={false}
+          name={user?.displayName ?? "User"}
+          source={{ uri: user?.photoURL ?? "" }}
+          size={iconography.xl}
+          online
         />
         <View>
           <Label size="xl">{user?.displayName ?? " "}</Label>
@@ -49,7 +58,11 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
             variant="ghost"
             onPress={() => handleOnSignOut()}
           />
-          <IconButton icon="Settings" variant="ghost" onPress={() => {}} />
+          <IconButton
+            icon="Settings"
+            variant="ghost"
+            onPress={() => handleSettion()}
+          />
           <IconButton icon="MessageSquare" variant="ghost" onPress={() => {}} />
         </View>
 

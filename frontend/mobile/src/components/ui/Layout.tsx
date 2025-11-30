@@ -26,7 +26,17 @@ interface LayoutProps extends RNViewProps {
   backgroundColor?: string;
   borderWidth?: number;
   borderColor?: string;
+
   spacing?: number; 
+  
+  margin?: number;
+  marginHorizontal?: number;
+  marginVertical?: number;
+  marginTop?: number;
+  marginBottom?: number;
+  marginLeft?: number;
+  marginRight?: number;
+
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
@@ -46,6 +56,16 @@ export const Layout: React.FC<LayoutProps> = ({
   borderWidth,
   borderColor,
   spacing,
+
+  // Nuevos margins
+  margin,
+  marginHorizontal,
+  marginVertical,
+  marginTop,
+  marginBottom,
+  marginLeft,
+  marginRight,
+
   style,
   children,
   ...props
@@ -64,10 +84,20 @@ export const Layout: React.FC<LayoutProps> = ({
     ...(backgroundColor && { backgroundColor }),
     ...(borderWidth && { borderWidth }),
     ...(borderColor && { borderColor }),
+
     ...(spacing && {
       padding: spacing,
       margin: spacing / 2,
     }),
+
+    // 📌 Margins agregados
+    ...(margin !== undefined && { margin }),
+    ...(marginHorizontal !== undefined && { marginHorizontal }),
+    ...(marginVertical !== undefined && { marginVertical }),
+    ...(marginTop !== undefined && { marginTop }),
+    ...(marginBottom !== undefined && { marginBottom }),
+    ...(marginLeft !== undefined && { marginLeft }),
+    ...(marginRight !== undefined && { marginRight }),
   };
 
   return (

@@ -218,6 +218,7 @@ export default function AddProductoScreen() {
       resetForm();
       setImageUri(null);
       setCoords(null);
+      navigation.goBack();
     } catch (e) {
       console.error(e);
       Alert.alert("Error", "No se pudo guardar el producto.");
@@ -436,7 +437,7 @@ export default function AddProductoScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
           <View style={{ flex: 1 }}>
             <MapPicker
-              initial={coords ?? { lat: 13.7180, lng: -89.7244 }}
+              initial={coords ?? { lat: 13.718, lng: -89.7244 }}
               onPick={(p) => setCoords(p)}
               onClose={() => setShowMap(false)}
             />
