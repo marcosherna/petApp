@@ -3,6 +3,7 @@ import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { BottomSheet } from "../BottomSheet";
 import { Input, Button, Label } from "../../components";
 
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { askGroq } from "../../network/services/groq";
 
 export function AIModal({ visible, onClose }: any) {
@@ -24,7 +25,6 @@ Instrucciones:
 - Al final SIEMPRE agrega:
   "Puedes buscarlos en PetMark como: <palabras clave recomendadas>"
 
-
 Descripción del usuario: ${question}
 `);
 
@@ -39,24 +39,37 @@ Descripción del usuario: ${question}
       onClose={onClose}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={80}
       >
-        <Label>¿Qué producto buscas? 🐶🐾</Label>
+        <KeyboardAwareScrollView
+          enableOnAndroid
+          extraScrollHeight={70}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "flex-start",
+            paddingBottom: 24,
+          }}
+        >
+          <Label>¿Qué producto buscas? 🐶🐾</Label>
 
-        <Input
-          placeholder="Ej: comida para perro grande, juguetes resistentes…"
-          value={question}
-          onChangeText={setQuestion}
-        />
+          <Input
+            placeholder="Ej: comida para perro grande, juguetes resistentes…"
+            value={question}
+            onChangeText={setQuestion}
+          />
 
-        <Button
-          title="Preguntar a la IA"
-          onPress={handleAsk}
-          loading={loading}
-          style={{ marginTop: 10 }}
-        />
+          <Button
+            title="Preguntar a la IA"
+            onPress={handleAsk}
+            loading={loading}
+            style={{ marginTop: 10 }}
+          />
 
-        {answer !== "" && <Label style={{ marginTop: 12 }}>{answer}</Label>}
+          {answer !== "" && <Label style={{ marginTop: 12 }}>{answer}</Label>}
+        </KeyboardAwareScrollView>
       </KeyboardAvoidingView>
     </BottomSheet>
   );

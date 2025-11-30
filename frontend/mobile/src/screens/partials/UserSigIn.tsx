@@ -11,6 +11,7 @@ import { iconography } from "../../resourses/iconography";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackNavigation } from "../../navigations/params";
+import * as Linking from "expo-linking";
 
 export default function UserSignIn({ onClose }: { onClose?: () => void }) {
   const { user, signOut } = useAuth();
@@ -29,6 +30,23 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
   const handleSettion = () => {
     onClose?.();
     navigation.navigate("settingScreen");
+  };
+
+  const handleContactWhatsApp = () => {
+    const phone = "50360615653";
+    const message = "Hola, necesito soporte con PetApp";
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          alert("No se pudo abrir WhatsApp. Verifica que esté instalado.");
+        }
+      })
+      .catch(() => {
+        alert("Error al intentar abrir WhatsApp.");
+      });
   };
   return (
     <View
@@ -63,9 +81,12 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
             variant="ghost"
             onPress={() => handleSettion()}
           />
-          <IconButton icon="MessageSquare" variant="ghost" onPress={() => {}} />
+          <IconButton
+            icon="MessageSquare"
+            variant="ghost"
+            onPress={handleContactWhatsApp}
+          />
         </View>
-
         <ToggleThemeButton />
       </View>
     </View>

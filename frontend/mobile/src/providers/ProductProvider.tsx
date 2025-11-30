@@ -1,7 +1,9 @@
-import { ReactNode, useCallback, useRef, useState } from "react";
+import { ReactNode, useCallback, useRef, useState, useEffect } from "react";
 import { ProductContext } from "../contexts/ProductContext";
 import { Product } from "../network/models";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../network/firebase";
 
 export const ProductProvider = ({
   children,
@@ -12,6 +14,18 @@ export const ProductProvider = ({
 }) => {
   const commetRef = useRef<BottomSheetModal>(null);
   const [product, setProduct] = useState<Product | null>(initialProduct);
+
+  useEffect(() => {
+    if (!product?.id) return;
+    const unsub = onSnapshot(doc(db, "products", product.id), (snap) => {
+      if (snap.exists()) {
+        setProduct((prev) =>
+          prev ? ({ ...prev, ...snap.data() } as Product) : null
+        );
+      }
+    });
+    return () => unsub();
+  }, [product?.id]);
 
   const updateProduct = useCallback((changes: Partial<Product>) => {
     setProduct((prev) => (prev ? { ...prev, ...changes } : prev));

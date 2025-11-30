@@ -3,7 +3,14 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { View, ScrollView, StyleSheet, Dimensions, Alert } from "react-native";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  Alert,
+  Share,
+} from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Star, MapPin } from "lucide-react-native";
 
@@ -216,7 +223,6 @@ function ProductDetailContent({ navigation, route }: any) {
         {/* Selector */}
         {/* <Layout paddingHorizontal={spacing.md} gap={spacing.sm}>
         {/* <Layout paddingHorizontal={spacing.md} gap={spacing.sm}>
->>>>>>> 2af6731e7a22a55862b7c2bd88a796c5c8eb43f3
           <Label weight="semibold"> Tamaño disponible</Label>
           <Segment
             options={options}
@@ -340,9 +346,7 @@ function ProductDetailContent({ navigation, route }: any) {
 
           <CommentButton />
 
-          <View style={{ flex: 1 }}>
-            <Button title="Contactar" onPress={() => {}} />
-          </View>
+          {/* Se quitó el botón de compartir. Reorganizamos los botones para que ocupen bien el espacio. */}
         </View>
       )}
 
@@ -372,8 +376,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: "row",
-    padding: 16,
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     borderTopWidth: 1,
-    gap: 12,
+    backgroundColor: "#fff", // puedes usar theme.surface si prefieres
+    gap: 0,
+    elevation: 8, // sombra en Android
+    shadowColor: "#000", // sombra en iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
 });

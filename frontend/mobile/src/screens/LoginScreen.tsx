@@ -39,7 +39,10 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       await sigIn(values.email, values.password);
-      navigation.goBack();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "mainApp" }],
+      });
     } finally {
       setLoading(false);
     }
