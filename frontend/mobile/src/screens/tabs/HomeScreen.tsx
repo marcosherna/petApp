@@ -17,8 +17,6 @@ import {
 import { Product, CategoryOptions } from "../../network/models";
 import { iconography } from "../../resourses/iconography";
 import { RootStackNavigation } from "../../navigations/params";
-// IMPORTAMOS EL MODAL DE IA
-/*import { AIModal } from "../../components/ia/AIModal";*/
 
 export default function HomeScreen() {
   const [category, setCategory] = React.useState("");
@@ -27,9 +25,6 @@ export default function HomeScreen() {
   const [filteredProducts, setFilteredProducts] =
     React.useState<Product[]>(products);
   const [loading, setLoading] = React.useState(true);
-
-  // CONTROL DEL MODAL IA
-  const [showAIModal, setShowAIModal] = React.useState(false);
 
   const navigation = useNavigation<RootStackNavigation>();
 

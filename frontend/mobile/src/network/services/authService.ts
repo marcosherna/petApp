@@ -110,7 +110,7 @@ export async function changeUserPassword(
   currentUser: User,
   currentPassword: string,
   newPassword: string
-) { 
+) {
   const credential = EmailAuthProvider.credential(
     currentUser.email!,
     currentPassword
@@ -119,15 +119,11 @@ export async function changeUserPassword(
   await updatePassword(currentUser, newPassword);
 }
 
-
 export const deleteUserAccount = async (user: any) => {
   await deleteUser(user);
 };
 
 export async function reauthenticateUser(currentUser: User, password: string) {
-  const credential = EmailAuthProvider.credential(
-    currentUser.email!,
-    password
-  );
+  const credential = EmailAuthProvider.credential(currentUser.email!, password);
   await reauthenticateWithCredential(currentUser, credential);
 }
