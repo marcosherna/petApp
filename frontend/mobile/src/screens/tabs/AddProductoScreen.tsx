@@ -173,12 +173,12 @@ export default function AddProductoScreen() {
       const stockNum = Number(values.stock);
 
       const payload = {
-        name: values.name.trim(),
-        description: values.description.trim(),
+        name: (values.name || "").trim(),
+        description: (values.description || "").trim(),
         price: priceNum,
         stock: stockNum,
-        storeName: values.storeName.trim(),
-        location: values.location.trim(),
+        storeName: (values.storeName || "").trim(),
+        location: (values.location || "").trim(),
         category: values.category,
         size: values.size,
         images: finalImage ? [finalImage] : [],
