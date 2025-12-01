@@ -119,7 +119,11 @@ export default function RateProduct() {
     >
       <Layout direction="row" gap={spacing.sm} alignHorizontal="center">
         <StarIcon rate={userRate ?? 0} />
-        <Label weight="semibold">{product?.score?.avg}</Label>
+        <Label weight="semibold">
+          {product?.score?.avg !== undefined
+            ? product.score.avg.toFixed(1)
+            : "-"}
+        </Label>
         <Label size="sm">{`(${product?.score?.count} valoraciones)`}</Label>
       </Layout>
     </GestureLayout>

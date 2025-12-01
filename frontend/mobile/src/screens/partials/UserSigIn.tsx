@@ -32,22 +32,6 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
     navigation.navigate("settingScreen");
   };
 
-  const handleContactWhatsApp = () => {
-    const phone = "50360615653";
-    const message = "Hola, necesito soporte con PetApp";
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (supported) {
-          Linking.openURL(url);
-        } else {
-          alert("No se pudo abrir WhatsApp. Verifica que esté instalado.");
-        }
-      })
-      .catch(() => {
-        alert("Error al intentar abrir WhatsApp.");
-      });
-  };
   return (
     <View
       style={{
@@ -80,11 +64,6 @@ export default function UserSignIn({ onClose }: { onClose?: () => void }) {
             icon="Settings"
             variant="ghost"
             onPress={() => handleSettion()}
-          />
-          <IconButton
-            icon="MessageSquare"
-            variant="ghost"
-            onPress={handleContactWhatsApp}
           />
         </View>
         <ToggleThemeButton />

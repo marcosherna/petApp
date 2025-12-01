@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Alert,
+  Modal,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Plus } from "lucide-react-native";
@@ -17,13 +25,14 @@ import { ProductList } from "../../components/profile/ProductList";
 import { FavoritesList } from "../../components/profile/FavoritesList";
 import { usePhotoPicker } from "../../components/profile/PhotoPicker";
 
-import useFavorites from "../../hooks/useFavorites"; // 👈 IMPORTANTE
+import useFavorites from "../../hooks/useFavorites";
 
 import { spacing } from "../../resourses/spacing";
 import { Label, IconButton, Button } from "../../components";
 import { GestureLayout, Layout } from "../../components/ui";
 import { iconography } from "../../resourses/iconography";
 import { EditProfileModal } from "../../components/profile/EditProfileModal";
+import { PhotoOptionsModal } from "../../components/profile/PhotoOptionsModal"; // Importamos el Modal externo
 
 export default function ProfileScreen() {
   const navigation = useNavigation<RootStackNavigation>();
@@ -32,26 +41,33 @@ export default function ProfileScreen() {
 
   const [tab, setTab] = useState<"myProducts" | "favorites">("myProducts");
   const [products, setProducts] = useState<any[]>([]);
-  const { favorites, loading: loadingFavorites } = useFavorites(user?.uid); // 👈 AHORA SE USA EL HOOK
+  const { favorites, loading: loadingFavorites } = useFavorites(user?.uid);
   const [productCount, setProductCount] = useState(0);
   const [showEdit, setShowEdit] = useState(false);
+
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
   /* FOTO */
   const {
     photo,
     loading: updatingPhoto,
-    openOptions,
+    pickFromGallery,
+    takePhoto,
+    removePhoto,
   } = usePhotoPicker(user?.photoURL ?? null);
+
+  // Función para abrir el Modal de opciones de foto
+  const handleOpenPhotoOptions = () => {
+    setShowPhotoOptions(true);
+  };
 
   /* MIS PRODUCTOS */
   useEffect(() => {
     if (!user?.uid) return;
-
     const q = query(
       collection(db, "products"),
       where("createdBy", "==", user.uid)
     );
-
     return onSnapshot(q, (snap) => {
       const list: any[] = [];
       snap.forEach((d) => {
@@ -129,7 +145,6 @@ export default function ProfileScreen() {
             <Label size="lg" weight="bold" color={theme.text}>
               No has iniciado sesión
             </Label>
-
             <Button
               title="Iniciar sesión"
               variant="primary"
@@ -145,11 +160,10 @@ export default function ProfileScreen() {
               name={user.displayName || "Usuario"}
               email={user.email || ""}
               productCount={productCount}
-              onChangePhoto={openOptions}
+              onChangePhoto={handleOpenPhotoOptions}
               onEditProfile={() => navigation.navigate("settingScreen")}
               onLogout={signOut}
             />
-
             <View
               style={[
                 styles.card,
@@ -160,7 +174,6 @@ export default function ProfileScreen() {
               ]}
             >
               <ProfileTabs active={tab} onChange={setTab} />
-
               {tab === "myProducts" && (
                 <View
                   style={{
@@ -173,7 +186,6 @@ export default function ProfileScreen() {
                   <Label size="xl" weight="bold" color={theme.text}>
                     Mis productos
                   </Label>
-
                   <GestureLayout
                     variant="contained"
                     onPress={() => navigation.navigate("addProducto")}
@@ -190,7 +202,6 @@ export default function ProfileScreen() {
                   </GestureLayout>
                 </View>
               )}
-
               {/* LISTAS */}
               {tab === "myProducts" ? (
                 <ProductList
@@ -213,6 +224,15 @@ export default function ProfileScreen() {
         visible={showEdit}
         onClose={() => setShowEdit(false)}
         user={user}
+      />
+
+      {/* 🛑 LLAMADA AL MODAL EXTERNO DE FOTOS 🛑 */}
+      <PhotoOptionsModal
+        visible={showPhotoOptions}
+        onClose={() => setShowPhotoOptions(false)}
+        pickFromGallery={pickFromGallery}
+        takePhoto={takePhoto}
+        removePhoto={removePhoto}
       />
     </SafeAreaView>
   );

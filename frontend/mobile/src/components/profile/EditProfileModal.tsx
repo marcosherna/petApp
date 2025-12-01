@@ -30,7 +30,7 @@ export function EditProfileModal({ visible, onClose, user }: Props) {
   const [address, setAddress] = useState("");
   const [bio, setBio] = useState("");
 
-  const { photo, openOptions } = usePhotoPicker(user?.photoURL ?? null);
+  const { photo, pickFromGallery } = usePhotoPicker(user?.photoURL ?? null);
 
   const handleSave = async () => {
     await updateProfile(auth.currentUser!, {
@@ -65,7 +65,10 @@ export function EditProfileModal({ visible, onClose, user }: Props) {
           </Label>
 
           {/* FOTO */}
-          <TouchableOpacity style={styles.photoContainer} onPress={openOptions}>
+          <TouchableOpacity
+            style={styles.photoContainer}
+            onPress={pickFromGallery}
+          >
             <Image
               source={{
                 uri:

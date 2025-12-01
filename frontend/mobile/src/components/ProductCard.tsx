@@ -6,7 +6,7 @@ import { Shape, Card, Score } from "./ui";
 import { Label } from "./Label";
 
 import { iconography } from "../resourses/iconography";
-import { Heart, TrendingUp  } from "lucide-react-native";
+import { Heart, TrendingUp } from "lucide-react-native";
 
 interface ProductCardProps {
   id: number | string;
@@ -60,7 +60,9 @@ export function ProductCard({
             {name}
           </Label>
 
-          <Score score={score} />
+          <Score
+            score={typeof score === "number" ? Number(score.toFixed(1)) : score}
+          />
 
           <View style={styles.footer}>
             <Label weight="bold" size="lg">
@@ -68,7 +70,7 @@ export function ProductCard({
             </Label>
 
             <Shape variant="ghost" shape="circle" size={iconography.sm}>
-              <TrendingUp  color="#6f6fe0ff" size={iconography.sm} />
+              <TrendingUp color="#6f6fe0ff" size={iconography.sm} />
             </Shape>
           </View>
         </View>
