@@ -14,3 +14,14 @@ html {
 [data-sal] {
   transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
+
+
+/* Ocultar scrollbar en Chrome, Edge, Safari */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ocultar scrollbar en Firefox */
+.no-scrollbar {
+  scrollbar-width: none;
+}
