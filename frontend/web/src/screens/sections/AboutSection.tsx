@@ -1,5 +1,12 @@
 import React, { useRef } from "react";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Dna,
+  Cog,
+  Camera,
+  FlaskConical,
+} from "lucide-react";
 
 import SectionLayout from "../layout/SectionLayout";
 import { CircularIconButton } from "../../components";
@@ -7,35 +14,39 @@ import { CircularIconButton } from "../../components";
 const developers = [
   {
     id: 1,
-    name: "Product",
-    icon: "🧬",
-    rol: "Watch Video",
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit...",
-    tasks: ["disenia", "backend", "otro"],
+    name: "Producto",
+    Icon: Dna,
+    rol: "Diseño y Concepto",
+    description:
+      "Encargado de la visión general del producto, definir funcionalidad y mantener coherencia en la experiencia del usuario.",
+    tasks: ["Diseño UX/UI", "Propuesta de valor", "Flow de usuario"],
   },
   {
     id: 2,
-    name: "Performance",
-    icon: "📡",
-    rol: "Better than Quantum Computing.",
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit...",
-    tasks: ["disenia", "backend", "otro"],
+    name: "Backend",
+    Icon: Cog,
+    rol: "Firebase & Servicios",
+    description:
+      "Responsable de la autenticación, base de datos, almacenamiento de imágenes y reglas de seguridad.",
+    tasks: ["Firebase Auth", "Firestore", "Storage & Rules"],
   },
   {
     id: 3,
     name: "Media",
-    icon: "▶️",
-    rol: "Show More",
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit...",
-    tasks: ["disenia", "backend", "otro"],
+    Icon: Camera,
+    rol: "Fotos y Contenido",
+    description:
+      "Creación de fotografías e imágenes para presentar productos y la experiencia de la app.",
+    tasks: ["Fotografía", "Edición", "Optimización"],
   },
   {
     id: 4,
-    name: "Process",
-    icon: "🧪",
-    rol: "New Scientific Discoveries",
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit...",
-    tasks: ["disenia", "backend", "otro"],
+    name: "Frontend",
+    Icon: FlaskConical,
+    rol: "Aplicación Móvil",
+    description:
+      "Implementación de la UI, navegación, estados, modo oscuro y filtros visuales dinámicos.",
+    tasks: ["React Native", "UI Components", "Dark Mode"],
   },
 ];
 
@@ -43,40 +54,39 @@ const Card = ({
   index,
   name,
   rol,
-  icon,
+  Icon,
   description,
   tasks,
 }: {
   index: number;
   name: string;
   rol: string;
-  icon: string;
+  Icon: React.ComponentType<{ className?: string }>;
   description: string;
   tasks: string[];
 }) => {
   return (
     <div
       className="
-      relative
-        group flex items-center h-full min-w-[30%]
-        bg-amber-950 hover:bg-amber-800 p-14 transition-colors
+        relative group flex items-center h-full min-w-[30%]
+        bg-[#0F172A] border border-[#334155]
+        hover:bg-[#243041] transition-colors
+        p-14  
       "
     >
-      {/* Sin hover */}
-      <div className="flex flex-col gap-4 group-hover:hidden text-white">
-        <span className="text-3xl">{icon}</span>
+      <div className="flex flex-col gap-4 group-hover:hidden text-[#F9FAFB]">
+        <Icon className="w-10 h-10 text-[#3B82F6]" />
         <span className="font-bold text-2xl">{name}</span>
-        <span className="opacity-80">{rol}</span>
+        <span className="opacity-80 text-[#CBD5E1]">{rol}</span>
       </div>
 
-      {/* Con hover */}
-      <div className="hidden group-hover:flex flex-col gap-4 text-white">
-        <span className="text-3xl">{icon}</span>
+      <div className="hidden group-hover:flex flex-col gap-4 text-[#F9FAFB]">
+        <Icon className="w-10 h-10 text-[#3B82F6]" />
         <span className="font-bold text-2xl">{name}</span>
 
-        <span className="text-justify">{description}</span>
+        <span className="text-justify text-[#CBD5E1]">{description}</span>
 
-        <ul className="list-disc pl-6">
+        <ul className="list-disc pl-6 text-[#CBD5E1] space-y-1">
           {tasks.map((task, i) => (
             <li key={i}>{task}</li>
           ))}
@@ -84,8 +94,8 @@ const Card = ({
       </div>
 
       <div className="absolute bottom-0 right-0 m-9">
-        <span className="text-3xl font-bold text-white">
-          {index < 10 ? `0${index + 1}` : `${index + 1}`}
+        <span className="text-3xl font-bold text-[#3B82F6]">
+          {index < 9 ? `0${index + 1}` : `${index + 1}`}
         </span>
       </div>
     </div>
@@ -98,46 +108,44 @@ export function AboutSection(
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
-    }
+    scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" });
   };
 
   const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
+    scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" });
   };
 
   return (
-    <SectionLayout className="flex w-full h-full bg-amber-200" {...props}>
-      <div className="flex flex-col justify-center items-center h-full bg-red-400 min-w-[200px]">
+    <SectionLayout className="flex w-full h-full bg-[#0F172A]" {...props}>
+      {/* Controles */}
+      <div className="flex flex-col justify-center items-center h-full min-w-[200px] bg-[#0F172A]">
         <div className="flex gap-3 min-w-fit">
           <CircularIconButton
-            icon={<ChevronLeft />}
+            icon={<ChevronLeft className="text-[#F9FAFB]" />}
             ariaLabel="left"
             onClick={scrollLeft}
           />
 
           <CircularIconButton
-            icon={<ChevronRight />}
+            icon={<ChevronRight className="text-[#F9FAFB]" />}
             ariaLabel="right"
             onClick={scrollRight}
           />
         </div>
       </div>
 
+      {/* Cards */}
       <div
         ref={scrollRef}
-        className="flex h-full w-full overflow-x-auto bg-amber-600 scroll-smooth no-scrollbar"
+        className="flex h-full w-full overflow-x-auto scroll-smooth no-scrollbar bg-[#0F172A]"
       >
         {developers.map((dev, index) => (
           <Card
-            key={index}
+            key={dev.id}
             index={index}
             name={dev.name}
             rol={dev.rol}
-            icon={dev.icon}
+            Icon={dev.Icon}
             description={dev.description}
             tasks={dev.tasks}
           />
