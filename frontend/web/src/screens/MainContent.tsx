@@ -5,7 +5,7 @@ import NavBarApp from "../components/NavBarApp";
 import PageTransitionLayout from "./layout/PageTransitionLayout";
 
 import { usePageTransition } from "../hooks/usePageTransition";
-import { AboutSection, HomeSection } from "./sections";
+import { AboutSection, HomeSection, InfoSection } from "./sections";
 
 export default function MainContent() {
   const { navigateSection } = usePageTransition();
@@ -20,6 +20,7 @@ export default function MainContent() {
       <div className="app-container bg-white h-screen overflow-hidden">
         <NavBarApp onNavigate={navigateSection} /> 
         <HomeSection id="home" /> 
+        <InfoSection id="info" /> 
         <AboutSection id="about" />  
       </div>
     </PageTransitionLayout>
