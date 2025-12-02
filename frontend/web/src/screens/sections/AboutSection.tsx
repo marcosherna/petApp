@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 
 import SectionLayout from "../layout/SectionLayout";
-import { CircularIconButton } from "../../components";
+import { Button, CircularIconButton } from "../../components";
+import { usePageTransition } from "../../hooks/usePageTransition";
 
 const developers = [
   {
@@ -57,6 +58,7 @@ const Card = ({
   Icon,
   description,
   tasks,
+  onBack,
 }: {
   index: number;
   name: string;
@@ -64,6 +66,7 @@ const Card = ({
   Icon: React.ComponentType<{ className?: string }>;
   description: string;
   tasks: string[];
+  onBack?: () => void;
 }) => {
   return (
     <div
@@ -93,7 +96,18 @@ const Card = ({
         </ul>
       </div>
 
-      <div className="absolute bottom-0 right-0 m-9">
+      <div className="flex flex-row justify-between items-center absolute bottom-0 right-0 left-0 m-9">
+        {index === 0 ? (
+          <div className="hidden group-hover:flex">
+            <Button
+              icon={<ChevronLeft />}
+              displayClass="bg-transparent dark:bg-transparent"
+              onClick={onBack}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
         <span className="text-3xl font-bold text-[#3B82F6]">
           {index < 9 ? `0${index + 1}` : `${index + 1}`}
         </span>
@@ -106,6 +120,7 @@ export function AboutSection(
   props: Omit<React.ComponentProps<typeof SectionLayout>, "children">
 ) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const { navigateSection } = usePageTransition();
 
   const scrollLeft = () => {
     scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" });
@@ -148,6 +163,7 @@ export function AboutSection(
             Icon={dev.Icon}
             description={dev.description}
             tasks={dev.tasks}
+            onBack={() => navigateSection("info")}
           />
         ))}
       </div>

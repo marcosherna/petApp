@@ -38,6 +38,17 @@ export default function NavBarApp({
           className={`
             cursor-pointer transition 
             hover:text-[#3B82F6]
+            ${!currentPage || currentPage === "info" ? "text-[#3B82F6]" : ""}
+          `}
+          onClick={() => onNavigate("info")}
+        >
+          Informacion
+        </li>
+
+        <li
+          className={`
+            cursor-pointer transition 
+            hover:text-[#3B82F6]
             ${currentPage === "about" ? "text-[#3B82F6]" : ""}
           `}
           onClick={() => onNavigate("about")}

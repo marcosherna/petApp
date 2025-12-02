@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import SectionLayout from "../layout/SectionLayout";
-import { CircularIconButton } from "../../components";
+import { Button, CircularIconButton } from "../../components";
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,13 +14,15 @@ import {
   Smartphone,
   Target,
 } from "lucide-react";
+import { usePageTransition } from "../../hooks/usePageTransition";
 
 export function InfoSection(
   props: Omit<React.ComponentProps<typeof SectionLayout>, "children">
 ) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const { navigateSection } = usePageTransition();
 
-  const totalSections = 3;
+  const totalSections = 4;
 
   const goToSection = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -65,6 +67,33 @@ export function InfoSection(
         ref={scrollRef}
         className="flex h-full w-full overflow-x-auto scroll-smooth no-scrollbar"
       >
+        <section className="flex flex-col justify-center h-full w-full flex-shrink-0 bg-[#0F172A] px-6 py-16">
+          <div className="flex flex-col gap-6 max-w-2xl"> 
+            <span className="text-5xl font-extrabold tracking-wide text-[#3B82F6]">
+              PetMark
+            </span>
+
+            {/* Slogan */}
+            <p className="text-xl text-[#CBD5E1] font-light">
+              La comunidad donde tus mascotas encuentran lo mejor.
+            </p>
+
+            <div className="flex flex-row gap-3">
+              <Button
+                icon={<ChevronLeft />}
+                displayClass="bg-transparent dark:bg-transparent text-[#F9FAFB] border border-[#334155] hover:bg-[#1E293B]"
+                onClick={() => navigateSection("home")}
+              />
+
+              <Button
+                label="Sobre Nosotros"
+                onClick={() => navigateSection("about")}
+                className="bg-[#3B82F6] hover:bg-[#2563EB]"
+              />
+            </div>
+          </div>
+        </section>
+
         <section className="flex flex-col justify-center h-full w-full flex-shrink-0 bg-[#0F172A] px-6 py-12">
           <div className="space-y-6">
             <h2 className="text-[#F9FAFB] text-3xl font-extrabold">
@@ -274,7 +303,11 @@ export function InfoSection(
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex gap-3 justify-between">
+              <Button
+                label="Sobre nosotros"
+                onClick={() => navigateSection("about")}
+              />
               <span className="text-3xl font-bold text-white">03</span>
             </div>
           </div>
