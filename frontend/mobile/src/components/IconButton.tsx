@@ -22,6 +22,7 @@ interface IconButtonProps {
   variant?: Variant;
   shape?: Shape;
   style?: StyleProp<ViewStyle>;
+  fillColor?: string
 }
 
 export function IconButton({
@@ -34,6 +35,7 @@ export function IconButton({
   variant = "default",
   shape = "rounded",
   style,
+  fillColor, 
   ...props
 }: IconButtonProps) {
   const { theme } = useTheme(); 
@@ -41,6 +43,7 @@ export function IconButton({
   const IconComponent = Lucide[icon] as React.ComponentType<{
     size?: number;
     color?: string;
+    fill?: string
   }>;
 
   if (!IconComponent) return null;
@@ -105,6 +108,7 @@ export function IconButton({
       <IconComponent
         size={size}
         color={disabled ? colors.disabled : colors.icon}
+        {...(fillColor ? { fill: fillColor } : undefined)}
       />
     </TouchableOpacity>
   );
